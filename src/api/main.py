@@ -3,12 +3,18 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from src.core.config import settings
-from src.api.routes import health
+from src.api.routes import health, portfolio, market, morning_brief
+from src.db import init_db
+from src.services.scheduler import scheduler_service
 
 # Configure logging
 logging.basicConfig(
@@ -17,14 +23,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Create rate limiter
+limiter = Limiter(key_func=get_remote_address)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Application lifespan events"""
     # Startup
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
+    
+    # Initialize database
+    try:
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
+    
+    # Start scheduler
+    try:
+        scheduler_service.start()
+        logger.info("Scheduler started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start scheduler: {e}")
+    
     yield
+    
     # Shutdown
+    scheduler_service.stop()
     logger.info("Shutting down application")
 
 
@@ -50,7 +76,8 @@ app.add_middleware(
 
 # Root endpoint
 @app.get("/")
-async def root():
+@limiter.limit("30/minute")
+async def root(request: Request):
     """Root endpoint"""
     return {
         "message": f"Welcome to {settings.app_name}",
@@ -69,8 +96,15 @@ async def general_exception_handler(request, exc):
     )
 
 
+# Add rate limit exceeded handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Include routers
 app.include_router(health.router, prefix="/api")
+app.include_router(portfolio.router, prefix="/api")
+app.include_router(market.router, prefix="/api")
+app.include_router(morning_brief.router, prefix="/api")
 
 
 if __name__ == "__main__":

@@ -13,17 +13,19 @@ Success is measured by achieving $10k/month net income within three months while
 
 ## Tech Stack
 
-- **Backend**: FastAPI (Python)
-- **Scheduler**: APScheduler
-- **Database**: SQLite (Phase 1)
+- **Backend**: FastAPI (Python 3.12+) with uv package manager
+- **Frontend**: Next.js 15 with React 19.1, TypeScript, Tailwind CSS
+- **Database**: SQLite with SQLAlchemy ORM
+- **Scheduler**: APScheduler for automated tasks
 - **Reports**: WeasyPrint (HTML-to-PDF)
-- **Frontend**: React + Tailwind (Phase 2)
+- **Caching**: In-memory with optional Redis support
 
 ## Setup Instructions
 
 ### Prerequisites
-- Python 3.11 or higher
+- Python 3.12 or higher
 - Git
+- [uv](https://github.com/astral-sh/uv) - Modern Python package manager
 
 ### Installation
 
@@ -33,16 +35,20 @@ git clone <repository-url>
 cd AIMS
 ```
 
-2. Create a virtual environment:
+2. Install uv (if not already installed):
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-3. Install dependencies:
+3. Install dependencies with uv:
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
+
+This will automatically:
+- Create a virtual environment
+- Install all dependencies from pyproject.toml
+- Set up the development environment
 
 4. Copy environment configuration:
 ```bash
@@ -51,28 +57,64 @@ cp .env.example .env
 
 5. Run the application:
 ```bash
+uv run uvicorn src.api.main:app --reload
+```
+
+Or activate the virtual environment first:
+```bash
+source .venv/bin/activate  # uv creates .venv by default
 uvicorn src.api.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`
 
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Copy environment configuration:
+```bash
+cp .env.example .env.local
+```
+
+4. Run the development server:
+```bash
+npm run dev
+```
+
+The dashboard will be available at `http://localhost:3000`
+
 ### Development Setup
 
-For development, install additional dependencies:
+For development, the dev dependencies are already included with:
 ```bash
-pip install -r requirements-dev.txt
+uv sync --dev
 ```
 
 Run tests:
 ```bash
-pytest
+uv run pytest
 ```
 
 Run linting and formatting:
 ```bash
-black src tests
-flake8 src tests
-mypy src
+uv run black src tests
+uv run ruff check src tests
+uv run mypy src
+```
+
+Format code:
+```bash
+uv run black .
+uv run ruff check --fix .
 ```
 
 ## API Documentation
