@@ -48,7 +48,7 @@
   - Integrate with existing dashboard layout and styling
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.3_
 
-- [ ] 8. Build task template management interface
+- [-] 8. Build task template management interface
   - Create React page for CRUD operations on task templates
   - Implement RRULE builder/editor with validation
   - Add task template testing and preview functionality
