@@ -1,4 +1,5 @@
 """Portfolio API endpoints"""
+import logging
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 
@@ -15,6 +16,7 @@ from src.data.models import (
 
 limiter = Limiter(key_func=get_remote_address)
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
 portfolio_service = PortfolioService()
 
@@ -99,6 +101,46 @@ async def get_weekly_performance(db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/generate-weekly-report")
+async def generate_weekly_report(db: Session = Depends(get_db)):
+    """Generate weekly performance report (requires blocking tasks to be complete)"""
+    try:
+        # Check if blocking tasks are complete before generating report
+        from src.services.tasks.compliance_checker import ComplianceChecker
+        compliance_checker = ComplianceChecker()
+        
+        blocking_status = await compliance_checker.check_weekly_cycle_ready(db)
+        
+        if not blocking_status.is_ready:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "message": "Cannot generate weekly report: blocking tasks incomplete",
+                    "blocking_tasks": [task.name for task in blocking_status.incomplete_blocking_tasks],
+                    "total_blocking": len(blocking_status.incomplete_blocking_tasks)
+                }
+            )
+        
+        # Generate the weekly report (mock implementation)
+        summary = await portfolio_service.get_portfolio_summary(db)
+        
+        report_data = {
+            "report_id": f"weekly-{datetime.now().strftime('%Y-W%U')}",
+            "generated_at": datetime.now().isoformat(),
+            "portfolio_summary": summary,
+            "status": "generated",
+            "message": "Weekly report generated successfully"
+        }
+        
+        return report_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to generate weekly report: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate weekly report")
 
 
 @router.post("/refresh")

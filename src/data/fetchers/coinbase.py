@@ -54,8 +54,8 @@ class CoinbaseFetcher(BaseFetcher):
         for pos_data in self._mock_positions:
             # Crypto is more volatile
             base_price = pos_data["current_price"]
-            price_change = base_price * Decimal(random.uniform(-0.05, 0.05))
-            current_price = max(base_price + price_change, Decimal("0.00001"))
+            price_change = base_price * Decimal(str(round(random.uniform(-0.05, 0.05), 4)))
+            current_price = round(max(base_price + price_change, Decimal("0.01")), 2)
             
             position = Position(
                 broker=self.broker_type,

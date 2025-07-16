@@ -68,8 +68,8 @@ class FidelityFetcher(BaseFetcher):
         for pos_data in self._mock_positions:
             # Add some random price movement
             base_price = pos_data["current_price"]
-            price_change = base_price * Decimal(random.uniform(-0.02, 0.02))
-            current_price = base_price + price_change
+            price_change = base_price * Decimal(str(round(random.uniform(-0.02, 0.02), 4)))
+            current_price = round(base_price + price_change, 2)
             
             position = Position(
                 broker=self.broker_type,

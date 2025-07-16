@@ -11,7 +11,8 @@ from .market import (
     Quote,
     MarketData,
     MorningBrief,
-    VolatilityAlert
+    VolatilityAlert,
+    KeyPosition
 )
 
 __all__ = [
@@ -24,5 +25,6 @@ __all__ = [
     "Quote",
     "MarketData",
     "MorningBrief",
-    "VolatilityAlert"
+    "VolatilityAlert",
+    "KeyPosition"
 ]

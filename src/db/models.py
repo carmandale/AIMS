@@ -5,7 +5,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Column, Integer, String, DateTime, Numeric, 
-    Text, JSON, Date, Index, Enum as SQLEnum
+    Text, JSON, Date, Index, Enum as SQLEnum, Boolean, ForeignKey
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -109,3 +109,53 @@ class TaskStatus(Base):
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class TaskTemplate(Base):
+    """Template for recurring tasks"""
+    __tablename__ = "task_templates"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    rrule = Column(String(500), nullable=False)  # RFC 5545 RRULE format
+    is_blocking = Column(Boolean, default=False)
+    category = Column(String(50), default="general")  # daily, weekly, monthly
+    priority = Column(Integer, default=1)  # 1=high, 2=medium, 3=low
+    estimated_duration = Column(Integer, nullable=True)  # minutes
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class TaskInstance(Base):
+    """Individual task instances generated from templates"""
+    __tablename__ = "task_instances"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(Integer, ForeignKey("task_templates.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    due_date = Column(DateTime, nullable=False, index=True)
+    status = Column(String(20), default="pending")  # pending, in_progress, completed, skipped
+    is_blocking = Column(Boolean, default=False)
+    priority = Column(Integer, default=1)
+    completed_at = Column(DateTime, nullable=True)
+    completed_by = Column(String(100), nullable=True)  # user identifier
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class TaskAuditLog(Base):
+    """Audit trail for task changes"""
+    __tablename__ = "task_audit_log"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    task_instance_id = Column(Integer, ForeignKey("task_instances.id"), nullable=False)
+    action = Column(String(50), nullable=False)  # created, started, completed, skipped, modified
+    old_status = Column(String(20), nullable=True)
+    new_status = Column(String(20), nullable=True)
+    user_id = Column(String(100), nullable=True)
+    notes = Column(Text, nullable=True)
+    timestamp = Column(DateTime, server_default=func.now(), index=True)

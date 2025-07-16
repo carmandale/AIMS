@@ -63,11 +63,11 @@ class RobinhoodFetcher(BaseFetcher):
             base_price = pos_data["current_price"]
             if pos_data["position_type"] == "option":
                 # Options are more volatile
-                price_change = base_price * Decimal(random.uniform(-0.10, 0.10))
+                price_change = base_price * Decimal(str(round(random.uniform(-0.10, 0.10), 4)))
             else:
-                price_change = base_price * Decimal(random.uniform(-0.03, 0.03))
+                price_change = base_price * Decimal(str(round(random.uniform(-0.03, 0.03), 4)))
             
-            current_price = max(base_price + price_change, Decimal("0.01"))
+            current_price = round(max(base_price + price_change, Decimal("0.01")), 2)
             
             position = Position(
                 broker=self.broker_type,
