@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckSquare, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
+import { CheckSquare, Calendar, TrendingUp, AlertTriangle, Settings } from 'lucide-react';
 import { NextActionsWidget } from './NextActionsWidget';
+import { TaskTemplateManager } from './TaskTemplateManager';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 import { cn } from '../lib/utils';
@@ -26,7 +27,7 @@ interface WeeklyReadiness {
 }
 
 export const TasksPage: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<'today' | 'week'>('today');
+  const [selectedTab, setSelectedTab] = useState<'today' | 'week' | 'templates'>('today');
 
   // Get date range for the current week
   const getWeekRange = () => {
@@ -190,6 +191,18 @@ export const TasksPage: React.FC = () => {
           >
             Week View
           </button>
+          <button
+            onClick={() => setSelectedTab('templates')}
+            className={cn(
+              'px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2',
+              selectedTab === 'templates'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:text-white'
+            )}
+          >
+            <Settings className="w-4 h-4" />
+            Templates
+          </button>
         </motion.div>
 
         {/* Content */}
@@ -200,7 +213,11 @@ export const TasksPage: React.FC = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
           <div className="lg:col-span-2">
-            <NextActionsWidget />
+            {selectedTab === 'templates' ? (
+              <TaskTemplateManager />
+            ) : (
+              <NextActionsWidget />
+            )}
           </div>
         </motion.div>
       </div>
