@@ -1,9 +1,10 @@
+from typing import Dict, Any
 """Portfolio data models"""
 
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, Any, List, Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 

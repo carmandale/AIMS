@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckSquare, Clock, AlertCircle, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-react';

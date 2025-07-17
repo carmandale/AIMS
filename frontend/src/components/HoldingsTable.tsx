@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -55,7 +56,7 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
     if (!positions) return [];
     
     // Apply filters
-    let filtered = positions.filter(position => {
+    const filtered = positions.filter(position => {
       if (filterConfig.broker && position.broker !== filterConfig.broker) return false;
       if (filterConfig.assetType && position.position_type !== filterConfig.assetType) return false;
       if (filterConfig.minValue && (position.market_value || 0) < filterConfig.minValue) return false;

@@ -1,3 +1,4 @@
+from datetime import timedelta
 """Integration tests for task management API endpoints"""
 
 import pytest
@@ -6,6 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from datetime import timedelta
 
 from src.api.main import app
 from src.db.models import Base, TaskTemplate, TaskInstance

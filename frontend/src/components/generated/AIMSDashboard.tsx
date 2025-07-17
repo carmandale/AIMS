@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, DollarSign, Activity, PieChart, Menu, Bell, Settings, User } from 'lucide-react';

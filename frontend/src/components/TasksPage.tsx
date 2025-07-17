@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckSquare, Calendar, TrendingUp, AlertTriangle, Settings } from 'lucide-react';

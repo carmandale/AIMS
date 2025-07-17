@@ -1,9 +1,11 @@
+from datetime import timedelta
 """Unit tests for TaskService"""
 
 import pytest
 from datetime import date, datetime
 from unittest.mock import Mock, MagicMock, patch
 from sqlalchemy.orm import Session
+from datetime import timedelta
 
 from src.services.tasks.task_service import TaskService, ComplianceMetrics
 from src.db.models import TaskTemplate, TaskInstance, TaskAuditLog

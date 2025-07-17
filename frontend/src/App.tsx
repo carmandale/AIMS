@@ -10,8 +10,8 @@ import { TasksPage } from './components/TasksPage';
 import { TradeTicketForm } from './components/TradeTicketForm';
 import { Toaster } from 'sonner';
 
-let theme: Theme = 'dark';
-let container: Container = 'none';
+const theme: Theme = 'dark';
+const container: Container = 'none';
 
 // Create a client
 const queryClient = new QueryClient({
