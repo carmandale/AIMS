@@ -1,4 +1,5 @@
 """Data fetchers for different brokers"""
+
 from .base import BaseFetcher, FetcherException
 from .fidelity import FidelityFetcher
 from .robinhood import RobinhoodFetcher
@@ -9,5 +10,5 @@ __all__ = [
     "FetcherException",
     "FidelityFetcher",
     "RobinhoodFetcher",
-    "CoinbaseFetcher"
+    "CoinbaseFetcher",
 ]

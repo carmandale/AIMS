@@ -1,4 +1,5 @@
 """Seed data for task templates"""
+
 import asyncio
 import logging
 from datetime import datetime
@@ -20,7 +21,7 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "daily",
         "priority": 1,
-        "estimated_duration": 15
+        "estimated_duration": 15,
     },
     {
         "name": "Update trading journal",
@@ -29,7 +30,7 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "daily",
         "priority": 2,
-        "estimated_duration": 10
+        "estimated_duration": 10,
     },
     {
         "name": "Check portfolio risk metrics",
@@ -38,9 +39,8 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "daily",
         "priority": 1,
-        "estimated_duration": 10
+        "estimated_duration": 10,
     },
-    
     # Weekly blocking tasks
     {
         "name": "Review portfolio drift",
@@ -49,7 +49,7 @@ SAMPLE_TEMPLATES = [
         "is_blocking": True,
         "category": "weekly",
         "priority": 1,
-        "estimated_duration": 30
+        "estimated_duration": 30,
     },
     {
         "name": "Approve trade ticket",
@@ -58,7 +58,7 @@ SAMPLE_TEMPLATES = [
         "is_blocking": True,
         "category": "weekly",
         "priority": 1,
-        "estimated_duration": 20
+        "estimated_duration": 20,
     },
     {
         "name": "Complete weekly review",
@@ -67,9 +67,8 @@ SAMPLE_TEMPLATES = [
         "is_blocking": True,
         "category": "weekly",
         "priority": 1,
-        "estimated_duration": 45
+        "estimated_duration": 45,
     },
-    
     # Weekly non-blocking tasks
     {
         "name": "Review watchlist",
@@ -78,7 +77,7 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "weekly",
         "priority": 2,
-        "estimated_duration": 30
+        "estimated_duration": 30,
     },
     {
         "name": "Analyze sector rotations",
@@ -87,9 +86,8 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "weekly",
         "priority": 3,
-        "estimated_duration": 25
+        "estimated_duration": 25,
     },
-    
     # Monthly tasks
     {
         "name": "Portfolio deep dive",
@@ -98,7 +96,7 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "monthly",
         "priority": 1,
-        "estimated_duration": 120
+        "estimated_duration": 120,
     },
     {
         "name": "Update investment thesis",
@@ -107,8 +105,8 @@ SAMPLE_TEMPLATES = [
         "is_blocking": False,
         "category": "monthly",
         "priority": 2,
-        "estimated_duration": 90
-    }
+        "estimated_duration": 90,
+    },
 ]
 
 
@@ -116,14 +114,14 @@ async def seed_task_templates(db: Session):
     """Seed the database with sample task templates"""
     task_service = TaskService()
     created_count = 0
-    
+
     for template_data in SAMPLE_TEMPLATES:
         try:
             # Check if template already exists
-            existing = db.query(TaskTemplate).filter(
-                TaskTemplate.name == template_data["name"]
-            ).first()
-            
+            existing = (
+                db.query(TaskTemplate).filter(TaskTemplate.name == template_data["name"]).first()
+            )
+
             if not existing:
                 template = await task_service.create_task_template(
                     db,
@@ -133,24 +131,25 @@ async def seed_task_templates(db: Session):
                     is_blocking=template_data["is_blocking"],
                     category=template_data["category"],
                     priority=template_data["priority"],
-                    estimated_duration=template_data["estimated_duration"]
+                    estimated_duration=template_data["estimated_duration"],
                 )
                 created_count += 1
                 logger.info(f"Created task template: {template.name}")
             else:
                 logger.info(f"Task template already exists: {template_data['name']}")
-                
+
         except Exception as e:
             logger.error(f"Failed to create template '{template_data['name']}': {e}")
-    
+
     logger.info(f"Seeding complete. Created {created_count} new task templates.")
-    
+
     # Generate initial task instances for the next week
     try:
         from datetime import date, timedelta
+
         start_date = date.today()
         end_date = start_date + timedelta(days=7)
-        
+
         instances = await task_service.generate_task_instances(db, start_date, end_date)
         logger.info(f"Generated {len(instances)} task instances for the next week")
     except Exception as e:
@@ -160,13 +159,12 @@ async def seed_task_templates(db: Session):
 async def main():
     """Main function to run the seeding script"""
     logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    
+
     # Initialize database
     init_db()
-    
+
     # Run seeding
     db = SessionLocal()
     try:

@@ -1,4 +1,5 @@
 """Market data models"""
+
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Dict, Any, Optional
@@ -8,6 +9,7 @@ from pydantic import BaseModel, Field
 
 class Quote(BaseModel):
     """Real-time market quote"""
+
     symbol: str
     price: Decimal = Field(decimal_places=2)
     change: Decimal = Field(decimal_places=2)
@@ -24,14 +26,16 @@ class Quote(BaseModel):
 
 class MarketData(BaseModel):
     """Market data container"""
+
     quotes: Dict[str, Quote]
     indices: Dict[str, Quote]  # SPY, QQQ, etc
-    crypto: Dict[str, Quote]   # BTC-USD, ETH-USD, etc
+    crypto: Dict[str, Quote]  # BTC-USD, ETH-USD, etc
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
 class VolatilityAlert(BaseModel):
     """Volatility alert for positions"""
+
     symbol: str
     current_price: Decimal = Field(decimal_places=2)
     change_percent: float
@@ -44,6 +48,7 @@ class VolatilityAlert(BaseModel):
 
 class KeyPosition(BaseModel):
     """Key position for morning brief"""
+
     symbol: str
     broker: str
     market_value: Decimal = Field(decimal_places=2)
@@ -55,6 +60,7 @@ class KeyPosition(BaseModel):
 
 class MorningBrief(BaseModel):
     """Morning brief data"""
+
     date: datetime
     portfolio_value: Decimal = Field(decimal_places=2)
     overnight_pnl: Decimal = Field(decimal_places=2)
@@ -65,12 +71,12 @@ class MorningBrief(BaseModel):
     market_summary: Dict[str, Any]
     recommendations: List[str] = []
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     @property
     def has_alerts(self) -> bool:
         """Check if there are any volatility alerts"""
         return len(self.volatility_alerts) > 0
-    
+
     @property
     def alert_count(self) -> Dict[str, int]:
         """Count alerts by severity"""

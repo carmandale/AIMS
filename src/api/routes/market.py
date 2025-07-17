@@ -1,4 +1,5 @@
 """Market data API endpoints"""
+
 from datetime import datetime
 from typing import List, Dict, Any
 
@@ -14,9 +15,7 @@ portfolio_service = PortfolioService()
 
 
 @router.get("/quotes")
-async def get_quotes(
-    symbols: str = Query(..., description="Comma-separated list of symbols")
-):
+async def get_quotes(symbols: str = Query(..., description="Comma-separated list of symbols")):
     """Get real-time quotes for specified symbols"""
     try:
         symbol_list = [s.strip() for s in symbols.split(",")]
@@ -33,11 +32,8 @@ async def get_market_indices():
         # Get quotes for major indices
         indices = ["SPY", "QQQ", "DIA", "IWM", "VIX"]
         quotes = await portfolio_service.get_quotes(indices)
-        
-        return {
-            "indices": quotes,
-            "timestamp": datetime.utcnow().isoformat()
-        }
+
+        return {"indices": quotes, "timestamp": datetime.utcnow().isoformat()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -49,10 +45,7 @@ async def get_crypto_prices():
         # Get quotes for major crypto
         crypto = ["BTC-USD", "ETH-USD", "SOL-USD", "MATIC-USD"]
         quotes = await portfolio_service.get_quotes(crypto)
-        
-        return {
-            "crypto": quotes,
-            "timestamp": datetime.utcnow().isoformat()
-        }
+
+        return {"crypto": quotes, "timestamp": datetime.utcnow().isoformat()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
