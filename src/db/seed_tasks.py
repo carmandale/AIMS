@@ -16,7 +16,9 @@ SAMPLE_TEMPLATES = [
     # Daily preparation tasks (non-blocking)
     {
         "name": "Morning Review: Check signals",
-        "description": "Review overnight market movements and check for any trading signals from your systems",
+        "description": (
+            "Review overnight market movements and check for any trading signals from your systems"
+        ),
         "rrule": "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=8;BYMINUTE=0",
         "is_blocking": False,
         "category": "daily",
@@ -44,7 +46,9 @@ SAMPLE_TEMPLATES = [
     # Weekly blocking tasks
     {
         "name": "Review portfolio drift",
-        "description": "Analyze portfolio drift from target allocations and identify rebalancing needs",
+        "description": (
+            "Analyze portfolio drift from target allocations and identify rebalancing needs"
+        ),
         "rrule": "RRULE:FREQ=WEEKLY;BYDAY=FR;BYHOUR=14;BYMINUTE=0",
         "is_blocking": True,
         "category": "weekly",
@@ -62,7 +66,9 @@ SAMPLE_TEMPLATES = [
     },
     {
         "name": "Complete weekly review",
-        "description": "Document weekly performance, lessons learned, and adjustments for next week",
+        "description": (
+            "Document weekly performance, lessons learned, and adjustments for next week"
+        ),
         "rrule": "RRULE:FREQ=WEEKLY;BYDAY=FR;BYHOUR=16;BYMINUTE=0",
         "is_blocking": True,
         "category": "weekly",
@@ -91,7 +97,9 @@ SAMPLE_TEMPLATES = [
     # Monthly tasks
     {
         "name": "Portfolio deep dive",
-        "description": "Comprehensive portfolio analysis including performance attribution and risk analysis",
+        "description": (
+            "Comprehensive portfolio analysis including performance attribution and risk analysis"
+        ),
         "rrule": "RRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=9;BYMINUTE=0",
         "is_blocking": False,
         "category": "monthly",
@@ -125,13 +133,15 @@ async def seed_task_templates(db: Session):
             if not existing:
                 template = await task_service.create_task_template(
                     db,
-                    name=template_data["name"],
-                    description=template_data["description"],
-                    rrule=template_data["rrule"],
-                    is_blocking=template_data["is_blocking"],
-                    category=template_data["category"],
-                    priority=template_data["priority"],
-                    estimated_duration=template_data["estimated_duration"],
+                    name=str(template_data["name"]),
+                    description=str(template_data["description"]),
+                    rrule=str(template_data["rrule"]),
+                    is_blocking=bool(template_data["is_blocking"]),
+                    category=str(template_data["category"]),
+                    priority=int(template_data["priority"]),
+                    estimated_duration=int(template_data["estimated_duration"])
+                    if template_data.get("estimated_duration")
+                    else None,
                 )
                 created_count += 1
                 logger.info(f"Created task template: {template.name}")

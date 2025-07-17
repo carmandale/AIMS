@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckSquare, Clock, AlertCircle, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import {
+  CheckSquare,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+} from 'lucide-react';
 import { cn } from '../lib/utils';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
@@ -42,9 +49,9 @@ export const NextActionsWidget: React.FC = () => {
       setLoading(true);
       const [tasksResponse, blockingResponse] = await Promise.all([
         api.tasks.getPending(),
-        api.tasks.getBlockingStatus()
+        api.tasks.getBlockingStatus(),
       ]);
-      
+
       setTasks(tasksResponse.data);
       setBlockingStatus(blockingResponse.data);
     } catch (error) {
@@ -110,10 +117,14 @@ export const NextActionsWidget: React.FC = () => {
 
   const getPriorityLabel = (priority: number) => {
     switch (priority) {
-      case 1: return 'High';
-      case 2: return 'Medium';
-      case 3: return 'Low';
-      default: return '';
+      case 1:
+        return 'High';
+      case 2:
+        return 'Medium';
+      case 3:
+        return 'Low';
+      default:
+        return '';
     }
   };
 
@@ -176,7 +187,8 @@ export const NextActionsWidget: React.FC = () => {
             <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-400">
-                {blockingStatus.incomplete_tasks.length} blocking task{blockingStatus.incomplete_tasks.length !== 1 ? 's' : ''} incomplete
+                {blockingStatus.incomplete_tasks.length} blocking task
+                {blockingStatus.incomplete_tasks.length !== 1 ? 's' : ''} incomplete
               </p>
               <p className="text-xs text-gray-400 mt-1">
                 Complete these tasks to close the weekly cycle
@@ -192,11 +204,11 @@ export const NextActionsWidget: React.FC = () => {
           {completedTasks.length} of {tasks.length} tasks completed today
         </p>
         <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" 
-            initial={{ width: 0 }} 
-            animate={{ width: `${progressPercentage}%` }} 
-            transition={{ duration: 0.5, ease: 'easeOut' }} 
+          <motion.div
+            className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercentage}%` }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           />
         </div>
       </section>
@@ -205,11 +217,11 @@ export const NextActionsWidget: React.FC = () => {
       <ul className="space-y-3">
         <AnimatePresence>
           {pendingTasks.map(task => (
-            <motion.li 
-              key={task.id} 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              exit={{ opacity: 0, y: -20 }} 
+            <motion.li
+              key={task.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className={cn(
                 'group relative p-4 rounded-xl border transition-all duration-200',
                 'bg-gray-800/50 border-gray-700',
@@ -222,30 +234,27 @@ export const NextActionsWidget: React.FC = () => {
                   <div className="flex items-start justify-between mb-1">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-white">
-                          {task.name}
-                        </h3>
+                        <h3 className="font-medium text-white">{task.name}</h3>
                         {task.is_blocking && (
                           <span className="px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded-full">
                             Blocking
                           </span>
                         )}
-                        <span className={cn(
-                          'px-2 py-0.5 text-xs rounded-full',
-                          task.priority === 1 && 'bg-purple-500/20 text-purple-400',
-                          task.priority === 2 && 'bg-blue-500/20 text-blue-400',
-                          task.priority === 3 && 'bg-gray-700 text-gray-400'
-                        )}>
+                        <span
+                          className={cn(
+                            'px-2 py-0.5 text-xs rounded-full',
+                            task.priority === 1 && 'bg-purple-500/20 text-purple-400',
+                            task.priority === 2 && 'bg-blue-500/20 text-blue-400',
+                            task.priority === 3 && 'bg-gray-700 text-gray-400'
+                          )}
+                        >
                           {getPriorityLabel(task.priority)}
                         </span>
                       </div>
                       {task.description && (
                         <p className="text-sm text-gray-400 mb-2">{task.description}</p>
                       )}
-                      <p className={cn(
-                        'text-sm',
-                        task.overdue ? 'text-red-400' : 'text-gray-500'
-                      )}>
+                      <p className={cn('text-sm', task.overdue ? 'text-red-400' : 'text-gray-500')}>
                         {formatDueDate(task.due_date)}
                       </p>
                     </div>
@@ -255,7 +264,7 @@ export const NextActionsWidget: React.FC = () => {
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2 mt-3">
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         handleCompleteTask(task.id);
                       }}
@@ -269,7 +278,7 @@ export const NextActionsWidget: React.FC = () => {
                       {completing === task.id ? 'Completing...' : 'Complete'}
                     </button>
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setShowSkipDialog(task.id);
                       }}
@@ -297,7 +306,7 @@ export const NextActionsWidget: React.FC = () => {
                     <h4 className="text-sm font-medium text-white mb-2">Reason for skipping:</h4>
                     <textarea
                       value={skipReason}
-                      onChange={(e) => setSkipReason(e.target.value)}
+                      onChange={e => setSkipReason(e.target.value)}
                       className="flex-1 w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white resize-none focus:outline-none focus:border-blue-500"
                       placeholder="Enter reason..."
                       autoFocus

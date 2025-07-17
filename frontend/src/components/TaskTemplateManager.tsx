@@ -41,7 +41,7 @@ export const TaskTemplateManager: React.FC = () => {
     is_blocking: false,
     category: 'general',
     priority: 1,
-    estimated_duration: undefined
+    estimated_duration: undefined,
   });
 
   const fetchTemplates = async () => {
@@ -76,7 +76,7 @@ export const TaskTemplateManager: React.FC = () => {
 
   const handleUpdateTemplate = async () => {
     if (!editingTemplate) return;
-    
+
     try {
       await api.tasks.updateTemplate(editingTemplate.id, formData);
       toast.success('Task template updated successfully');
@@ -91,7 +91,7 @@ export const TaskTemplateManager: React.FC = () => {
 
   const handleDeleteTemplate = async (templateId: number) => {
     if (!confirm('Are you sure you want to delete this task template?')) return;
-    
+
     try {
       await api.tasks.deleteTemplate(templateId);
       toast.success('Task template deleted successfully');
@@ -110,7 +110,7 @@ export const TaskTemplateManager: React.FC = () => {
       is_blocking: false,
       category: 'general',
       priority: 1,
-      estimated_duration: undefined
+      estimated_duration: undefined,
     });
   };
 
@@ -123,7 +123,7 @@ export const TaskTemplateManager: React.FC = () => {
       is_blocking: template.is_blocking,
       category: template.category,
       priority: template.priority,
-      estimated_duration: template.estimated_duration || undefined
+      estimated_duration: template.estimated_duration || undefined,
     });
   };
 
@@ -135,19 +135,27 @@ export const TaskTemplateManager: React.FC = () => {
 
   const getPriorityLabel = (priority: number) => {
     switch (priority) {
-      case 1: return 'High';
-      case 2: return 'Medium';
-      case 3: return 'Low';
-      default: return 'Unknown';
+      case 1:
+        return 'High';
+      case 2:
+        return 'Medium';
+      case 3:
+        return 'Low';
+      default:
+        return 'Unknown';
     }
   };
 
   const getPriorityColor = (priority: number) => {
     switch (priority) {
-      case 1: return 'text-red-400 bg-red-500/20';
-      case 2: return 'text-yellow-400 bg-yellow-500/20';
-      case 3: return 'text-green-400 bg-green-500/20';
-      default: return 'text-gray-400 bg-gray-500/20';
+      case 1:
+        return 'text-red-400 bg-red-500/20';
+      case 2:
+        return 'text-yellow-400 bg-yellow-500/20';
+      case 3:
+        return 'text-green-400 bg-green-500/20';
+      default:
+        return 'text-gray-400 bg-gray-500/20';
     }
   };
 
@@ -187,24 +195,24 @@ export const TaskTemplateManager: React.FC = () => {
             <h3 className="text-lg font-medium text-white mb-4">
               {editingTemplate ? 'Edit Template' : 'Create New Template'}
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                   placeholder="Task name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={e => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value="general">General</option>
@@ -213,24 +221,26 @@ export const TaskTemplateManager: React.FC = () => {
                   <option value="monthly">Monthly</option>
                 </select>
               </div>
-              
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                   placeholder="Task description"
                   rows={2}
                 />
               </div>
-              
+
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">RRULE Schedule</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  RRULE Schedule
+                </label>
                 <input
                   type="text"
                   value={formData.rrule}
-                  onChange={(e) => setFormData({ ...formData, rrule: e.target.value })}
+                  onChange={e => setFormData({ ...formData, rrule: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                   placeholder="RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=8"
                 />
@@ -238,12 +248,12 @@ export const TaskTemplateManager: React.FC = () => {
                   Use RFC 5545 RRULE format for scheduling
                 </p>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Priority</label>
                 <select
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
+                  onChange={e => setFormData({ ...formData, priority: parseInt(e.target.value) })}
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value={1}>High</option>
@@ -251,31 +261,38 @@ export const TaskTemplateManager: React.FC = () => {
                   <option value={3}>Low</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Duration (minutes)</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Duration (minutes)
+                </label>
                 <input
                   type="number"
                   value={formData.estimated_duration || ''}
-                  onChange={(e) => setFormData({ ...formData, estimated_duration: e.target.value ? parseInt(e.target.value) : undefined })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      estimated_duration: e.target.value ? parseInt(e.target.value) : undefined,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
                   placeholder="Estimated duration"
                 />
               </div>
-              
+
               <div className="md:col-span-2 flex items-center gap-4">
                 <label className="flex items-center gap-2 text-sm text-gray-300">
                   <input
                     type="checkbox"
                     checked={formData.is_blocking}
-                    onChange={(e) => setFormData({ ...formData, is_blocking: e.target.checked })}
+                    onChange={e => setFormData({ ...formData, is_blocking: e.target.checked })}
                     className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
                   />
                   Blocking Task (prevents weekly cycle closure)
                 </label>
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={cancelEdit}
@@ -299,15 +316,15 @@ export const TaskTemplateManager: React.FC = () => {
 
       {/* Templates List */}
       <div className="space-y-3">
-        {templates.map((template) => (
+        {templates.map(template => (
           <motion.div
             key={template.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className={cn(
               'p-4 rounded-xl border transition-all',
-              template.is_active 
-                ? 'bg-gray-800/50 border-gray-700' 
+              template.is_active
+                ? 'bg-gray-800/50 border-gray-700'
                 : 'bg-gray-800/20 border-gray-800 opacity-60'
             )}
           >
@@ -320,10 +337,12 @@ export const TaskTemplateManager: React.FC = () => {
                       Blocking
                     </span>
                   )}
-                  <span className={cn(
-                    'px-2 py-0.5 text-xs rounded-full',
-                    getPriorityColor(template.priority)
-                  )}>
+                  <span
+                    className={cn(
+                      'px-2 py-0.5 text-xs rounded-full',
+                      getPriorityColor(template.priority)
+                    )}
+                  >
                     {getPriorityLabel(template.priority)}
                   </span>
                   <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
@@ -335,19 +354,23 @@ export const TaskTemplateManager: React.FC = () => {
                     </span>
                   )}
                 </div>
-                
+
                 {template.description && (
                   <p className="text-sm text-gray-400 mb-2">{template.description}</p>
                 )}
-                
+
                 <div className="text-xs text-gray-500 space-y-1">
-                  <p><strong>Schedule:</strong> {template.rrule}</p>
+                  <p>
+                    <strong>Schedule:</strong> {template.rrule}
+                  </p>
                   {template.estimated_duration && (
-                    <p><strong>Duration:</strong> {template.estimated_duration} minutes</p>
+                    <p>
+                      <strong>Duration:</strong> {template.estimated_duration} minutes
+                    </p>
                   )}
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 ml-4">
                 <button
                   onClick={() => startEdit(template)}

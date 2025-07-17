@@ -106,14 +106,16 @@ async def get_compliance_trends(
 @router.post("/{task_id}/complete", response_model=TaskInstanceResponse)
 async def complete_task(
     task_id: int = Path(..., description="Task instance ID"),
-    request: TaskCompleteRequest = TaskCompleteRequest(),
+    request: Optional[TaskCompleteRequest] = None,
     db: Session = Depends(get_db),
 ):
     """Mark a task as complete"""
     try:
         # TODO: Get actual user ID from auth
         user_id = "system"
-        task = await task_service.complete_task(db, task_id, user_id, request.notes)
+        task = await task_service.complete_task(
+            db, task_id, user_id, request.notes if request else None
+        )
         return task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -125,14 +127,16 @@ async def complete_task(
 @router.post("/{task_id}/skip", response_model=TaskInstanceResponse)
 async def skip_task(
     task_id: int = Path(..., description="Task instance ID"),
-    request: TaskSkipRequest = None,
+    request: Optional[TaskSkipRequest] = None,
     db: Session = Depends(get_db),
 ):
     """Skip a task with a reason"""
     try:
         # TODO: Get actual user ID from auth
         user_id = "system"
-        task = await task_service.skip_task(db, task_id, user_id, request.reason)
+        task = await task_service.skip_task(
+            db, task_id, user_id, request.reason if request else "No reason provided"
+        )
         return task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -144,14 +148,16 @@ async def skip_task(
 @router.put("/{task_id}/status", response_model=TaskInstanceResponse)
 async def update_task_status(
     task_id: int = Path(..., description="Task instance ID"),
-    request: TaskStatusUpdateRequest = None,
+    request: Optional[TaskStatusUpdateRequest] = None,
     db: Session = Depends(get_db),
 ):
     """Update task status"""
     try:
         # TODO: Get actual user ID from auth
         user_id = "system"
-        task = await task_service.update_task_status(db, task_id, request.status, user_id)
+        task = await task_service.update_task_status(
+            db, task_id, request.status if request else "pending", user_id
+        )
         return task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -200,15 +206,19 @@ async def create_task_template(template: TaskTemplateCreate, db: Session = Depen
 @router.put("/templates/{template_id}", response_model=TaskTemplateResponse)
 async def update_task_template(
     template_id: int = Path(..., description="Template ID"),
-    updates: TaskTemplateUpdate = None,
+    updates: Optional[TaskTemplateUpdate] = None,
     db: Session = Depends(get_db),
 ):
     """Update a task template"""
     try:
         # Filter out None values
-        update_data = {k: v for k, v in updates.dict().items() if v is not None}
+        update_data = (
+            {k: v for k, v in updates.dict().items() if v is not None} if updates else {}
+        )
 
-        updated_template = await task_service.update_task_template(db, template_id, **update_data)
+        updated_template = await task_service.update_task_template(
+            db, template_id, **update_data
+        )
         return updated_template
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

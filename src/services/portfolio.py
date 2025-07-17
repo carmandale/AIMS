@@ -13,15 +13,17 @@ from src.data.models.portfolio import (
     Position,
     Balance,
     Transaction,
-    MorningBrief,
-    VolatilityAlert,
-    KeyPosition,
     PerformanceMetrics,
     RiskMetrics,
     AssetAllocation,
     BrokerageAccount,
     Report,
     SyncResult,
+)
+from src.data.models.market import (
+    MorningBrief,
+    VolatilityAlert,
+    KeyPosition,
 )
 from src.data.cache import cached
 from src.db import models as db_models
@@ -158,7 +160,7 @@ class PortfolioService:
         balances = await self.fetch_all_balances(db)
 
         # Calculate totals
-        total_positions_value = sum(p.market_value for p in positions)
+        total_positions_value = sum(p.market_value or Decimal("0") for p in positions)
         total_cash = sum(b.cash for b in balances)
         total_margin = sum(b.margin for b in balances)
         total_crypto = sum(b.crypto for b in balances)
@@ -175,10 +177,10 @@ class PortfolioService:
         weekly_pnl_percent = 2.5
 
         summary = PortfolioSummary(
-            total_value=total_value,
-            cash_buffer=total_cash,
-            total_positions_value=total_positions_value,
-            total_cash=total_cash,
+            total_value=Decimal(str(total_value)),
+            cash_buffer=Decimal(str(total_cash)),
+            total_positions_value=Decimal(str(total_positions_value)),
+            total_cash=Decimal(str(total_cash)),
             daily_pnl=daily_pnl,
             daily_pnl_percent=daily_pnl_percent,
             weekly_pnl=weekly_pnl,

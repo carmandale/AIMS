@@ -243,7 +243,7 @@ class AllocationAnalyzer:
     ) -> Dict[str, float]:
         """Calculate allocation by asset class"""
 
-        allocation = defaultdict(float)
+        allocation: Dict[str, float] = defaultdict(float)
 
         # Add cash allocation
         if cash_balance > 0:
@@ -262,7 +262,7 @@ class AllocationAnalyzer:
     ) -> Dict[str, float]:
         """Calculate allocation by sector"""
 
-        allocation = defaultdict(float)
+        allocation: Dict[str, float] = defaultdict(float)
 
         for position in positions:
             sector = self.sector_mapping.get(position.symbol, "Other")
@@ -276,7 +276,7 @@ class AllocationAnalyzer:
     ) -> Dict[str, float]:
         """Calculate allocation by geography"""
 
-        allocation = defaultdict(float)
+        allocation: Dict[str, float] = defaultdict(float)
 
         for position in positions:
             geography = self.geography_mapping.get(position.symbol, "Other")
@@ -290,7 +290,7 @@ class AllocationAnalyzer:
     ) -> Dict[str, float]:
         """Calculate allocation by brokerage"""
 
-        allocation = defaultdict(float)
+        allocation: Dict[str, float] = defaultdict(float)
 
         for position in positions:
             brokerage = position.broker.value
@@ -435,7 +435,7 @@ class AllocationAnalyzer:
 
         # This would typically require historical price data
         # For now, return a mock correlation matrix
-        correlation_matrix = {}
+        correlation_matrix: Dict[str, Dict[str, float]] = {}
 
         symbols = [p.symbol for p in positions]
 

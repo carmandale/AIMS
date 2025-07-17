@@ -51,7 +51,9 @@ class RiskMetricsEngine:
         max_drawdown = self._calculate_max_drawdown(portfolio_values)
 
         # Calculate drawdown period
-        max_drawdown_start, max_drawdown_end = self._calculate_max_drawdown_period(portfolio_values)
+        max_drawdown_start, max_drawdown_end = self._calculate_max_drawdown_period(
+            portfolio_values
+        )
 
         # Calculate Value at Risk (VaR)
         var_95 = self._calculate_var(daily_returns, 0.95)
@@ -105,7 +107,7 @@ class RiskMetricsEngine:
         return risk_contributions
 
     async def calculate_portfolio_stress_test(
-        self, positions: List[Position], scenarios: Optional[List[Dict[str, float]]] = None
+        self, positions: List[Position], scenarios: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Dict[str, float]]:
         """Run stress tests on the portfolio"""
 
@@ -157,7 +159,7 @@ class RiskMetricsEngine:
                     "percent_change": position_scenario_change * 100,
                 }
 
-            stress_results[scenario_name] = {
+            stress_results[scenario_name] = {  # type: ignore
                 "portfolio_impact": {
                     "current_value": float(current_value),
                     "scenario_value": float(scenario_value),
@@ -201,10 +203,16 @@ class RiskMetricsEngine:
         effective_positions = 1 / herfindahl_index if herfindahl_index > 0 else 0
 
         # Calculate largest positions
-        sorted_positions = sorted(position_data, key=lambda x: x["weight"], reverse=True)
+        sorted_positions = sorted(
+            position_data, key=lambda x: x["weight"], reverse=True
+        )  # type: ignore
 
-        top_5_concentration = sum(p["weight"] for p in sorted_positions[:5])
-        top_10_concentration = sum(p["weight"] for p in sorted_positions[:10])
+        top_5_concentration = sum(
+            p["weight"] for p in sorted_positions[:5]
+        )  # type: ignore
+        top_10_concentration = sum(
+            p["weight"] for p in sorted_positions[:10]
+        )  # type: ignore
 
         return {
             "herfindahl_index": herfindahl_index,

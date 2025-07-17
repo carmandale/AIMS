@@ -6,6 +6,7 @@ export interface Position {
   id?: number;
   broker: string;
   symbol: string;
+  name?: string;
   quantity: number;
   cost_basis: number;
   current_price: number;
@@ -112,7 +113,7 @@ export function useWeeklyPerformance() {
 
 export function useRefreshPortfolio() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
       const response = await api.portfolio.refresh();
@@ -249,14 +250,22 @@ export function useCorrelationMatrix(userId: string) {
 
 export function useRebalancingSuggestions() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ userId, targetAllocation, driftThreshold = 0.05 }: {
+    mutationFn: async ({
+      userId,
+      targetAllocation,
+      driftThreshold = 0.05,
+    }: {
       userId: string;
       targetAllocation: Record<string, number>;
       driftThreshold?: number;
     }) => {
-      const response = await api.portfolio.getRebalancingSuggestions(userId, targetAllocation, driftThreshold);
+      const response = await api.portfolio.getRebalancingSuggestions(
+        userId,
+        targetAllocation,
+        driftThreshold
+      );
       return response.data;
     },
     onSuccess: () => {
@@ -267,13 +276,10 @@ export function useRebalancingSuggestions() {
 
 export function useStressTest() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ userId, scenarios }: {
-      userId: string;
-      scenarios?: Array<Record<string, any>>;
-    }) => {
-      const response = await api.portfolio.runStressTest(userId, scenarios);
+    mutationFn: async ({ userId, scenarios }: { userId: string; scenarios?: string[] }) => {
+      const response = await api.portfolio.runStressTest(userId, scenarios || []);
       return response.data;
     },
     onSuccess: () => {
@@ -284,9 +290,14 @@ export function useStressTest() {
 
 export function useGenerateReport() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ userId, reportType, parameters, format = 'pdf' }: {
+    mutationFn: async ({
+      userId,
+      reportType,
+      parameters,
+      format = 'pdf',
+    }: {
       userId: string;
       reportType: string;
       parameters: Record<string, any>;
@@ -305,7 +316,7 @@ export function useReports(userId: string, reportType?: string) {
   return useQuery({
     queryKey: ['reports', userId, reportType],
     queryFn: async () => {
-      const response = await api.reports.list(userId, reportType);
+      const response = await api.reports.list(userId);
       return response.data;
     },
     staleTime: 1 * 60 * 1000, // 1 minute

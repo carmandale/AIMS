@@ -75,13 +75,13 @@ class CoinbaseFetcher(BaseFetcher):
         """Fetch account balance"""
         # Calculate crypto value in USD
         positions = await self.fetch_positions()
-        crypto_value = sum(p.market_value for p in positions)
+        crypto_value = sum(p.market_value or Decimal("0") for p in positions)
 
         balance = Balance(
             broker=self.broker_type,
             cash=Decimal("5000.00"),  # USD balance
             margin=Decimal("0.00"),  # No margin on Coinbase
-            crypto=crypto_value,  # Total crypto value in USD
+            crypto=Decimal(str(crypto_value)),  # Total crypto value in USD
         )
         balance.calculate_total()
         return balance

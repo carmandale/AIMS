@@ -3,7 +3,7 @@
 import json
 import hashlib
 from datetime import datetime, timedelta
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Union, List
 from functools import wraps
 
 from sqlalchemy.orm import Session
@@ -24,7 +24,7 @@ class CacheManager:
         hash_object = hashlib.md5(sorted_params.encode())
         return f"{prefix}:{hash_object.hexdigest()}"
 
-    def get(self, db: Session, key: str) -> Optional[Dict[str, Any]]:
+    def get(self, db: Session, key: str) -> Union[Dict[str, Any], List[Any], None]:
         """Get cached data if not expired"""
         cached = (
             db.query(CachedData)

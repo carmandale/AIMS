@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, date, timedelta
-import pytz
+import pytz  # type: ignore
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
