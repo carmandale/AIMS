@@ -74,6 +74,22 @@ export const api = {
       apiClient.get('/portfolio/performance/weekly'),
     refresh: () => 
       apiClient.post('/portfolio/refresh'),
+    getPerformanceMetrics: (userId: string, timeframe: string, benchmark?: string) =>
+      apiClient.get('/portfolio/performance', { params: { user_id: userId, timeframe, benchmark } }),
+    getRiskMetrics: (userId: string, timeframe?: string) =>
+      apiClient.get('/portfolio/risk-metrics', { params: { user_id: userId, timeframe } }),
+    getAssetAllocation: (userId: string) =>
+      apiClient.get('/portfolio/allocation', { params: { user_id: userId } }),
+    getConcentrationAnalysis: (userId: string) =>
+      apiClient.get('/portfolio/concentration', { params: { user_id: userId } }),
+    getPositionRiskContributions: (userId: string) =>
+      apiClient.get('/portfolio/position-risks', { params: { user_id: userId } }),
+    getCorrelationMatrix: (userId: string) =>
+      apiClient.get('/portfolio/correlations', { params: { user_id: userId } }),
+    getRebalancingSuggestions: (userId: string, targetAllocation: any, driftThreshold: number) =>
+      apiClient.post('/portfolio/rebalance', { user_id: userId, target_allocation: targetAllocation, drift_threshold: driftThreshold }),
+    runStressTest: (userId: string, scenarios: string[]) =>
+      apiClient.post('/portfolio/stress-test', { user_id: userId, scenarios }),
   },
 
   // Market Data
@@ -114,6 +130,16 @@ export const api = {
       apiClient.put(`/tasks/templates/${templateId}`, templateData),
     deleteTemplate: (templateId: number) =>
       apiClient.delete(`/tasks/templates/${templateId}`),
+  },
+
+  // Reports
+  reports: {
+    generate: (userId: string, reportType: string, parameters: any, format = 'pdf') =>
+      apiClient.post('/reports/generate', { user_id: userId, report_type: reportType, parameters, format }),
+    list: (userId: string) =>
+      apiClient.get('/reports', { params: { user_id: userId } }),
+    download: (reportId: string) =>
+      apiClient.get(`/reports/${reportId}/download`, { responseType: 'blob' }),
   },
 };
 

@@ -64,7 +64,7 @@ export function MorningBriefCard() {
     day_change_percent: 0.53
   };
 
-  const alertsList = morningBrief?.alerts || [];
+  const alertsList = morningBrief?.volatility_alerts || [];
   const indicesList = indices || [];
 
   return (
