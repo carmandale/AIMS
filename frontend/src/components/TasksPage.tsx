@@ -37,14 +37,14 @@ export const TasksPage: React.FC = () => {
     const monday = new Date(now);
     monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
     monday.setHours(0, 0, 0, 0);
-    
+
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
-    
+
     return {
       start: monday.toISOString().split('T')[0],
-      end: sunday.toISOString().split('T')[0]
+      end: sunday.toISOString().split('T')[0],
     };
   };
 
@@ -56,7 +56,7 @@ export const TasksPage: React.FC = () => {
       const response = await api.tasks.getCompliance(weekStart, weekEnd);
       return response.data as ComplianceMetrics;
     },
-    refetchInterval: 60000 // Refresh every minute
+    refetchInterval: 60000, // Refresh every minute
   });
 
   const { data: weeklyReadiness } = useQuery({
@@ -65,14 +65,14 @@ export const TasksPage: React.FC = () => {
       const response = await api.tasks.getWeeklyReadiness();
       return response.data as WeeklyReadiness;
     },
-    refetchInterval: 60000
+    refetchInterval: 60000,
   });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <motion.header 
+        <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
@@ -83,9 +83,7 @@ export const TasksPage: React.FC = () => {
             </div>
             <h1 className="text-3xl font-bold text-white">Task Management</h1>
           </div>
-          <p className="text-slate-400">
-            Track your daily tasks and maintain weekly discipline
-          </p>
+          <p className="text-slate-400">Track your daily tasks and maintain weekly discipline</p>
         </motion.header>
 
         {/* Weekly Readiness Alert */}
@@ -149,10 +147,12 @@ export const TasksPage: React.FC = () => {
                 <CheckSquare className="w-4 h-4 text-slate-500" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className={cn(
-                  "text-2xl font-bold",
-                  complianceData.weekly_compliance_rate === 100 ? "text-green-400" : "text-white"
-                )}>
+                <span
+                  className={cn(
+                    'text-2xl font-bold',
+                    complianceData.weekly_compliance_rate === 100 ? 'text-green-400' : 'text-white'
+                  )}
+                >
                   {complianceData.weekly_compliance_rate.toFixed(0)}%
                 </span>
                 <span className="text-xs text-slate-500">
@@ -214,11 +214,7 @@ export const TasksPage: React.FC = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
           <div className="lg:col-span-2">
-            {selectedTab === 'templates' ? (
-              <TaskTemplateManager />
-            ) : (
-              <NextActionsWidget />
-            )}
+            {selectedTab === 'templates' ? <TaskTemplateManager /> : <NextActionsWidget />}
           </div>
         </motion.div>
       </div>

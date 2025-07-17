@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  PieChart, 
-  BarChart, 
-  AlertTriangle, 
-  TrendingUp, 
+import {
+  PieChart,
+  BarChart,
+  AlertTriangle,
+  TrendingUp,
   Target,
   Info,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from 'lucide-react';
-import { 
-  useAssetAllocation, 
-  useConcentrationAnalysis, 
-  AssetAllocation 
+import {
+  useAssetAllocation,
+  useConcentrationAnalysis,
+  AssetAllocation,
 } from '../hooks/use-portfolio';
 
 interface AssetAllocationChartProps {
@@ -26,17 +26,17 @@ type AllocationView = 'asset_class' | 'sector' | 'geography' | 'brokerage';
 
 export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
   userId,
-  className = ''
+  className = '',
 }) => {
   const [selectedView, setSelectedView] = useState<AllocationView>('asset_class');
   const [showDetails, setShowDetails] = useState(false);
-  
+
   const { data: allocation, isLoading, error } = useAssetAllocation(userId);
   const { data: concentrationAnalysis } = useConcentrationAnalysis(userId);
-  
+
   const currentData = useMemo(() => {
     if (!allocation) return [];
-    
+
     const data = (() => {
       switch (selectedView) {
         case 'asset_class':
@@ -51,12 +51,12 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
           return allocation.by_asset_class;
       }
     })();
-    
+
     return Object.entries(data)
       .map(([name, percentage]) => ({ name, percentage }))
       .sort((a, b) => b.percentage - a.percentage);
   }, [allocation, selectedView]);
-  
+
   const getColor = (index: number) => {
     const colors = [
       'bg-blue-500',
@@ -68,11 +68,11 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
       'bg-indigo-500',
       'bg-orange-500',
       'bg-teal-500',
-      'bg-cyan-500'
+      'bg-cyan-500',
     ];
     return colors[index % colors.length];
   };
-  
+
   const getColorClass = (index: number) => {
     const colors = [
       'text-blue-400',
@@ -84,15 +84,15 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
       'text-indigo-400',
       'text-orange-400',
       'text-teal-400',
-      'text-cyan-400'
+      'text-cyan-400',
     ];
     return colors[index % colors.length];
   };
-  
+
   const formatPercent = (value: number) => {
     return `${value.toFixed(1)}%`;
   };
-  
+
   const getViewTitle = (view: AllocationView) => {
     switch (view) {
       case 'asset_class':
@@ -107,16 +107,16 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
         return 'Asset Class';
     }
   };
-  
+
   const getRiskLevel = (risks: any[]) => {
     const highRisk = risks.filter(r => r.severity === 'high').length;
     const mediumRisk = risks.filter(r => r.severity === 'medium').length;
-    
+
     if (highRisk > 0) return { level: 'High', color: 'text-red-400' };
     if (mediumRisk > 0) return { level: 'Medium', color: 'text-yellow-400' };
     return { level: 'Low', color: 'text-green-400' };
   };
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -124,7 +124,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="text-center py-8">
@@ -133,15 +133,15 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
       </div>
     );
   }
-  
+
   if (!allocation) {
     return null;
   }
-  
+
   const riskLevel = getRiskLevel(allocation.concentration_risks);
-  
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 ${className}`}
@@ -156,7 +156,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
           <div className="flex items-center space-x-2">
             <select
               value={selectedView}
-              onChange={(e) => setSelectedView(e.target.value as AllocationView)}
+              onChange={e => setSelectedView(e.target.value as AllocationView)}
               className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
             >
               <option value="asset_class">Asset Class</option>
@@ -166,7 +166,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
             </select>
           </div>
         </div>
-        
+
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="bg-slate-800/50 rounded-lg p-4">
@@ -180,7 +180,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
               <TrendingUp className="w-8 h-8 text-blue-400" />
             </div>
           </div>
-          
+
           <div className="bg-slate-800/50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -192,21 +192,19 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
               <Target className="w-8 h-8 text-purple-400" />
             </div>
           </div>
-          
+
           <div className="bg-slate-800/50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-400">Risk Level</p>
-                <p className={`text-2xl font-bold ${riskLevel.color}`}>
-                  {riskLevel.level}
-                </p>
+                <p className={`text-2xl font-bold ${riskLevel.color}`}>{riskLevel.level}</p>
               </div>
               <AlertTriangle className={`w-8 h-8 ${riskLevel.color}`} />
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Chart Content */}
       <div className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -215,7 +213,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
             <h3 className="text-lg font-medium text-white">
               {getViewTitle(selectedView)} Distribution
             </h3>
-            
+
             {/* Simple bar chart representation */}
             <div className="space-y-3">
               {currentData.map((item, index) => (
@@ -230,7 +228,9 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-white">{item.name}</span>
-                      <span className="text-sm text-slate-400">{formatPercent(item.percentage)}</span>
+                      <span className="text-sm text-slate-400">
+                        {formatPercent(item.percentage)}
+                      </span>
                     </div>
                     <div className="w-full bg-slate-700 rounded-full h-2">
                       <motion.div
@@ -245,7 +245,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
               ))}
             </div>
           </div>
-          
+
           {/* Detailed Analysis */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -255,10 +255,14 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                 className="flex items-center space-x-1 text-blue-400 hover:text-blue-300 transition-colors"
               >
                 <span className="text-sm">Details</span>
-                {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showDetails ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
             </div>
-            
+
             {/* Concentration Risks */}
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h4 className="text-sm font-medium text-slate-300 mb-3">Concentration Risks</h4>
@@ -266,9 +270,11 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                 <div className="space-y-2">
                   {allocation.concentration_risks.slice(0, 3).map((risk: any, index: number) => (
                     <div key={index} className="flex items-start space-x-2">
-                      <AlertTriangle className={`w-4 h-4 mt-0.5 ${
-                        risk.severity === 'high' ? 'text-red-400' : 'text-yellow-400'
-                      }`} />
+                      <AlertTriangle
+                        className={`w-4 h-4 mt-0.5 ${
+                          risk.severity === 'high' ? 'text-red-400' : 'text-yellow-400'
+                        }`}
+                      />
                       <div className="flex-1">
                         <p className="text-sm text-white">
                           {risk.identifier} - {risk.percentage.toFixed(1)}%
@@ -287,7 +293,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                 <p className="text-sm text-green-400">No concentration risks detected</p>
               )}
             </div>
-            
+
             {/* Concentration Metrics */}
             {concentrationAnalysis && showDetails && (
               <div className="bg-slate-800/50 rounded-lg p-4">
@@ -302,8 +308,9 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                   <div>
                     <p className="text-slate-400">Top 5 Concentration</p>
                     <p className="text-white font-medium">
-                      {concentrationAnalysis.top_5_concentration ? 
-                        formatPercent(concentrationAnalysis.top_5_concentration * 100) : 'N/A'}
+                      {concentrationAnalysis.top_5_concentration
+                        ? formatPercent(concentrationAnalysis.top_5_concentration * 100)
+                        : 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -321,7 +328,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                 </div>
               </div>
             )}
-            
+
             {/* Recommendations */}
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h4 className="text-sm font-medium text-slate-300 mb-3">Recommendations</h4>
@@ -334,20 +341,19 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({
                     </p>
                   </div>
                 )}
-                {allocation.largest_position_percent && allocation.largest_position_percent > 15 && (
-                  <div className="flex items-start space-x-2">
-                    <Info className="w-4 h-4 mt-0.5 text-blue-400" />
-                    <p className="text-sm text-slate-300">
-                      Largest position exceeds 15% - consider rebalancing
-                    </p>
-                  </div>
-                )}
+                {allocation.largest_position_percent &&
+                  allocation.largest_position_percent > 15 && (
+                    <div className="flex items-start space-x-2">
+                      <Info className="w-4 h-4 mt-0.5 text-blue-400" />
+                      <p className="text-sm text-slate-300">
+                        Largest position exceeds 15% - consider rebalancing
+                      </p>
+                    </div>
+                  )}
                 {allocation.concentration_risks.length === 0 && (
                   <div className="flex items-start space-x-2">
                     <Info className="w-4 h-4 mt-0.5 text-green-400" />
-                    <p className="text-sm text-slate-300">
-                      Portfolio shows good diversification
-                    </p>
+                    <p className="text-sm text-slate-300">Portfolio shows good diversification</p>
                   </div>
                 )}
               </div>

@@ -1,24 +1,38 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Cloud, Calendar, Clock, TrendingUp, Mail, Phone, MapPin, Briefcase, Coffee, AlertTriangle, DollarSign, Activity } from 'lucide-react';
+import {
+  Sun,
+  Cloud,
+  Calendar,
+  Clock,
+  TrendingUp,
+  Mail,
+  Phone,
+  MapPin,
+  Briefcase,
+  Coffee,
+  AlertTriangle,
+  DollarSign,
+  Activity,
+} from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useMorningBrief, useMarketIndices } from '../hooks';
 
 export function MorningBriefCard() {
   const { data: morningBrief, isLoading: briefLoading } = useMorningBrief();
   const { data: indices, isLoading: indicesLoading } = useMarketIndices();
-  
+
   const currentDate = new Date();
   const timeString = currentDate.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false
+    hour12: false,
   });
   const dateString = currentDate.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   const formatCurrency = (value: number) => {
@@ -61,7 +75,7 @@ export function MorningBriefCard() {
   const portfolioData = morningBrief?.portfolio_value || {
     total_value: 612847.52,
     day_change: 3245.67,
-    day_change_percent: 0.53
+    day_change_percent: 0.53,
   };
 
   const alertsList = morningBrief?.volatility_alerts || [];
@@ -69,30 +83,26 @@ export function MorningBriefCard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 md:p-8">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.6 }} 
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
         className="max-w-6xl mx-auto"
       >
         {/* Header Section */}
-        <motion.header 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ delay: 0.2 }} 
+        <motion.header
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
           className="mb-8"
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-light text-white mb-2">
-                Good Morning
-              </h1>
+              <h1 className="text-3xl md:text-4xl font-light text-white mb-2">Good Morning</h1>
               <p className="text-slate-400 text-lg">{dateString}</p>
             </div>
             <div className="text-right">
-              <div className="text-4xl md:text-5xl font-thin text-white mb-1">
-                {timeString}
-              </div>
+              <div className="text-4xl md:text-5xl font-thin text-white mb-1">{timeString}</div>
               {morningBrief && (
                 <div className="text-sm text-slate-400">
                   Portfolio: {formatCurrency(morningBrief.portfolio_value)}
@@ -105,10 +115,10 @@ export function MorningBriefCard() {
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Portfolio Overview Card */}
-          <motion.section 
-            initial={{ opacity: 0, x: -20 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ delay: 0.3 }} 
+          <motion.section
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
           >
             <div className="flex items-center justify-between mb-4">
@@ -123,10 +133,12 @@ export function MorningBriefCard() {
                   <div className="text-3xl font-light text-white mb-1">
                     {formatCurrency(morningBrief?.overnight_pnl || 0)}
                   </div>
-                  <p className={cn(
-                    "text-sm",
-                    (morningBrief?.overnight_pnl || 0) >= 0 ? "text-green-400" : "text-red-400"
-                  )}>
+                  <p
+                    className={cn(
+                      'text-sm',
+                      (morningBrief?.overnight_pnl || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                    )}
+                  >
                     Overnight P&L ({formatPercent(morningBrief?.overnight_pnl_percent || 0)})
                   </p>
                 </div>
@@ -143,10 +155,10 @@ export function MorningBriefCard() {
           </motion.section>
 
           {/* Volatility Alerts */}
-          <motion.section 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.4 }} 
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
             className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
           >
             <h2 className="text-xl font-medium text-white mb-6 flex items-center">
@@ -158,11 +170,11 @@ export function MorningBriefCard() {
                 <p className="text-slate-400">No alerts at this time</p>
               ) : (
                 morningBrief?.volatility_alerts.map((alert, index) => (
-                  <motion.div 
-                    key={`${alert.symbol}-${index}`} 
-                    initial={{ opacity: 0, x: 20 }} 
-                    animate={{ opacity: 1, x: 0 }} 
-                    transition={{ delay: 0.5 + index * 0.1 }} 
+                  <motion.div
+                    key={`${alert.symbol}-${index}`}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
                     className="flex items-center justify-between p-4 bg-slate-700/30 rounded-xl border border-slate-600/30"
                   >
                     <div className="flex items-center space-x-4">
@@ -170,16 +182,20 @@ export function MorningBriefCard() {
                       <span className="text-sm text-slate-400">{alert.message}</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <span className={cn(
-                        "text-sm font-medium",
-                        alert.change_percent >= 0 ? "text-green-400" : "text-red-400"
-                      )}>
+                      <span
+                        className={cn(
+                          'text-sm font-medium',
+                          alert.change_percent >= 0 ? 'text-green-400' : 'text-red-400'
+                        )}
+                      >
                         {formatPercent(alert.change_percent)}
                       </span>
-                      <span className={cn(
-                        'px-3 py-1 rounded-full text-xs font-medium border', 
-                        getPriorityColor(alert.severity)
-                      )}>
+                      <span
+                        className={cn(
+                          'px-3 py-1 rounded-full text-xs font-medium border',
+                          getPriorityColor(alert.severity)
+                        )}
+                      >
                         {alert.severity}
                       </span>
                     </div>
@@ -190,10 +206,10 @@ export function MorningBriefCard() {
           </motion.section>
 
           {/* Key Positions */}
-          <motion.section 
-            initial={{ opacity: 0, x: -20 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ delay: 0.6 }} 
+          <motion.section
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
             className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
           >
             <h2 className="text-xl font-medium text-white mb-6 flex items-center">
@@ -202,11 +218,11 @@ export function MorningBriefCard() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {morningBrief?.key_positions.slice(0, 4).map((position, index) => (
-                <motion.div 
-                  key={position.symbol} 
-                  initial={{ opacity: 0, y: 20 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: 0.7 + index * 0.1 }} 
+                <motion.div
+                  key={position.symbol}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
                   className="p-4 bg-slate-700/30 rounded-xl border border-slate-600/30"
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -217,14 +233,18 @@ export function MorningBriefCard() {
                     {formatCurrency(position.market_value)}
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className={cn(
-                      position.unrealized_pnl >= 0 ? 'text-green-400' : 'text-red-400'
-                    )}>
+                    <span
+                      className={cn(
+                        position.unrealized_pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                      )}
+                    >
                       {formatCurrency(position.unrealized_pnl)}
                     </span>
-                    <span className={cn(
-                      position.overnight_change_percent >= 0 ? 'text-green-400' : 'text-red-400'
-                    )}>
+                    <span
+                      className={cn(
+                        position.overnight_change_percent >= 0 ? 'text-green-400' : 'text-red-400'
+                      )}
+                    >
                       {formatPercent(position.overnight_change_percent)} today
                     </span>
                   </div>
@@ -234,10 +254,10 @@ export function MorningBriefCard() {
           </motion.section>
 
           {/* Market Indices */}
-          <motion.section 
-            initial={{ opacity: 0, x: 20 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ delay: 0.8 }} 
+          <motion.section
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8 }}
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
           >
             <h2 className="text-xl font-medium text-white mb-6 flex items-center">
@@ -245,22 +265,26 @@ export function MorningBriefCard() {
               Market Indices
             </h2>
             <div className="space-y-3">
-              {indices && Object.entries(indices).map(([symbol, quote]) => (
-                <div key={symbol} className="p-3 bg-slate-700/40 rounded-xl border border-slate-600/30">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-white font-medium">{symbol}</span>
-                    <span className={cn(
-                      "text-sm font-medium",
-                      quote.change >= 0 ? "text-green-400" : "text-red-400"
-                    )}>
-                      {formatPercent(quote.change_percent)}
-                    </span>
+              {indices &&
+                Object.entries(indices).map(([symbol, quote]) => (
+                  <div
+                    key={symbol}
+                    className="p-3 bg-slate-700/40 rounded-xl border border-slate-600/30"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-white font-medium">{symbol}</span>
+                      <span
+                        className={cn(
+                          'text-sm font-medium',
+                          quote.change >= 0 ? 'text-green-400' : 'text-red-400'
+                        )}
+                      >
+                        {formatPercent(quote.change_percent)}
+                      </span>
+                    </div>
+                    <div className="text-lg font-light text-white">${quote.price.toFixed(2)}</div>
                   </div>
-                  <div className="text-lg font-light text-white">
-                    ${quote.price.toFixed(2)}
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </motion.section>
         </div>

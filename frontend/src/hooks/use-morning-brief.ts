@@ -50,7 +50,7 @@ export function useMorningBrief(date?: string) {
 
 export function useGenerateMorningBrief() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
       const response = await api.morningBrief.generate();

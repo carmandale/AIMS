@@ -1,23 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Search, 
-  Filter, 
-  ArrowUpDown, 
-  ArrowUp, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Search,
+  Filter,
+  ArrowUpDown,
+  ArrowUp,
   ArrowDown,
   PieChart,
   AlertTriangle,
-  Eye
+  Eye,
 } from 'lucide-react';
-import { 
-  usePositions, 
-  usePositionRiskContributions, 
-  Position 
-} from '../hooks/use-portfolio';
+import { usePositions, usePositionRiskContributions, Position } from '../hooks/use-portfolio';
 
 interface HoldingsTableProps {
   userId: string;
@@ -43,37 +39,44 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
   userId,
   onPositionSelect,
   showRiskMetrics = true,
-  className = ''
+  className = '',
 }) => {
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'market_value', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: 'market_value',
+    direction: 'desc',
+  });
   const [filterConfig, setFilterConfig] = useState<FilterConfig>({});
   const [showFilters, setShowFilters] = useState(false);
-  
+
   const { data: positions, isLoading, error } = usePositions();
   const { data: riskContributions } = usePositionRiskContributions(userId);
-  
+
   const filteredAndSortedPositions = useMemo(() => {
     if (!positions) return [];
-    
+
     // Apply filters
     const filtered = positions.filter(position => {
       if (filterConfig.broker && position.broker !== filterConfig.broker) return false;
       if (filterConfig.assetType && position.position_type !== filterConfig.assetType) return false;
-      if (filterConfig.minValue && (position.market_value || 0) < filterConfig.minValue) return false;
-      if (filterConfig.maxValue && (position.market_value || 0) > filterConfig.maxValue) return false;
+      if (filterConfig.minValue && (position.market_value || 0) < filterConfig.minValue)
+        return false;
+      if (filterConfig.maxValue && (position.market_value || 0) > filterConfig.maxValue)
+        return false;
       if (filterConfig.search) {
         const searchTerm = filterConfig.search.toLowerCase();
-        return position.symbol.toLowerCase().includes(searchTerm) ||
-               (position.name && position.name.toLowerCase().includes(searchTerm));
+        return (
+          position.symbol.toLowerCase().includes(searchTerm) ||
+          (position.name && position.name.toLowerCase().includes(searchTerm))
+        );
       }
       return true;
     });
-    
+
     // Apply sorting
     filtered.sort((a, b) => {
       let aValue: any;
       let bValue: any;
-      
+
       if (sortConfig.key === 'risk_contribution') {
         aValue = riskContributions?.[a.symbol]?.risk_contribution || 0;
         bValue = riskContributions?.[b.symbol]?.risk_contribution || 0;
@@ -81,71 +84,75 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
         aValue = a[sortConfig.key];
         bValue = b[sortConfig.key];
       }
-      
+
       if (aValue === null || aValue === undefined) aValue = 0;
       if (bValue === null || bValue === undefined) bValue = 0;
-      
+
       if (typeof aValue === 'string') {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }
-      
+
       if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
     });
-    
+
     return filtered;
   }, [positions, filterConfig, sortConfig, riskContributions]);
-  
+
   const handleSort = (key: keyof Position | 'risk_contribution') => {
     setSortConfig(prev => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
-  
+
   const getSortIcon = (key: keyof Position | 'risk_contribution') => {
     if (sortConfig.key !== key) return <ArrowUpDown className="w-4 h-4" />;
-    return sortConfig.direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="w-4 h-4" />
+    ) : (
+      <ArrowDown className="w-4 h-4" />
+    );
   };
-  
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(value);
   };
-  
+
   const formatPercent = (value: number) => {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
   };
-  
+
   const getChangeColor = (value: number) => {
     return value >= 0 ? 'text-emerald-400' : 'text-red-400';
   };
-  
+
   const getChangeIcon = (value: number) => {
     return value >= 0 ? TrendingUp : TrendingDown;
   };
-  
+
   const getRiskLevel = (contribution: number) => {
     if (contribution > 0.15) return { level: 'High', color: 'text-red-400' };
-    if (contribution > 0.10) return { level: 'Medium', color: 'text-yellow-400' };
+    if (contribution > 0.1) return { level: 'Medium', color: 'text-yellow-400' };
     return { level: 'Low', color: 'text-green-400' };
   };
-  
+
   const brokerages = useMemo(() => {
     if (!positions) return [];
     return [...new Set(positions.map(p => p.broker))];
   }, [positions]);
-  
+
   const assetTypes = useMemo(() => {
     if (!positions) return [];
     return [...new Set(positions.map(p => p.position_type))];
   }, [positions]);
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -153,7 +160,7 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="text-center py-8">
@@ -162,9 +169,9 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
       </div>
     );
   }
-  
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 ${className}`}
@@ -187,15 +194,15 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
                 placeholder="Search positions..."
                 className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                 value={filterConfig.search || ''}
-                onChange={(e) => setFilterConfig(prev => ({ ...prev, search: e.target.value }))}
+                onChange={e => setFilterConfig(prev => ({ ...prev, search: e.target.value }))}
               />
             </div>
           </div>
         </div>
-        
+
         {/* Filters */}
         {showFilters && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4"
@@ -205,56 +212,74 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
               <select
                 className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 value={filterConfig.broker || ''}
-                onChange={(e) => setFilterConfig(prev => ({ ...prev, broker: e.target.value || undefined }))}
+                onChange={e =>
+                  setFilterConfig(prev => ({ ...prev, broker: e.target.value || undefined }))
+                }
               >
                 <option value="">All Brokerages</option>
                 {brokerages.map(broker => (
-                  <option key={broker} value={broker}>{broker}</option>
+                  <option key={broker} value={broker}>
+                    {broker}
+                  </option>
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Asset Type</label>
               <select
                 className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 value={filterConfig.assetType || ''}
-                onChange={(e) => setFilterConfig(prev => ({ ...prev, assetType: e.target.value || undefined }))}
+                onChange={e =>
+                  setFilterConfig(prev => ({ ...prev, assetType: e.target.value || undefined }))
+                }
               >
                 <option value="">All Types</option>
                 {assetTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Min Value</label>
               <input
                 type="number"
                 className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 value={filterConfig.minValue || ''}
-                onChange={(e) => setFilterConfig(prev => ({ ...prev, minValue: Number(e.target.value) || undefined }))}
+                onChange={e =>
+                  setFilterConfig(prev => ({
+                    ...prev,
+                    minValue: Number(e.target.value) || undefined,
+                  }))
+                }
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Max Value</label>
               <input
                 type="number"
                 className="w-full p-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 value={filterConfig.maxValue || ''}
-                onChange={(e) => setFilterConfig(prev => ({ ...prev, maxValue: Number(e.target.value) || undefined }))}
+                onChange={e =>
+                  setFilterConfig(prev => ({
+                    ...prev,
+                    maxValue: Number(e.target.value) || undefined,
+                  }))
+                }
               />
             </div>
           </motion.div>
         )}
-        
+
         <div className="text-sm text-slate-400">
           Showing {filteredAndSortedPositions.length} of {positions?.length || 0} positions
         </div>
       </div>
-      
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -333,7 +358,7 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
               const riskContribution = riskContributions?.[position.symbol]?.risk_contribution || 0;
               const riskLevel = getRiskLevel(riskContribution);
               const ChangeIcon = getChangeIcon(position.unrealized_pnl || 0);
-              
+
               return (
                 <motion.tr
                   key={position.symbol}
@@ -367,8 +392,12 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
                   </td>
                   <td className="p-4">
                     <div className="flex items-center space-x-1">
-                      <ChangeIcon className={`w-4 h-4 ${getChangeColor(position.unrealized_pnl || 0)}`} />
-                      <span className={`font-medium ${getChangeColor(position.unrealized_pnl || 0)}`}>
+                      <ChangeIcon
+                        className={`w-4 h-4 ${getChangeColor(position.unrealized_pnl || 0)}`}
+                      />
+                      <span
+                        className={`font-medium ${getChangeColor(position.unrealized_pnl || 0)}`}
+                      >
                         {formatCurrency(Math.abs(position.unrealized_pnl || 0))}
                       </span>
                       <span className={`text-sm ${getChangeColor(position.unrealized_pnl || 0)}`}>
@@ -401,7 +430,7 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
             })}
           </tbody>
         </table>
-        
+
         {filteredAndSortedPositions.length === 0 && (
           <div className="text-center py-8">
             <PieChart className="w-12 h-12 text-slate-400 mx-auto mb-4" />

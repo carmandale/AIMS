@@ -5,6 +5,7 @@ This document describes the API integration setup for the AIMS frontend.
 ## Overview
 
 The AIMS frontend is now configured with:
+
 - Axios for HTTP requests
 - TanStack Query (React Query) for data fetching and caching
 - Real-time data connections to the FastAPI backend
@@ -34,6 +35,7 @@ frontend-aims/
 ## API Client Configuration
 
 The API client is configured in `src/lib/api-client.ts`:
+
 - Base URL: `http://localhost:8000`
 - Automatic token management
 - Request/response interceptors
@@ -42,6 +44,7 @@ The API client is configured in `src/lib/api-client.ts`:
 ## React Query Setup
 
 TanStack Query is configured with:
+
 - Automatic retries (3 attempts)
 - Stale time: 1 minute
 - Cache time: 5 minutes
@@ -50,11 +53,13 @@ TanStack Query is configured with:
 ## Available Hooks
 
 ### Morning Brief
+
 - `useMorningBrief(date?)` - Fetch morning brief data
 - `useGenerateMorningBrief()` - Generate new morning brief
 - `useVolatilityAlerts()` - Get volatility alerts
 
 ### Portfolio
+
 - `usePortfolioSummary()` - Get portfolio summary
 - `usePositions(broker?)` - Get positions
 - `useBalances()` - Get account balances
@@ -63,6 +68,7 @@ TanStack Query is configured with:
 - `useRefreshPortfolio()` - Force refresh portfolio data
 
 ### Market Data
+
 - `useMarketQuotes(symbols[])` - Get real-time quotes
 - `useMarketIndices()` - Get market indices
 - `useCryptoQuotes()` - Get crypto quotes
@@ -93,6 +99,7 @@ The frontend will be available at `http://localhost:5173`
 ## Navigation
 
 The app includes a navigation bar with links to all 5 components:
+
 1. Dashboard - Main AIMS dashboard
 2. Morning Brief - Daily portfolio overview
 3. Income Tracker - Weekly/monthly income goals
@@ -110,6 +117,7 @@ The app includes a navigation bar with links to all 5 components:
 ## Environment Variables
 
 The API URL can be configured via environment variable:
+
 ```bash
 VITE_API_URL=http://localhost:8000
 ```

@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
       staleTime: 1000 * 60, // 1 minute
       gcTime: 1000 * 60 * 5, // 5 minutes
     },
@@ -26,7 +26,13 @@ const queryClient = new QueryClient({
 });
 
 // Component types for routing
-type ComponentType = 'home' | 'dashboard' | 'morning-brief' | 'income-tracker' | 'tasks' | 'trade-ticket';
+type ComponentType =
+  | 'home'
+  | 'dashboard'
+  | 'morning-brief'
+  | 'income-tracker'
+  | 'tasks'
+  | 'trade-ticket';
 
 function App() {
   const [currentComponent, setCurrentComponent] = useState<ComponentType>('home');
@@ -44,7 +50,7 @@ function App() {
   const generatedComponent = useMemo(() => {
     switch (currentComponent) {
       case 'home':
-        return <Home onNavigate={(component) => setCurrentComponent(component as ComponentType)} />;
+        return <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />;
       case 'dashboard':
         return <AIMSDashboard />;
       case 'morning-brief':
@@ -56,7 +62,7 @@ function App() {
       case 'trade-ticket':
         return <TradeTicketForm />;
       default:
-        return <Home onNavigate={(component) => setCurrentComponent(component as ComponentType)} />;
+        return <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />;
     }
   }, [currentComponent]);
 
@@ -84,7 +90,7 @@ function App() {
             ← Home
           </button>
         )}
-        
+
         {/* Content */}
         {renderContent()}
       </div>
