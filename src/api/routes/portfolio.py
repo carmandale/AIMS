@@ -162,3 +162,117 @@ async def refresh_portfolio_data(request: Request, db: Session = Depends(get_db)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/performance", response_model=Dict[str, Any])
+async def get_performance_metrics(
+    user_id: str = Query(..., description="User identifier"),
+    timeframe: str = Query("ytd", description="Timeframe: daily, weekly, monthly, ytd, all"),
+    benchmark: Optional[str] = Query(None, description="Benchmark symbol (e.g., SPY)"),
+    db: Session = Depends(get_db)
+):
+    """Get portfolio performance metrics"""
+    try:
+        metrics = await portfolio_service.get_performance_metrics(
+            db, user_id, timeframe, benchmark
+        )
+        return metrics.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk", response_model=Dict[str, Any])
+async def get_risk_metrics(
+    user_id: str = Query(..., description="User identifier"),
+    timeframe: str = Query("ytd", description="Timeframe for risk calculations"),
+    db: Session = Depends(get_db)
+):
+    """Get portfolio risk metrics"""
+    try:
+        metrics = await portfolio_service.get_risk_metrics(db, user_id, timeframe)
+        return metrics.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/allocation", response_model=Dict[str, Any])
+async def get_asset_allocation(
+    user_id: str = Query(..., description="User identifier"),
+    db: Session = Depends(get_db)
+):
+    """Get portfolio asset allocation analysis"""
+    try:
+        allocation = await portfolio_service.get_asset_allocation(db, user_id)
+        return allocation.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/rebalancing-suggestions", response_model=List[Dict[str, Any]])
+async def get_rebalancing_suggestions(
+    user_id: str = Query(..., description="User identifier"),
+    target_allocation: Dict[str, float] = Query(..., description="Target allocation percentages"),
+    drift_threshold: float = Query(0.05, description="Drift threshold for rebalancing"),
+    db: Session = Depends(get_db)
+):
+    """Get rebalancing suggestions"""
+    try:
+        suggestions = await portfolio_service.get_rebalancing_suggestions(
+            db, user_id, target_allocation, drift_threshold
+        )
+        return suggestions
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/concentration", response_model=Dict[str, Any])
+async def get_concentration_analysis(
+    user_id: str = Query(..., description="User identifier"),
+    db: Session = Depends(get_db)
+):
+    """Get concentration risk analysis"""
+    try:
+        analysis = await portfolio_service.get_concentration_analysis(db, user_id)
+        return analysis
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/stress-test", response_model=Dict[str, Any])
+async def run_stress_test(
+    user_id: str = Query(..., description="User identifier"),
+    scenarios: Optional[List[Dict[str, Any]]] = None,
+    db: Session = Depends(get_db)
+):
+    """Run portfolio stress test"""
+    try:
+        results = await portfolio_service.run_stress_test(db, user_id, scenarios)
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/risk-contributions", response_model=Dict[str, Dict[str, float]])
+async def get_position_risk_contributions(
+    user_id: str = Query(..., description="User identifier"),
+    db: Session = Depends(get_db)
+):
+    """Get risk contribution of each position"""
+    try:
+        contributions = await portfolio_service.get_position_risk_contributions(db, user_id)
+        return contributions
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/correlation-matrix", response_model=Dict[str, Dict[str, float]])
+async def get_correlation_matrix(
+    user_id: str = Query(..., description="User identifier"),
+    db: Session = Depends(get_db)
+):
+    """Get correlation matrix between assets"""
+    try:
+        matrix = await portfolio_service.get_correlation_matrix(db, user_id)
+        return matrix
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

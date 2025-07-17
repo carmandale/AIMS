@@ -7,12 +7,17 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 
 from src.data.fetchers import FidelityFetcher, RobinhoodFetcher, CoinbaseFetcher
-from src.data.models import (
+from src.data.models.portfolio import (
     PortfolioSummary, Position, Balance, Transaction,
-    MorningBrief, VolatilityAlert, KeyPosition
+    MorningBrief, VolatilityAlert, KeyPosition,
+    PerformanceMetrics, RiskMetrics, AssetAllocation,
+    BrokerageAccount, Report, SyncResult
 )
 from src.data.cache import cached
 from src.db import models as db_models
+from src.services.performance_calculator import PerformanceCalculator
+from src.services.allocation_analyzer import AllocationAnalyzer
+from src.services.risk_metrics_engine import RiskMetricsEngine
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +31,9 @@ class PortfolioService:
             "robinhood": RobinhoodFetcher(),
             "coinbase": CoinbaseFetcher()
         }
+        self.performance_calculator = PerformanceCalculator()
+        self.allocation_analyzer = AllocationAnalyzer()
+        self.risk_metrics_engine = RiskMetricsEngine()
     
     async def fetch_all_positions(self, db: Session) -> List[Position]:
         """Fetch positions from all brokers"""
@@ -313,3 +321,147 @@ class PortfolioService:
                 logger.error(f"Failed to fetch quote for {symbol}: {e}")
         
         return all_quotes
+    
+    async def get_performance_metrics(
+        self,
+        db: Session,
+        user_id: str,
+        timeframe: str = "ytd",
+        benchmark: Optional[str] = None
+    ) -> PerformanceMetrics:
+        """Get portfolio performance metrics"""
+        
+        positions = await self.fetch_all_positions(db)
+        transactions = await self.get_transactions(db, start_date=None, end_date=None)
+        
+        performance_metrics = await self.performance_calculator.calculate_performance_metrics(
+            positions, transactions, timeframe
+        )
+        
+        if benchmark:
+            benchmark_comparison = await self.performance_calculator.compare_to_benchmark(
+                performance_metrics, benchmark
+            )
+            performance_metrics.benchmark_comparison = benchmark_comparison
+        
+        return performance_metrics
+    
+    async def get_risk_metrics(
+        self,
+        db: Session,
+        user_id: str,
+        timeframe: str = "ytd"
+    ) -> RiskMetrics:
+        """Get portfolio risk metrics"""
+        
+        positions = await self.fetch_all_positions(db)
+        transactions = await self.get_transactions(db, start_date=None, end_date=None)
+        
+        risk_metrics = await self.risk_metrics_engine.calculate_comprehensive_risk_metrics(
+            positions, transactions, timeframe
+        )
+        
+        return risk_metrics
+    
+    async def get_asset_allocation(
+        self,
+        db: Session,
+        user_id: str
+    ) -> AssetAllocation:
+        """Get portfolio asset allocation analysis"""
+        
+        positions = await self.fetch_all_positions(db)
+        balances = await self.fetch_all_balances(db)
+        
+        # Calculate total cash
+        total_cash = sum(b.cash for b in balances)
+        
+        allocation = await self.allocation_analyzer.analyze_allocation(
+            positions, total_cash
+        )
+        
+        return allocation
+    
+    async def get_rebalancing_suggestions(
+        self,
+        db: Session,
+        user_id: str,
+        target_allocation: Dict[str, float],
+        drift_threshold: float = 0.05
+    ) -> List[Dict[str, Any]]:
+        """Get rebalancing suggestions"""
+        
+        positions = await self.fetch_all_positions(db)
+        summary = await self.get_portfolio_summary(db)
+        total_value = summary["total_value"]
+        
+        actions = await self.allocation_analyzer.suggest_rebalancing_actions(
+            positions, target_allocation, total_value, drift_threshold
+        )
+        
+        return [action.model_dump() for action in actions]
+    
+    async def get_concentration_analysis(
+        self,
+        db: Session,
+        user_id: str
+    ) -> Dict[str, Any]:
+        """Get concentration risk analysis"""
+        
+        positions = await self.fetch_all_positions(db)
+        summary = await self.get_portfolio_summary(db)
+        total_value = summary["total_value"]
+        
+        concentration_metrics = await self.risk_metrics_engine.calculate_concentration_risk(
+            positions, total_value
+        )
+        
+        return concentration_metrics
+    
+    async def run_stress_test(
+        self,
+        db: Session,
+        user_id: str,
+        scenarios: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
+        """Run portfolio stress test"""
+        
+        positions = await self.fetch_all_positions(db)
+        
+        stress_results = await self.risk_metrics_engine.calculate_portfolio_stress_test(
+            positions, scenarios
+        )
+        
+        return stress_results
+    
+    async def get_position_risk_contributions(
+        self,
+        db: Session,
+        user_id: str
+    ) -> Dict[str, Dict[str, float]]:
+        """Get risk contribution of each position"""
+        
+        positions = await self.fetch_all_positions(db)
+        summary = await self.get_portfolio_summary(db)
+        total_value = summary["total_value"]
+        
+        risk_contributions = await self.risk_metrics_engine.calculate_position_risk_contribution(
+            positions, total_value
+        )
+        
+        return risk_contributions
+    
+    async def get_correlation_matrix(
+        self,
+        db: Session,
+        user_id: str
+    ) -> Dict[str, Dict[str, float]]:
+        """Get correlation matrix between assets"""
+        
+        positions = await self.fetch_all_positions(db)
+        
+        correlation_matrix = await self.allocation_analyzer.calculate_correlation_matrix(
+            positions
+        )
+        
+        return correlation_matrix
