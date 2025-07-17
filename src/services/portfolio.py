@@ -13,15 +13,17 @@ from src.data.models.portfolio import (
     Position,
     Balance,
     Transaction,
-    MorningBrief,
-    VolatilityAlert,
-    KeyPosition,
     PerformanceMetrics,
     RiskMetrics,
     AssetAllocation,
     BrokerageAccount,
     Report,
     SyncResult,
+)
+from src.data.models.market import (
+    MorningBrief,
+    VolatilityAlert,
+    KeyPosition,
 )
 from src.data.cache import cached
 from src.db import models as db_models

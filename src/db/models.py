@@ -17,6 +17,7 @@ from sqlalchemy import (
     Enum as SQLEnum,
     Boolean,
     ForeignKey,
+    UniqueConstraint,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -27,13 +28,38 @@ from src.data.models import BrokerType, TransactionType
 Base = declarative_base()
 
 
+class User(Base):
+    """User database model for authentication"""
+    
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), unique=True, nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    last_login = Column(DateTime, nullable=True)
+    
+    # Relationships
+    accounts = relationship("BrokerageAccount", back_populates="user")
+    
+    # Indexes
+    __table_args__ = (
+        UniqueConstraint("email", name="uq_user_email"),
+        UniqueConstraint("user_id", name="uq_user_id"),
+    )
+
+
 class BrokerageAccount(Base):
     """Brokerage account database model"""
 
     __tablename__ = "brokerage_accounts"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
     brokerage_type = Column(SQLEnum(BrokerType), nullable=False)
     account_number = Column(String(50), nullable=False)
     account_name = Column(String(255), nullable=False)
@@ -49,6 +75,7 @@ class BrokerageAccount(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
+    user = relationship("User", back_populates="accounts")
     positions = relationship("Position", back_populates="account")
     transactions = relationship("Transaction", back_populates="account")
 
