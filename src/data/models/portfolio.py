@@ -1,4 +1,5 @@
 from typing import Dict, Any
+
 """Portfolio data models"""
 
 from datetime import datetime
