@@ -74,6 +74,24 @@ export const api = {
       apiClient.get('/portfolio/performance/weekly'),
     refresh: () => 
       apiClient.post('/portfolio/refresh'),
+    
+    // Advanced portfolio analytics
+    getPerformanceMetrics: (userId: string, timeframe = 'ytd', benchmark?: string) =>
+      apiClient.get('/portfolio/performance', { params: { user_id: userId, timeframe, benchmark } }),
+    getRiskMetrics: (userId: string, timeframe = 'ytd') =>
+      apiClient.get('/portfolio/risk', { params: { user_id: userId, timeframe } }),
+    getAssetAllocation: (userId: string) =>
+      apiClient.get('/portfolio/allocation', { params: { user_id: userId } }),
+    getConcentrationAnalysis: (userId: string) =>
+      apiClient.get('/portfolio/concentration', { params: { user_id: userId } }),
+    getPositionRiskContributions: (userId: string) =>
+      apiClient.get('/portfolio/risk-contributions', { params: { user_id: userId } }),
+    getCorrelationMatrix: (userId: string) =>
+      apiClient.get('/portfolio/correlation-matrix', { params: { user_id: userId } }),
+    getRebalancingSuggestions: (userId: string, targetAllocation: Record<string, number>, driftThreshold = 0.05) =>
+      apiClient.post('/portfolio/rebalancing-suggestions', { user_id: userId, target_allocation: targetAllocation, drift_threshold: driftThreshold }),
+    runStressTest: (userId: string, scenarios?: Array<Record<string, any>>) =>
+      apiClient.post('/portfolio/stress-test', { user_id: userId, scenarios }),
   },
 
   // Market Data
@@ -114,6 +132,14 @@ export const api = {
       apiClient.put(`/tasks/templates/${templateId}`, templateData),
     deleteTemplate: (templateId: number) =>
       apiClient.delete(`/tasks/templates/${templateId}`),
+  },
+
+  // Reports
+  reports: {
+    generate: (userId: string, reportType: string, parameters: Record<string, any>, format = 'pdf') =>
+      apiClient.post('/reports/generate', { user_id: userId, report_type: reportType, parameters, format }),
+    list: (userId: string, reportType?: string) =>
+      apiClient.get('/reports', { params: { user_id: userId, report_type: reportType } }),
   },
 };
 

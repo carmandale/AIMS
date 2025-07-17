@@ -13,7 +13,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from src.core.config import settings
-from src.api.routes import health, portfolio, market, morning_brief, tasks
+from src.api.routes import health, portfolio, market, morning_brief, tasks, reports
 from src.db import init_db
 from src.services.scheduler import scheduler_service
 
@@ -104,6 +104,7 @@ app.include_router(portfolio.router, prefix="/api")
 app.include_router(market.router, prefix="/api")
 app.include_router(morning_brief.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
 
 
 if __name__ == "__main__":

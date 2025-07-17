@@ -23,6 +23,29 @@ export interface KeyPosition {
   overnight_change_percent: number;
 }
 
+export interface MarketSummary {
+  indices: {
+    symbol: string;
+    name: string;
+    current_price: number;
+    change: number;
+    change_percent: number;
+  }[];
+  crypto: {
+    symbol: string;
+    name: string;
+    current_price: number;
+    change: number;
+    change_percent: number;
+  }[];
+  economic_events: {
+    event: string;
+    time: string;
+    impact: 'low' | 'medium' | 'high';
+    description?: string;
+  }[];
+}
+
 export interface MorningBrief {
   date: string;
   portfolio_value: number;
@@ -31,7 +54,7 @@ export interface MorningBrief {
   cash_available: number;
   volatility_alerts: VolatilityAlert[];
   key_positions: KeyPosition[];
-  market_summary: Record<string, any>;
+  market_summary: MarketSummary;
   recommendations: string[];
   created_at: string;
 }

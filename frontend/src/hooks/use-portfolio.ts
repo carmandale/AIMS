@@ -134,6 +134,14 @@ export function useRefreshPortfolio() {
 
 // New hooks for advanced portfolio analytics
 
+export interface BenchmarkComparison {
+  outperformed: boolean;
+  relative_performance: number;
+  portfolio_return: number;
+  benchmark_return: number;
+  benchmark_symbol: string;
+}
+
 export interface PerformanceMetrics {
   timeframe: string;
   start_date: string;
@@ -146,7 +154,7 @@ export interface PerformanceMetrics {
   volatility?: number;
   sharpe_ratio?: number;
   max_drawdown?: number;
-  benchmark_comparison?: Record<string, any>;
+  benchmark_comparison?: BenchmarkComparison;
   periodic_returns: Record<string, number>;
 }
 
@@ -164,12 +172,21 @@ export interface RiskMetrics {
   var_99?: number;
 }
 
+export interface ConcentrationRisk {
+  type: 'position' | 'sector' | 'geography' | 'asset_class';
+  name: string;
+  percentage: number;
+  threshold: number;
+  severity: 'low' | 'medium' | 'high';
+  recommendation?: string;
+}
+
 export interface AssetAllocation {
   by_asset_class: Record<string, number>;
   by_sector: Record<string, number>;
   by_geography: Record<string, number>;
   by_brokerage: Record<string, number>;
-  concentration_risks: Array<Record<string, any>>;
+  concentration_risks: ConcentrationRisk[];
   diversification_score?: number;
   largest_position_percent?: number;
   top_5_positions_percent?: number;

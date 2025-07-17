@@ -133,6 +133,26 @@ class ReportGenerator:
 
         return [Report.model_validate(report) for report in db_reports]
 
+    async def get_report_file(self, db: Session, report_id: str) -> Optional[str]:
+        """Get report file path by ID"""
+        try:
+            report_id_int = int(report_id)
+            db_report = db.query(db_models.Report).filter(db_models.Report.id == report_id_int).first()
+
+            if not db_report or not db_report.file_path:
+                return None
+
+            # Check if file exists
+            if os.path.exists(db_report.file_path):
+                return db_report.file_path
+            else:
+                logger.warning(f"Report file not found at {db_report.file_path}")
+                return None
+        
+        except (ValueError, TypeError):
+            logger.warning(f"Invalid report ID: {report_id}")
+            return None
+
     async def delete_expired_reports(self, db: Session) -> int:
         """Delete expired reports"""
         now = datetime.utcnow()
