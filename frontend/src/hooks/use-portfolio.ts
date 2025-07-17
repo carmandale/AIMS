@@ -274,7 +274,7 @@ export function useStressTest() {
       userId: string;
       scenarios?: Array<Record<string, any>>;
     }) => {
-      const response = await api.portfolio.runStressTest(userId, scenarios);
+      const response = await api.portfolio.runStressTest(userId, scenarios || []);
       return response.data;
     },
     onSuccess: () => {
@@ -306,7 +306,7 @@ export function useReports(userId: string, reportType?: string) {
   return useQuery({
     queryKey: ['reports', userId, reportType],
     queryFn: async () => {
-      const response = await api.reports.list(userId, reportType);
+      const response = await api.reports.list(userId);
       return response.data;
     },
     staleTime: 1 * 60 * 1000, // 1 minute
