@@ -96,7 +96,7 @@ async def general_exception_handler(request, exc):
 
 # Add rate limit exceeded handler
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
 # Include routers
 app.include_router(health.router, prefix="/api")

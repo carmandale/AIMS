@@ -2,8 +2,8 @@
 
 import logging
 from datetime import datetime, date
-from typing import List, Optional, Dict, Any
-from dateutil.rrule import rrule, rrulestr, DAILY, WEEKLY, MONTHLY
+from typing import List, Optional, Dict, Any, Union
+from dateutil.rrule import rrule, rruleset, rrulestr, DAILY, WEEKLY, MONTHLY
 from dateutil.parser import parse as date_parse
 from pydantic import BaseModel, ValidationError
 
@@ -24,7 +24,7 @@ class RRuleParser:
     def __init__(self):
         self.supported_freqs = {"DAILY": DAILY, "WEEKLY": WEEKLY, "MONTHLY": MONTHLY}
 
-    def parse_rrule(self, rrule_string: str, dtstart: Optional[datetime] = None) -> rrule:
+    def parse_rrule(self, rrule_string: str, dtstart: Optional[datetime] = None) -> Union[rrule, rruleset]:
         """Parse an RRULE string into a dateutil.rrule object
 
         Args:

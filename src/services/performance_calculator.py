@@ -161,7 +161,7 @@ class PerformanceCalculator:
 
     async def compare_to_benchmark(
         self, portfolio_performance: PerformanceMetrics, benchmark_symbol: str = "SPY"
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """Compare portfolio performance to benchmark"""
 
         # For now, return mock benchmark data

@@ -125,13 +125,13 @@ async def seed_task_templates(db: Session):
             if not existing:
                 template = await task_service.create_task_template(
                     db,
-                    name=template_data["name"],
-                    description=template_data["description"],
-                    rrule=template_data["rrule"],
-                    is_blocking=template_data["is_blocking"],
-                    category=template_data["category"],
-                    priority=template_data["priority"],
-                    estimated_duration=template_data["estimated_duration"],
+                    name=str(template_data["name"]),
+                    description=str(template_data["description"]),
+                    rrule=str(template_data["rrule"]),
+                    is_blocking=bool(template_data["is_blocking"]),
+                    category=str(template_data["category"]),
+                    priority=int(template_data["priority"]),
+                    estimated_duration=int(template_data["estimated_duration"]) if template_data.get("estimated_duration") else None,
                 )
                 created_count += 1
                 logger.info(f"Created task template: {template.name}")

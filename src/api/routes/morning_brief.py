@@ -38,10 +38,10 @@ async def get_morning_brief(
                 overnight_pnl=db_brief.overnight_pnl,
                 overnight_pnl_percent=float(db_brief.overnight_pnl_percent),
                 cash_available=db_brief.cash_available,
-                volatility_alerts=db_brief.volatility_alerts or [],
-                key_positions=db_brief.key_positions or [],
-                market_summary=db_brief.market_summary or {},
-                recommendations=db_brief.recommendations or [],
+                volatility_alerts=[VolatilityAlert(**alert) if isinstance(alert, dict) else alert for alert in (db_brief.volatility_alerts or [])],
+                key_positions=[KeyPosition(**pos) if isinstance(pos, dict) else pos for pos in (db_brief.key_positions or [])],
+                market_summary=db_brief.market_summary if isinstance(db_brief.market_summary, dict) else {},
+                recommendations=db_brief.recommendations if isinstance(db_brief.recommendations, list) else [],
             )
             return brief
 

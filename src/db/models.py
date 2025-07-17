@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
@@ -24,7 +24,12 @@ from sqlalchemy.orm import relationship
 
 from src.data.models import BrokerType, TransactionType
 
-Base = declarative_base()
+# Type annotations for mypy
+if TYPE_CHECKING:
+    from sqlalchemy.orm import DeclarativeMeta
+    Base: DeclarativeMeta = declarative_base()
+else:
+    Base = declarative_base()
 
 
 class BrokerageAccount(Base):
@@ -49,8 +54,8 @@ class BrokerageAccount(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    positions = relationship("Position", back_populates="account")
-    transactions = relationship("Transaction", back_populates="account")
+    positions: List["Position"] = relationship("Position", back_populates="account")
+    transactions: List["Transaction"] = relationship("Transaction", back_populates="account")
 
     # Indexes
     __table_args__ = (
@@ -79,7 +84,7 @@ class Position(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    account = relationship("BrokerageAccount", back_populates="positions")
+    account: "BrokerageAccount" = relationship("BrokerageAccount", back_populates="positions")
 
     # Create composite index for broker + symbol
     __table_args__ = (
@@ -121,7 +126,7 @@ class Transaction(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    account = relationship("BrokerageAccount", back_populates="transactions")
+    account: "BrokerageAccount" = relationship("BrokerageAccount", back_populates="transactions")
 
     # Index for efficient date range queries
     __table_args__ = (
@@ -243,7 +248,7 @@ class TaxLot(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    position = relationship("Position")
+    position: "Position" = relationship("Position")
 
     # Indexes
     __table_args__ = (Index("idx_position_date", "position_id", "acquisition_date"),)
