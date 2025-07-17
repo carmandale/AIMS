@@ -173,7 +173,9 @@ async def get_performance_metrics(
 ):
     """Get portfolio performance metrics"""
     try:
-        metrics = await portfolio_service.get_performance_metrics(db, user_id, timeframe, benchmark)
+        metrics = await portfolio_service.get_performance_metrics(
+            db, user_id, timeframe, benchmark
+        )
         return metrics.model_dump()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

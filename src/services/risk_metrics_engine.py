@@ -51,7 +51,9 @@ class RiskMetricsEngine:
         max_drawdown = self._calculate_max_drawdown(portfolio_values)
 
         # Calculate drawdown period
-        max_drawdown_start, max_drawdown_end = self._calculate_max_drawdown_period(portfolio_values)
+        max_drawdown_start, max_drawdown_end = self._calculate_max_drawdown_period(
+            portfolio_values
+        )
 
         # Calculate Value at Risk (VaR)
         var_95 = self._calculate_var(daily_returns, 0.95)
