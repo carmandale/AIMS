@@ -272,7 +272,7 @@ export function useStressTest() {
   return useMutation({
     mutationFn: async ({ userId, scenarios }: {
       userId: string;
-      scenarios?: Array<Record<string, any>>;
+      scenarios?: string[];
     }) => {
       const response = await api.portfolio.runStressTest(userId, scenarios || []);
       return response.data;
