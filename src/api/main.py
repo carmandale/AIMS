@@ -1,4 +1,5 @@
 """Main FastAPI application for AIMS"""
+
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -19,7 +20,7 @@ from src.services.scheduler import scheduler_service
 # Configure logging
 logging.basicConfig(
     level=getattr(logging, settings.log_level.upper()),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -32,23 +33,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Application lifespan events"""
     # Startup
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
-    
+
     # Initialize database
     try:
         init_db()
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
-    
+
     # Start scheduler
     try:
         scheduler_service.start()
         logger.info("Scheduler started successfully")
     except Exception as e:
         logger.error(f"Failed to start scheduler: {e}")
-    
+
     yield
-    
+
     # Shutdown
     scheduler_service.stop()
     logger.info("Shutting down application")
@@ -61,7 +62,7 @@ app = FastAPI(
     version=settings.app_version,
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Configure CORS
@@ -82,7 +83,7 @@ async def root(request: Request):
     return {
         "message": f"Welcome to {settings.app_name}",
         "version": settings.app_version,
-        "docs": "/docs"
+        "docs": "/docs",
     }
 
 
@@ -90,10 +91,7 @@ async def root(request: Request):
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error"}
-    )
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 # Add rate limit exceeded handler
@@ -110,11 +108,11 @@ app.include_router(tasks.router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "src.api.main:app",
         host=settings.api_host,
         port=settings.api_port,
         reload=settings.api_reload,
-        log_level=settings.log_level.lower()
+        log_level=settings.log_level.lower(),
     )

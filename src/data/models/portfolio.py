@@ -1,4 +1,5 @@
 """Portfolio data models"""
+
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
@@ -9,6 +10,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class BrokerType(str, Enum):
     """Supported broker types"""
+
     FIDELITY = "fidelity"
     ROBINHOOD = "robinhood"
     COINBASE = "coinbase"
@@ -16,6 +18,7 @@ class BrokerType(str, Enum):
 
 class TransactionType(str, Enum):
     """Transaction types"""
+
     BUY = "buy"
     SELL = "sell"
     DIVIDEND = "dividend"
@@ -26,8 +29,9 @@ class TransactionType(str, Enum):
 
 class Position(BaseModel):
     """Individual position in portfolio"""
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: Optional[int] = None
     broker: BrokerType
     symbol: str
@@ -39,7 +43,7 @@ class Position(BaseModel):
     unrealized_pnl_percent: Optional[float] = None
     position_type: str = "stock"  # stock, option, crypto
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     def calculate_metrics(self) -> None:
         """Calculate derived metrics"""
         self.market_value = self.quantity * self.current_price
@@ -52,8 +56,9 @@ class Position(BaseModel):
 
 class Balance(BaseModel):
     """Account balance for a broker"""
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: Optional[int] = None
     broker: BrokerType
     cash: Decimal = Field(default=Decimal("0"), decimal_places=2)
@@ -62,7 +67,7 @@ class Balance(BaseModel):
     total_value: Optional[Decimal] = Field(default=None, decimal_places=2)
     buying_power: Optional[Decimal] = Field(default=None, decimal_places=2)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     def calculate_total(self) -> None:
         """Calculate total balance"""
         self.total_value = self.cash + self.margin + self.crypto
@@ -71,8 +76,9 @@ class Balance(BaseModel):
 
 class Transaction(BaseModel):
     """Transaction record"""
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: Optional[int] = None
     broker: BrokerType
     type: TransactionType
@@ -87,6 +93,7 @@ class Transaction(BaseModel):
 
 class PortfolioSummary(BaseModel):
     """Overall portfolio summary"""
+
     total_value: Decimal = Field(decimal_places=2)
     cash_buffer: Decimal = Field(decimal_places=2)
     total_positions_value: Decimal = Field(decimal_places=2)
@@ -98,7 +105,7 @@ class PortfolioSummary(BaseModel):
     positions: List[Position]
     balances: List[Balance]
     last_updated: datetime = Field(default_factory=datetime.utcnow)
-    
+
     @property
     def cash_buffer_percent(self) -> float:
         """Calculate cash buffer as percentage of total"""
@@ -109,8 +116,9 @@ class PortfolioSummary(BaseModel):
 
 class BrokerageAccount(BaseModel):
     """Brokerage account model"""
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: Optional[int] = None
     user_id: str
     brokerage_type: BrokerType
@@ -127,8 +135,9 @@ class BrokerageAccount(BaseModel):
 
 class TaxLot(BaseModel):
     """Tax lot model"""
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: Optional[int] = None
     position_id: int
     quantity: Decimal = Field(decimal_places=8)
@@ -140,6 +149,7 @@ class TaxLot(BaseModel):
 
 class PerformanceMetrics(BaseModel):
     """Performance metrics model"""
+
     timeframe: str  # daily, weekly, monthly, ytd, all
     start_date: datetime
     end_date: datetime
@@ -157,6 +167,7 @@ class PerformanceMetrics(BaseModel):
 
 class RiskMetrics(BaseModel):
     """Risk metrics model"""
+
     volatility: float
     sharpe_ratio: float
     sortino_ratio: Optional[float] = None
@@ -172,6 +183,7 @@ class RiskMetrics(BaseModel):
 
 class AssetAllocation(BaseModel):
     """Asset allocation model"""
+
     by_asset_class: Dict[str, float]
     by_sector: Dict[str, float]
     by_geography: Dict[str, float]
@@ -184,6 +196,7 @@ class AssetAllocation(BaseModel):
 
 class ConcentrationRisk(BaseModel):
     """Concentration risk model"""
+
     type: str  # "position", "sector", "geography"
     identifier: str  # symbol, sector name, country
     percentage: float
@@ -194,6 +207,7 @@ class ConcentrationRisk(BaseModel):
 
 class RebalancingAction(BaseModel):
     """Rebalancing action model"""
+
     action_type: str  # "buy", "sell", "rebalance"
     symbol: str
     current_allocation: float
@@ -206,8 +220,9 @@ class RebalancingAction(BaseModel):
 
 class Report(BaseModel):
     """Report model"""
+
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: Optional[int] = None
     user_id: str
     report_type: str
@@ -226,6 +241,7 @@ class Report(BaseModel):
 
 class SyncResult(BaseModel):
     """Sync operation result"""
+
     account_id: int
     sync_type: str
     status: str

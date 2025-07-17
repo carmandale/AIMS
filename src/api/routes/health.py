@@ -1,4 +1,5 @@
 """Health check endpoints"""
+
 from datetime import datetime
 from typing import Dict, Any
 
@@ -15,7 +16,7 @@ async def health_check() -> Dict[str, Any]:
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "version": settings.app_version,
-        "service": settings.app_name
+        "service": settings.app_name,
     }
 
 
@@ -30,10 +31,7 @@ async def health_check_detailed() -> Dict[str, Any]:
         "components": {
             "api": "operational",
             "database": "operational",  # TODO: Add actual DB check
-            "scheduler": "operational"  # TODO: Add APScheduler check
+            "scheduler": "operational",  # TODO: Add APScheduler check
         },
-        "environment": {
-            "timezone": settings.timezone,
-            "log_level": settings.log_level
-        }
+        "environment": {"timezone": settings.timezone, "log_level": settings.log_level},
     }

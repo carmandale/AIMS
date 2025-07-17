@@ -1,4 +1,5 @@
 """Database session management"""
+
 import logging
 from typing import Generator
 
@@ -18,23 +19,20 @@ if settings.database_url.startswith("sqlite"):
         settings.database_url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        echo=False
+        echo=False,
     )
-    
+
     # Enable foreign keys for SQLite
     @event.listens_for(engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
+
 else:
     # PostgreSQL or other databases
     engine = create_engine(
-        settings.database_url,
-        pool_size=10,
-        max_overflow=20,
-        pool_pre_ping=True,
-        echo=False
+        settings.database_url, pool_size=10, max_overflow=20, pool_pre_ping=True, echo=False
     )
 
 # Create session factory

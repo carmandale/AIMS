@@ -1,4 +1,5 @@
 """Portfolio API endpoints"""
+
 import logging
 from datetime import datetime
 from typing import List, Optional, Dict, Any
@@ -10,9 +11,7 @@ from slowapi.util import get_remote_address
 
 from src.db import get_db
 from src.services import PortfolioService
-from src.data.models import (
-    Position, Balance, Transaction, PortfolioSummary, MorningBrief
-)
+from src.data.models import Position, Balance, Transaction, PortfolioSummary, MorningBrief
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -34,16 +33,16 @@ async def get_portfolio_summary(db: Session = Depends(get_db)):
 @router.get("/positions", response_model=List[Position])
 async def get_positions(
     broker: Optional[str] = Query(None, description="Filter by broker"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get all positions across brokers"""
     try:
         positions = await portfolio_service.fetch_all_positions(db)
-        
+
         # Filter by broker if specified
         if broker:
             positions = [p for p in positions if p.broker.value == broker]
-        
+
         return positions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -63,14 +62,11 @@ async def get_balances(db: Session = Depends(get_db)):
 async def get_transactions(
     days: int = Query(7, description="Number of days to fetch"),
     broker: Optional[str] = Query(None, description="Filter by broker"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get recent transactions"""
     try:
-        transactions = await portfolio_service.get_transactions(
-            db=db,
-            broker=broker
-        )
+        transactions = await portfolio_service.get_transactions(db=db, broker=broker)
         return transactions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -90,14 +86,14 @@ async def get_weekly_performance(db: Session = Depends(get_db)):
                 {"date": "2024-12-12", "value": 590000, "pnl": 8000},
                 {"date": "2024-12-13", "value": 595000, "pnl": 5000},
                 {"date": "2024-12-14", "value": 598000, "pnl": 3000},
-                {"date": "2024-12-15", "value": 600000, "pnl": 2000}
+                {"date": "2024-12-15", "value": 600000, "pnl": 2000},
             ],
             "summary": {
                 "start_value": 580000,
                 "end_value": 600000,
                 "total_pnl": 20000,
-                "pnl_percent": 3.45
-            }
+                "pnl_percent": 3.45,
+            },
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -109,33 +105,36 @@ async def generate_weekly_report(db: Session = Depends(get_db)):
     try:
         # Check if blocking tasks are complete before generating report
         from src.services.tasks.compliance_checker import ComplianceChecker
+
         compliance_checker = ComplianceChecker()
-        
+
         blocking_status = await compliance_checker.check_weekly_cycle_ready(db)
-        
+
         if not blocking_status.is_ready:
             raise HTTPException(
                 status_code=409,
                 detail={
                     "message": "Cannot generate weekly report: blocking tasks incomplete",
-                    "blocking_tasks": [task.name for task in blocking_status.incomplete_blocking_tasks],
-                    "total_blocking": len(blocking_status.incomplete_blocking_tasks)
-                }
+                    "blocking_tasks": [
+                        task.name for task in blocking_status.incomplete_blocking_tasks
+                    ],
+                    "total_blocking": len(blocking_status.incomplete_blocking_tasks),
+                },
             )
-        
+
         # Generate the weekly report (mock implementation)
         summary = await portfolio_service.get_portfolio_summary(db)
-        
+
         report_data = {
             "report_id": f"weekly-{datetime.now().strftime('%Y-W%U')}",
             "generated_at": datetime.now().isoformat(),
             "portfolio_summary": summary,
             "status": "generated",
-            "message": "Weekly report generated successfully"
+            "message": "Weekly report generated successfully",
         }
-        
+
         return report_data
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -150,15 +149,16 @@ async def refresh_portfolio_data(request: Request, db: Session = Depends(get_db)
     try:
         # Invalidate cache
         from src.data.cache import cache_manager
+
         cache_manager.invalidate(db, "portfolio_")
-        
+
         # Fetch fresh data
         summary = await portfolio_service.get_portfolio_summary(db)
-        
+
         return {
             "status": "success",
             "message": "Portfolio data refreshed",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -169,13 +169,11 @@ async def get_performance_metrics(
     user_id: str = Query(..., description="User identifier"),
     timeframe: str = Query("ytd", description="Timeframe: daily, weekly, monthly, ytd, all"),
     benchmark: Optional[str] = Query(None, description="Benchmark symbol (e.g., SPY)"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get portfolio performance metrics"""
     try:
-        metrics = await portfolio_service.get_performance_metrics(
-            db, user_id, timeframe, benchmark
-        )
+        metrics = await portfolio_service.get_performance_metrics(db, user_id, timeframe, benchmark)
         return metrics.model_dump()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -185,7 +183,7 @@ async def get_performance_metrics(
 async def get_risk_metrics(
     user_id: str = Query(..., description="User identifier"),
     timeframe: str = Query("ytd", description="Timeframe for risk calculations"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get portfolio risk metrics"""
     try:
@@ -197,8 +195,7 @@ async def get_risk_metrics(
 
 @router.get("/allocation", response_model=Dict[str, Any])
 async def get_asset_allocation(
-    user_id: str = Query(..., description="User identifier"),
-    db: Session = Depends(get_db)
+    user_id: str = Query(..., description="User identifier"), db: Session = Depends(get_db)
 ):
     """Get portfolio asset allocation analysis"""
     try:
@@ -213,7 +210,7 @@ async def get_rebalancing_suggestions(
     user_id: str = Query(..., description="User identifier"),
     target_allocation: Dict[str, float] = Query(..., description="Target allocation percentages"),
     drift_threshold: float = Query(0.05, description="Drift threshold for rebalancing"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Get rebalancing suggestions"""
     try:
@@ -227,8 +224,7 @@ async def get_rebalancing_suggestions(
 
 @router.get("/concentration", response_model=Dict[str, Any])
 async def get_concentration_analysis(
-    user_id: str = Query(..., description="User identifier"),
-    db: Session = Depends(get_db)
+    user_id: str = Query(..., description="User identifier"), db: Session = Depends(get_db)
 ):
     """Get concentration risk analysis"""
     try:
@@ -242,7 +238,7 @@ async def get_concentration_analysis(
 async def run_stress_test(
     user_id: str = Query(..., description="User identifier"),
     scenarios: Optional[List[Dict[str, Any]]] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Run portfolio stress test"""
     try:
@@ -254,8 +250,7 @@ async def run_stress_test(
 
 @router.get("/risk-contributions", response_model=Dict[str, Dict[str, float]])
 async def get_position_risk_contributions(
-    user_id: str = Query(..., description="User identifier"),
-    db: Session = Depends(get_db)
+    user_id: str = Query(..., description="User identifier"), db: Session = Depends(get_db)
 ):
     """Get risk contribution of each position"""
     try:
@@ -267,8 +262,7 @@ async def get_position_risk_contributions(
 
 @router.get("/correlation-matrix", response_model=Dict[str, Dict[str, float]])
 async def get_correlation_matrix(
-    user_id: str = Query(..., description="User identifier"),
-    db: Session = Depends(get_db)
+    user_id: str = Query(..., description="User identifier"), db: Session = Depends(get_db)
 ):
     """Get correlation matrix between assets"""
     try:

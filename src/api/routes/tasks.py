@@ -1,4 +1,5 @@
 """Task management API routes"""
+
 import logging
 from datetime import date, datetime, timedelta
 from typing import List, Optional
@@ -20,7 +21,7 @@ from src.api.schemas.tasks import (
     BlockingTasksStatusResponse,
     CycleReadinessStatusResponse,
     WeeklyComplianceResponse,
-    TaskAuditLogResponse
+    TaskAuditLogResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,23 +36,27 @@ async def get_pending_tasks(
     db: Session = Depends(get_db),
     include_completed: bool = Query(False, description="Include completed tasks"),
     start_date: Optional[date] = Query(None, description="Filter by start date"),
-    end_date: Optional[date] = Query(None, description="Filter by end date")
+    end_date: Optional[date] = Query(None, description="Filter by end date"),
 ):
     """Get all pending tasks"""
     try:
         if include_completed:
             # Get all tasks in date range
             query = db.query(TaskInstance)
-            
+
             if start_date:
-                query = query.filter(TaskInstance.due_date >= datetime.combine(start_date, datetime.min.time()))
+                query = query.filter(
+                    TaskInstance.due_date >= datetime.combine(start_date, datetime.min.time())
+                )
             if end_date:
-                query = query.filter(TaskInstance.due_date <= datetime.combine(end_date, datetime.max.time()))
-            
+                query = query.filter(
+                    TaskInstance.due_date <= datetime.combine(end_date, datetime.max.time())
+                )
+
             tasks = query.order_by(TaskInstance.due_date, TaskInstance.priority).all()
         else:
             tasks = await task_service.get_pending_tasks(db)
-        
+
         return tasks
     except Exception as e:
         logger.error(f"Failed to get pending tasks: {e}")
@@ -73,7 +78,7 @@ async def get_overdue_tasks(db: Session = Depends(get_db)):
 async def get_compliance_metrics(
     db: Session = Depends(get_db),
     start_date: date = Query(..., description="Start date for metrics"),
-    end_date: date = Query(..., description="End date for metrics")
+    end_date: date = Query(..., description="End date for metrics"),
 ):
     """Get compliance metrics for a date range"""
     try:
@@ -87,7 +92,7 @@ async def get_compliance_metrics(
 @router.get("/compliance/trends", response_model=List[WeeklyComplianceResponse])
 async def get_compliance_trends(
     db: Session = Depends(get_db),
-    weeks: int = Query(12, ge=1, le=52, description="Number of weeks to analyze")
+    weeks: int = Query(12, ge=1, le=52, description="Number of weeks to analyze"),
 ):
     """Get weekly compliance trends"""
     try:
@@ -102,7 +107,7 @@ async def get_compliance_trends(
 async def complete_task(
     task_id: int = Path(..., description="Task instance ID"),
     request: TaskCompleteRequest = TaskCompleteRequest(),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Mark a task as complete"""
     try:
@@ -121,7 +126,7 @@ async def complete_task(
 async def skip_task(
     task_id: int = Path(..., description="Task instance ID"),
     request: TaskSkipRequest = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Skip a task with a reason"""
     try:
@@ -140,7 +145,7 @@ async def skip_task(
 async def update_task_status(
     task_id: int = Path(..., description="Task instance ID"),
     request: TaskStatusUpdateRequest = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update task status"""
     try:
@@ -159,7 +164,7 @@ async def update_task_status(
 @router.get("/templates", response_model=List[TaskTemplateResponse])
 async def get_task_templates(
     db: Session = Depends(get_db),
-    active_only: bool = Query(True, description="Return only active templates")
+    active_only: bool = Query(True, description="Return only active templates"),
 ):
     """Get all task templates"""
     try:
@@ -171,10 +176,7 @@ async def get_task_templates(
 
 
 @router.post("/templates", response_model=TaskTemplateResponse)
-async def create_task_template(
-    template: TaskTemplateCreate,
-    db: Session = Depends(get_db)
-):
+async def create_task_template(template: TaskTemplateCreate, db: Session = Depends(get_db)):
     """Create a new task template"""
     try:
         created_template = await task_service.create_task_template(
@@ -185,7 +187,7 @@ async def create_task_template(
             is_blocking=template.is_blocking,
             category=template.category,
             priority=template.priority,
-            estimated_duration=template.estimated_duration
+            estimated_duration=template.estimated_duration,
         )
         return created_template
     except ValueError as e:
@@ -199,16 +201,14 @@ async def create_task_template(
 async def update_task_template(
     template_id: int = Path(..., description="Template ID"),
     updates: TaskTemplateUpdate = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Update a task template"""
     try:
         # Filter out None values
         update_data = {k: v for k, v in updates.dict().items() if v is not None}
-        
-        updated_template = await task_service.update_task_template(
-            db, template_id, **update_data
-        )
+
+        updated_template = await task_service.update_task_template(db, template_id, **update_data)
         return updated_template
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -219,8 +219,7 @@ async def update_task_template(
 
 @router.delete("/templates/{template_id}")
 async def delete_task_template(
-    template_id: int = Path(..., description="Template ID"),
-    db: Session = Depends(get_db)
+    template_id: int = Path(..., description="Template ID"), db: Session = Depends(get_db)
 ):
     """Delete a task template (soft delete)"""
     try:
@@ -237,7 +236,7 @@ async def delete_task_template(
 @router.get("/blocking-status", response_model=BlockingTasksStatusResponse)
 async def get_blocking_status(
     db: Session = Depends(get_db),
-    check_date: Optional[date] = Query(None, description="Date to check (defaults to today)")
+    check_date: Optional[date] = Query(None, description="Date to check (defaults to today)"),
 ):
     """Check if blocking tasks are complete"""
     try:
@@ -251,7 +250,7 @@ async def get_blocking_status(
 @router.get("/weekly-readiness", response_model=CycleReadinessStatusResponse)
 async def get_weekly_readiness(
     db: Session = Depends(get_db),
-    check_date: Optional[date] = Query(None, description="Date to check (defaults to today)")
+    check_date: Optional[date] = Query(None, description="Date to check (defaults to today)"),
 ):
     """Check if weekly cycle can close"""
     try:
@@ -266,15 +265,12 @@ async def get_weekly_readiness(
 async def generate_task_instances(
     db: Session = Depends(get_db),
     start_date: date = Query(..., description="Start date for task generation"),
-    end_date: date = Query(..., description="End date for task generation")
+    end_date: date = Query(..., description="End date for task generation"),
 ):
     """Generate task instances from templates for a date range"""
     try:
         instances = await task_service.generate_task_instances(db, start_date, end_date)
-        return {
-            "message": f"Generated {len(instances)} task instances",
-            "count": len(instances)
-        }
+        return {"message": f"Generated {len(instances)} task instances", "count": len(instances)}
     except Exception as e:
         logger.error(f"Failed to generate task instances: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -282,15 +278,17 @@ async def generate_task_instances(
 
 @router.get("/{task_id}/audit", response_model=List[TaskAuditLogResponse])
 async def get_task_audit_log(
-    task_id: int = Path(..., description="Task instance ID"),
-    db: Session = Depends(get_db)
+    task_id: int = Path(..., description="Task instance ID"), db: Session = Depends(get_db)
 ):
     """Get audit log for a specific task"""
     try:
-        audit_entries = db.query(TaskAuditLog).filter(
-            TaskAuditLog.task_instance_id == task_id
-        ).order_by(TaskAuditLog.timestamp.desc()).all()
-        
+        audit_entries = (
+            db.query(TaskAuditLog)
+            .filter(TaskAuditLog.task_instance_id == task_id)
+            .order_by(TaskAuditLog.timestamp.desc())
+            .all()
+        )
+
         return audit_entries
     except Exception as e:
         logger.error(f"Failed to get audit log for task {task_id}: {e}")

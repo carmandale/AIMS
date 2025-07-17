@@ -1,11 +1,22 @@
 """SQLAlchemy database models"""
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Numeric, 
-    Text, JSON, Date, Index, Enum as SQLEnum, Boolean, ForeignKey
+    Column,
+    Integer,
+    String,
+    DateTime,
+    Numeric,
+    Text,
+    JSON,
+    Date,
+    Index,
+    Enum as SQLEnum,
+    Boolean,
+    ForeignKey,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -18,8 +29,9 @@ Base = declarative_base()
 
 class BrokerageAccount(Base):
     """Brokerage account database model"""
+
     __tablename__ = "brokerage_accounts"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), nullable=False, index=True)
     brokerage_type = Column(SQLEnum(BrokerType), nullable=False)
@@ -29,15 +41,17 @@ class BrokerageAccount(Base):
     is_active = Column(Boolean, default=True)
     last_synced = Column(DateTime, nullable=True)
     sync_status = Column(String(20), default="pending")  # success, failed, in_progress, pending
-    connection_status = Column(String(20), default="disconnected")  # connected, disconnected, expired
+    connection_status = Column(
+        String(20), default="disconnected"
+    )  # connected, disconnected, expired
     encrypted_credentials = Column(Text, nullable=True)  # Encrypted credential data
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
+
     # Relationships
     positions = relationship("Position", back_populates="account")
     transactions = relationship("Transaction", back_populates="account")
-    
+
     # Indexes
     __table_args__ = (
         Index("idx_user_brokerage", "user_id", "brokerage_type"),
@@ -47,8 +61,9 @@ class BrokerageAccount(Base):
 
 class Position(Base):
     """Position database model"""
+
     __tablename__ = "positions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("brokerage_accounts.id"), nullable=False)
     broker = Column(SQLEnum(BrokerType), nullable=False, index=True)
@@ -62,10 +77,10 @@ class Position(Base):
     industry = Column(String(100), nullable=True)
     country = Column(String(50), nullable=True)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
+
     # Relationships
     account = relationship("BrokerageAccount", back_populates="positions")
-    
+
     # Create composite index for broker + symbol
     __table_args__ = (
         Index("idx_broker_symbol", "broker", "symbol"),
@@ -75,8 +90,9 @@ class Position(Base):
 
 class Balance(Base):
     """Balance database model"""
+
     __tablename__ = "balances"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     broker = Column(SQLEnum(BrokerType), nullable=False, unique=True, index=True)
     cash = Column(Numeric(20, 2), default=0)
@@ -87,8 +103,9 @@ class Balance(Base):
 
 class Transaction(Base):
     """Transaction database model"""
+
     __tablename__ = "transactions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("brokerage_accounts.id"), nullable=False)
     broker = Column(SQLEnum(BrokerType), nullable=False, index=True)
@@ -102,10 +119,10 @@ class Transaction(Base):
     settlement_date = Column(Date, nullable=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Relationships
     account = relationship("BrokerageAccount", back_populates="transactions")
-    
+
     # Index for efficient date range queries
     __table_args__ = (
         Index("idx_timestamp_broker", "timestamp", "broker"),
@@ -115,8 +132,9 @@ class Transaction(Base):
 
 class MorningBrief(Base):
     """Morning brief database model"""
+
     __tablename__ = "morning_brief"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     date = Column(Date, nullable=False, unique=True, index=True)
     portfolio_value = Column(Numeric(20, 2), nullable=False)
@@ -132,8 +150,9 @@ class MorningBrief(Base):
 
 class CachedData(Base):
     """Cache for API responses"""
+
     __tablename__ = "cached_data"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     cache_key = Column(String(255), unique=True, nullable=False, index=True)
     data = Column(JSON, nullable=False)
@@ -143,8 +162,9 @@ class CachedData(Base):
 
 class TaskStatus(Base):
     """Task status for TODO tracking"""
+
     __tablename__ = "task_status"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     task_id = Column(String(100), unique=True, nullable=False, index=True)
     task_name = Column(String(255), nullable=False)
@@ -158,8 +178,9 @@ class TaskStatus(Base):
 
 class TaskTemplate(Base):
     """Template for recurring tasks"""
+
     __tablename__ = "task_templates"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
@@ -175,8 +196,9 @@ class TaskTemplate(Base):
 
 class TaskInstance(Base):
     """Individual task instances generated from templates"""
+
     __tablename__ = "task_instances"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     template_id = Column(Integer, ForeignKey("task_templates.id"), nullable=False)
     name = Column(String(255), nullable=False)
@@ -194,8 +216,9 @@ class TaskInstance(Base):
 
 class TaskAuditLog(Base):
     """Audit trail for task changes"""
+
     __tablename__ = "task_audit_log"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     task_instance_id = Column(Integer, ForeignKey("task_instances.id"), nullable=False)
     action = Column(String(50), nullable=False)  # created, started, completed, skipped, modified
@@ -208,8 +231,9 @@ class TaskAuditLog(Base):
 
 class TaxLot(Base):
     """Tax lot information for positions"""
+
     __tablename__ = "tax_lots"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     position_id = Column(Integer, ForeignKey("positions.id"), nullable=False)
     quantity = Column(Numeric(20, 8), nullable=False)
@@ -217,20 +241,19 @@ class TaxLot(Base):
     acquisition_date = Column(Date, nullable=False)
     is_long_term = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Relationships
     position = relationship("Position")
-    
+
     # Indexes
-    __table_args__ = (
-        Index("idx_position_date", "position_id", "acquisition_date"),
-    )
+    __table_args__ = (Index("idx_position_date", "position_id", "acquisition_date"),)
 
 
 class SyncLog(Base):
     """Synchronization log for portfolio data"""
+
     __tablename__ = "sync_logs"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("brokerage_accounts.id"), nullable=False)
     sync_type = Column(String(50), nullable=False)  # full, incremental, positions, transactions
@@ -241,10 +264,10 @@ class SyncLog(Base):
     records_processed = Column(Integer, default=0)
     records_updated = Column(Integer, default=0)
     records_failed = Column(Integer, default=0)
-    
+
     # Relationships
     account = relationship("BrokerageAccount")
-    
+
     # Indexes
     __table_args__ = (
         Index("idx_account_date", "account_id", "started_at"),
@@ -254,8 +277,9 @@ class SyncLog(Base):
 
 class PerformanceSnapshot(Base):
     """Performance metrics snapshot"""
+
     __tablename__ = "performance_snapshots"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), nullable=False, index=True)
     snapshot_date = Column(Date, nullable=False)
@@ -274,17 +298,16 @@ class PerformanceSnapshot(Base):
     sharpe_ratio = Column(Numeric(10, 4), nullable=True)
     max_drawdown = Column(Numeric(10, 4), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Indexes
-    __table_args__ = (
-        Index("idx_user_date", "user_id", "snapshot_date"),
-    )
+    __table_args__ = (Index("idx_user_date", "user_id", "snapshot_date"),)
 
 
 class Report(Base):
     """Generated portfolio reports"""
+
     __tablename__ = "reports"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), nullable=False, index=True)
     report_type = Column(String(50), nullable=False)  # summary, performance, tax, allocation
@@ -299,7 +322,7 @@ class Report(Base):
     expires_at = Column(DateTime, nullable=True)
     downloaded_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Indexes
     __table_args__ = (
         Index("idx_user_type", "user_id", "report_type"),
@@ -309,8 +332,9 @@ class Report(Base):
 
 class AssetAllocation(Base):
     """Asset allocation snapshot"""
+
     __tablename__ = "asset_allocations"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), nullable=False, index=True)
     snapshot_date = Column(Date, nullable=False)
@@ -322,8 +346,6 @@ class AssetAllocation(Base):
     concentration_risks = Column(JSON, nullable=False)  # List of concentration risk objects
     diversification_score = Column(Numeric(5, 2), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Indexes
-    __table_args__ = (
-        Index("idx_user_date", "user_id", "snapshot_date"),
-    )
+    __table_args__ = (Index("idx_user_date", "user_id", "snapshot_date"),)
