@@ -212,13 +212,9 @@ async def update_task_template(
     """Update a task template"""
     try:
         # Filter out None values
-        update_data = (
-            {k: v for k, v in updates.dict().items() if v is not None} if updates else {}
-        )
+        update_data = {k: v for k, v in updates.dict().items() if v is not None} if updates else {}
 
-        updated_template = await task_service.update_task_template(
-            db, template_id, **update_data
-        )
+        updated_template = await task_service.update_task_template(db, template_id, **update_data)
         return updated_template
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

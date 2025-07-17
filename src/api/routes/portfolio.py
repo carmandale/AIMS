@@ -115,9 +115,7 @@ async def generate_weekly_report(db: Session = Depends(get_db)):
                 status_code=409,
                 detail={
                     "message": "Cannot generate weekly report: blocking tasks incomplete",
-                    "blocking_tasks": [
-                        task["name"] for task in blocking_status.blocking_tasks
-                    ],
+                    "blocking_tasks": [task["name"] for task in blocking_status.blocking_tasks],
                     "total_blocking": len(blocking_status.blocking_tasks),
                 },
             )
@@ -173,9 +171,7 @@ async def get_performance_metrics(
 ):
     """Get portfolio performance metrics"""
     try:
-        metrics = await portfolio_service.get_performance_metrics(
-            db, user_id, timeframe, benchmark
-        )
+        metrics = await portfolio_service.get_performance_metrics(db, user_id, timeframe, benchmark)
         return metrics.model_dump()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

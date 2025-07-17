@@ -46,12 +46,12 @@ async def get_morning_brief(
                     KeyPosition(**pos) if isinstance(pos, dict) else pos
                     for pos in (db_brief.key_positions or [])
                 ],
-                market_summary=db_brief.market_summary
-                if isinstance(db_brief.market_summary, dict)
-                else {},
-                recommendations=db_brief.recommendations
-                if isinstance(db_brief.recommendations, list)
-                else [],
+                market_summary=(
+                    db_brief.market_summary if isinstance(db_brief.market_summary, dict) else {}
+                ),
+                recommendations=(
+                    db_brief.recommendations if isinstance(db_brief.recommendations, list) else []
+                ),
             )
             return brief
 

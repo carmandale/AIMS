@@ -51,9 +51,7 @@ class RiskMetricsEngine:
         max_drawdown = self._calculate_max_drawdown(portfolio_values)
 
         # Calculate drawdown period
-        max_drawdown_start, max_drawdown_end = self._calculate_max_drawdown_period(
-            portfolio_values
-        )
+        max_drawdown_start, max_drawdown_end = self._calculate_max_drawdown_period(portfolio_values)
 
         # Calculate Value at Risk (VaR)
         var_95 = self._calculate_var(daily_returns, 0.95)
@@ -207,12 +205,8 @@ class RiskMetricsEngine:
             position_data, key=lambda x: x["weight"], reverse=True
         )  # type: ignore
 
-        top_5_concentration = sum(
-            p["weight"] for p in sorted_positions[:5]
-        )  # type: ignore
-        top_10_concentration = sum(
-            p["weight"] for p in sorted_positions[:10]
-        )  # type: ignore
+        top_5_concentration = sum(p["weight"] for p in sorted_positions[:5])  # type: ignore
+        top_10_concentration = sum(p["weight"] for p in sorted_positions[:10])  # type: ignore
 
         return {
             "herfindahl_index": herfindahl_index,
