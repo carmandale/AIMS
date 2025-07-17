@@ -90,7 +90,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
     const analysis: Array<{
       type: string;
       message: string;
-      icon: any;
+      icon: React.ComponentType<any>;
       color: string;
     }> = [];
     
