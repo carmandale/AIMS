@@ -24,7 +24,9 @@ class RRuleParser:
     def __init__(self):
         self.supported_freqs = {"DAILY": DAILY, "WEEKLY": WEEKLY, "MONTHLY": MONTHLY}
 
-    def parse_rrule(self, rrule_string: str, dtstart: Optional[datetime] = None) -> Union[rrule, rruleset]:
+    def parse_rrule(
+        self, rrule_string: str, dtstart: Optional[datetime] = None
+    ) -> Union[rrule, rruleset]:
         """Parse an RRULE string into a dateutil.rrule object
 
         Args:

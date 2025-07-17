@@ -113,7 +113,9 @@ async def complete_task(
     try:
         # TODO: Get actual user ID from auth
         user_id = "system"
-        task = await task_service.complete_task(db, task_id, user_id, request.notes if request else None)
+        task = await task_service.complete_task(
+            db, task_id, user_id, request.notes if request else None
+        )
         return task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -132,7 +134,9 @@ async def skip_task(
     try:
         # TODO: Get actual user ID from auth
         user_id = "system"
-        task = await task_service.skip_task(db, task_id, user_id, request.reason if request else "No reason provided")
+        task = await task_service.skip_task(
+            db, task_id, user_id, request.reason if request else "No reason provided"
+        )
         return task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -151,7 +155,9 @@ async def update_task_status(
     try:
         # TODO: Get actual user ID from auth
         user_id = "system"
-        task = await task_service.update_task_status(db, task_id, request.status if request else "pending", user_id)
+        task = await task_service.update_task_status(
+            db, task_id, request.status if request else "pending", user_id
+        )
         return task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -206,7 +212,9 @@ async def update_task_template(
     """Update a task template"""
     try:
         # Filter out None values
-        update_data = {k: v for k, v in updates.dict().items() if v is not None} if updates else {}
+        update_data = (
+            {k: v for k, v in updates.dict().items() if v is not None} if updates else {}
+        )
 
         updated_template = await task_service.update_task_template(db, template_id, **update_data)
         return updated_template

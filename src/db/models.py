@@ -27,6 +27,7 @@ from src.data.models import BrokerType, TransactionType
 # Type annotations for mypy
 if TYPE_CHECKING:
     from sqlalchemy.orm import DeclarativeMeta
+
     Base: DeclarativeMeta = declarative_base()
 else:
     Base = declarative_base()
