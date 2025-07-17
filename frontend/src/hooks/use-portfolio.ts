@@ -6,6 +6,7 @@ export interface Position {
   id?: number;
   broker: string;
   symbol: string;
+  name?: string;
   quantity: number;
   cost_basis: number;
   current_price: number;

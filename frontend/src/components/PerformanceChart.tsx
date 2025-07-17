@@ -87,7 +87,12 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
   };
   
   const getPerformanceAnalysis = (performance: PerformanceMetrics, riskMetrics: RiskMetrics) => {
-    const analysis = [];
+    const analysis: {
+      type: string;
+      message: string;
+      icon: React.ComponentType<any>;
+      color: string;
+    }[] = [];
     
     if (performance.percent_change > 0) {
       analysis.push({

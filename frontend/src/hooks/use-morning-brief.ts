@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 
@@ -53,6 +52,7 @@ export interface MorningBrief {
   overnight_pnl_percent: number;
   cash_available: number;
   volatility_alerts: VolatilityAlert[];
+  alerts?: VolatilityAlert[];
   key_positions: KeyPosition[];
   market_summary: MarketSummary;
   recommendations: string[];

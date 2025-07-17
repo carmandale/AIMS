@@ -148,7 +148,7 @@ class ReportGenerator:
             else:
                 logger.warning(f"Report file not found at {db_report.file_path}")
                 return None
-        
+
         except (ValueError, TypeError):
             logger.warning(f"Invalid report ID: {report_id}")
             return None

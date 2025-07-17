@@ -20,13 +20,13 @@ async def generate_report(
     user_id: str,
     report_type: str,
     parameters: Dict[str, Any],
-    format: str = "pdf",
+    format_: str = "pdf",
     db: Session = Depends(get_db),
 ):
     """Generate a report"""
     try:
         report = await report_generator.generate_report(
-            db, user_id, report_type, parameters, format
+            db, user_id, report_type, parameters, format_
         )
         return {
             "report_id": report.id,
@@ -82,12 +82,13 @@ async def download_report(
         file_path = await report_generator.get_report_file(db, report_id)
         if not file_path:
             raise HTTPException(status_code=404, detail="Report file not found")
-        
+
         from fastapi.responses import FileResponse
+
         return FileResponse(
             file_path,
             media_type="application/pdf",
-            filename=f"report_{report_id}.pdf"
+            filename=f"report_{report_id}.pdf",
         )
     except HTTPException:
         raise
