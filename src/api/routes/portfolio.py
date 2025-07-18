@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Body
 from sqlalchemy.orm import Session
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -206,7 +206,7 @@ async def get_asset_allocation(
 @router.post("/rebalancing-suggestions", response_model=List[Dict[str, Any]])
 async def get_rebalancing_suggestions(
     user_id: str = Query(..., description="User identifier"),
-    target_allocation: Dict[str, float] = Query(..., description="Target allocation percentages"),
+    target_allocation: Dict[str, float] = Body(..., description="Target allocation percentages"),
     drift_threshold: float = Query(0.05, description="Drift threshold for rebalancing"),
     db: Session = Depends(get_db),
 ):
