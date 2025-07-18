@@ -28,6 +28,25 @@ from src.data.models import BrokerType, TransactionType
 Base = declarative_base()
 
 
+class User(Base):  # type: ignore
+    """User database model"""
+
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), unique=True, nullable=False, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    last_login = Column(DateTime, nullable=True)
+
+    # Relationships
+    brokerage_accounts = relationship("BrokerageAccount", back_populates="user")
+
+
 class BrokerageAccount(Base):  # type: ignore  # type: ignore
     """Brokerage account database model"""
 
@@ -50,6 +69,7 @@ class BrokerageAccount(Base):  # type: ignore  # type: ignore
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
+    user = relationship("User", back_populates="brokerage_accounts")  # type: ignore
     positions = relationship("Position", back_populates="account")  # type: ignore
     transactions = relationship("Transaction", back_populates="account")  # type: ignore
 

@@ -16,6 +16,8 @@ httpx==0.27.0
 yfinance==0.2.40
 ccxt==4.3.24
 python-dateutil==2.8.2
+PyJWT==2.8.0
+bcrypt==4.0.1
 
 # SnapTrade integration for real brokerage data
 snaptrade-python-sdk==11.0.114
