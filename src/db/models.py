@@ -20,7 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from src.data.models import BrokerType, TransactionType
 
@@ -44,7 +44,7 @@ class User(Base):  # type: ignore
     last_login = Column(DateTime, nullable=True)
 
     # Relationships
-    brokerage_accounts = relationship("BrokerageAccount", back_populates="user")
+    brokerage_accounts: Mapped[List["BrokerageAccount"]] = relationship("BrokerageAccount", back_populates="user")  # type: ignore
 
 
 class BrokerageAccount(Base):  # type: ignore  # type: ignore

@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Dict, List
 
 import jwt
 from fastapi import HTTPException, Request, Depends
@@ -124,7 +124,7 @@ class RateLimitByUser:
 
     def __init__(self, requests_per_minute: int = 60):
         self.requests_per_minute = requests_per_minute
-        self.user_requests = {}
+        self.user_requests: Dict[str, List[datetime]] = {}
         self.window_size = 60  # 1 minute window
 
     def is_allowed(self, user_id: str) -> bool:
