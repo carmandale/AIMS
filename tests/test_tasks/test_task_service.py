@@ -1,17 +1,15 @@
-from datetime import timedelta
-
 """Unit tests for TaskService"""
 
 import pytest
-from datetime import date, datetime
-from unittest.mock import Mock, MagicMock, patch
+from datetime import date, datetime, timedelta
+from unittest.mock import Mock, AsyncMock
 from sqlalchemy.orm import Session
-from datetime import timedelta
 
-from src.services.tasks.task_service import TaskService, ComplianceMetrics
-from src.db.models import TaskTemplate, TaskInstance, TaskAuditLog
+from src.services.tasks.task_service import TaskService
+from src.db.models import TaskTemplate, TaskInstance
 
 
+@pytest.mark.asyncio
 class TestTaskService:
     """Test cases for TaskService"""
 
@@ -20,7 +18,7 @@ class TestTaskService:
         self.service = TaskService()
         self.mock_db = Mock(spec=Session)
 
-    def test_create_task_template_valid(self):
+    async def test_create_task_template_valid(self):
         """Test creating a valid task template"""
         # Mock the RRULE validation
         self.service.rrule_parser.validate_rrule = Mock()
@@ -31,7 +29,7 @@ class TestTaskService:
         self.mock_db.commit = Mock()
         self.mock_db.refresh = Mock()
 
-        template = self.service.create_task_template(
+        await self.service.create_task_template(
             self.mock_db,
             name="Test Task",
             rrule="RRULE:FREQ=DAILY",
@@ -46,24 +44,28 @@ class TestTaskService:
         self.mock_db.commit.assert_called_once()
         self.mock_db.refresh.assert_called_once()
 
-    def test_create_task_template_invalid_rrule(self):
+    async def test_create_task_template_invalid_rrule(self):
         """Test creating task template with invalid RRULE"""
         # Mock invalid RRULE validation
         self.service.rrule_parser.validate_rrule = Mock()
-        self.service.rrule_parser.validate_rrule.return_value.is_valid = False
-        self.service.rrule_parser.validate_rrule.return_value.error_message = "Invalid syntax"
+        validate_result = self.service.rrule_parser.validate_rrule.return_value
+        validate_result.is_valid = False
+        validate_result.error_message = "Invalid syntax"
 
         with pytest.raises(ValueError, match="Invalid RRULE"):
-            self.service.create_task_template(self.mock_db, name="Test Task", rrule="INVALID_RRULE")
+            await self.service.create_task_template(
+                self.mock_db, name="Test Task", rrule="INVALID_RRULE"
+            )
 
-    def test_update_task_template(self):
+    async def test_update_task_template(self):
         """Test updating an existing task template"""
         # Mock existing template
         mock_template = Mock(spec=TaskTemplate)
         mock_template.id = 1
         mock_template.name = "Old Name"
 
-        self.mock_db.query.return_value.filter.return_value.first.return_value = mock_template
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = mock_template
         self.mock_db.commit = Mock()
         self.mock_db.refresh = Mock()
 
@@ -71,7 +73,7 @@ class TestTaskService:
         self.service.rrule_parser.validate_rrule = Mock()
         self.service.rrule_parser.validate_rrule.return_value.is_valid = True
 
-        updated = self.service.update_task_template(
+        await self.service.update_task_template(
             self.mock_db, template_id=1, name="New Name", rrule="RRULE:FREQ=WEEKLY"
         )
 
@@ -79,47 +81,51 @@ class TestTaskService:
         assert mock_template.rrule == "RRULE:FREQ=WEEKLY"
         self.mock_db.commit.assert_called_once()
 
-    def test_update_task_template_not_found(self):
+    async def test_update_task_template_not_found(self):
         """Test updating non-existent task template"""
-        self.mock_db.query.return_value.filter.return_value.first.return_value = None
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = None
 
         with pytest.raises(ValueError, match="Task template 999 not found"):
-            self.service.update_task_template(self.mock_db, template_id=999)
+            await self.service.update_task_template(self.mock_db, template_id=999)
 
-    def test_delete_task_template(self):
+    async def test_delete_task_template(self):
         """Test soft deleting a task template"""
         mock_template = Mock(spec=TaskTemplate)
         mock_template.is_active = True
 
-        self.mock_db.query.return_value.filter.return_value.first.return_value = mock_template
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = mock_template
         self.mock_db.commit = Mock()
 
-        result = self.service.delete_task_template(self.mock_db, template_id=1)
+        result = await self.service.delete_task_template(self.mock_db, template_id=1)
 
         assert result is True
         assert mock_template.is_active is False
         self.mock_db.commit.assert_called_once()
 
-    def test_delete_task_template_not_found(self):
+    async def test_delete_task_template_not_found(self):
         """Test deleting non-existent task template"""
-        self.mock_db.query.return_value.filter.return_value.first.return_value = None
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = None
 
-        result = self.service.delete_task_template(self.mock_db, template_id=999)
+        result = await self.service.delete_task_template(self.mock_db, template_id=999)
 
         assert result is False
 
-    def test_get_task_templates_active_only(self):
+    async def test_get_task_templates_active_only(self):
         """Test getting active task templates"""
         mock_templates = [Mock(spec=TaskTemplate), Mock(spec=TaskTemplate)]
-        self.mock_db.query.return_value.filter.return_value.all.return_value = mock_templates
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.all.return_value = mock_templates
 
-        templates = self.service.get_task_templates(self.mock_db, active_only=True)
+        templates = await self.service.get_task_templates(self.mock_db, active_only=True)
 
         assert len(templates) == 2
         # Verify filter was called for active templates
         self.mock_db.query.return_value.filter.assert_called_once()
 
-    def test_generate_task_instances(self):
+    async def test_generate_task_instances(self):
         """Test generating task instances from templates"""
         # Mock active templates
         mock_template = Mock(spec=TaskTemplate)
@@ -130,18 +136,19 @@ class TestTaskService:
         mock_template.priority = 1
         mock_template.description = "Test"
 
-        self.service.get_task_templates = Mock(return_value=[mock_template])
+        self.service.get_task_templates = AsyncMock(return_value=[mock_template])
 
         # Mock RRULE occurrences
         mock_occurrences = [datetime(2025, 7, 16, 10, 0), datetime(2025, 7, 17, 10, 0)]
         self.service.rrule_parser.generate_occurrences = Mock(return_value=mock_occurrences)
 
         # Mock existing task check
-        self.mock_db.query.return_value.filter.return_value.first.return_value = None
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = None
         self.mock_db.add = Mock()
         self.mock_db.commit = Mock()
 
-        instances = self.service.generate_task_instances(
+        instances = await self.service.generate_task_instances(
             self.mock_db, date(2025, 7, 16), date(2025, 7, 17)
         )
 
@@ -149,28 +156,29 @@ class TestTaskService:
         assert self.mock_db.add.call_count == 2
         self.mock_db.commit.assert_called_once()
 
-    def test_generate_task_instances_skip_existing(self):
+    async def test_generate_task_instances_skip_existing(self):
         """Test that existing task instances are not duplicated"""
         mock_template = Mock(spec=TaskTemplate)
         mock_template.id = 1
         mock_template.rrule = "RRULE:FREQ=DAILY"
 
-        self.service.get_task_templates = Mock(return_value=[mock_template])
+        self.service.get_task_templates = AsyncMock(return_value=[mock_template])
         self.service.rrule_parser.generate_occurrences = Mock(
             return_value=[datetime(2025, 7, 16, 10, 0)]
         )
 
         # Mock existing task
-        self.mock_db.query.return_value.filter.return_value.first.return_value = Mock()
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = Mock()
 
-        instances = self.service.generate_task_instances(
+        instances = await self.service.generate_task_instances(
             self.mock_db, date(2025, 7, 16), date(2025, 7, 16)
         )
 
         assert len(instances) == 0  # No new instances created
         self.mock_db.add.assert_not_called()
 
-    def test_get_pending_tasks(self):
+    async def test_get_pending_tasks(self):
         """Test getting pending tasks"""
         mock_tasks = [
             self._create_mock_task(1, "Task 1", "pending"),
@@ -178,38 +186,41 @@ class TestTaskService:
         ]
 
         query_mock = Mock()
-        query_mock.filter.return_value.order_by.return_value.all.return_value = mock_tasks
+        filter_result = query_mock.filter.return_value.order_by.return_value
+        filter_result.all.return_value = mock_tasks
         self.mock_db.query.return_value = query_mock
 
-        tasks = self.service.get_pending_tasks(self.mock_db)
+        tasks = await self.service.get_pending_tasks(self.mock_db)
 
         assert len(tasks) == 2
         query_mock.filter.assert_called_once()
         query_mock.filter.return_value.order_by.assert_called_once()
 
-    def test_get_overdue_tasks(self):
+    async def test_get_overdue_tasks(self):
         """Test getting overdue tasks"""
         mock_tasks = [self._create_mock_task(1, "Overdue Task", "pending")]
 
         query_mock = Mock()
-        query_mock.filter.return_value.order_by.return_value.all.return_value = mock_tasks
+        filter_result = query_mock.filter.return_value.order_by.return_value
+        filter_result.all.return_value = mock_tasks
         self.mock_db.query.return_value = query_mock
 
-        tasks = self.service.get_overdue_tasks(self.mock_db)
+        tasks = await self.service.get_overdue_tasks(self.mock_db)
 
         assert len(tasks) == 1
         # Verify filter was called with overdue criteria
         query_mock.filter.assert_called_once()
 
-    def test_complete_task(self):
+    async def test_complete_task(self):
         """Test completing a task"""
         mock_task = self._create_mock_task(1, "Test Task", "pending")
-        self.mock_db.query.return_value.filter.return_value.first.return_value = mock_task
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = mock_task
         self.mock_db.add = Mock()
         self.mock_db.commit = Mock()
         self.mock_db.refresh = Mock()
 
-        completed_task = self.service.complete_task(
+        await self.service.complete_task(
             self.mock_db, task_id=1, user_id="test_user", notes="Completed successfully"
         )
 
@@ -220,22 +231,24 @@ class TestTaskService:
         self.mock_db.add.assert_called_once()  # Audit log added
         self.mock_db.commit.assert_called_once()
 
-    def test_complete_task_not_found(self):
+    async def test_complete_task_not_found(self):
         """Test completing non-existent task"""
-        self.mock_db.query.return_value.filter.return_value.first.return_value = None
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = None
 
         with pytest.raises(ValueError, match="Task 999 not found"):
-            self.service.complete_task(self.mock_db, task_id=999, user_id="test")
+            await self.service.complete_task(self.mock_db, task_id=999, user_id="test")
 
-    def test_skip_task(self):
+    async def test_skip_task(self):
         """Test skipping a task"""
         mock_task = self._create_mock_task(1, "Test Task", "pending")
-        self.mock_db.query.return_value.filter.return_value.first.return_value = mock_task
+        query_result = self.mock_db.query.return_value.filter.return_value
+        query_result.first.return_value = mock_task
         self.mock_db.add = Mock()
         self.mock_db.commit = Mock()
         self.mock_db.refresh = Mock()
 
-        skipped_task = self.service.skip_task(
+        await self.service.skip_task(
             self.mock_db, task_id=1, user_id="test_user", reason="Not applicable today"
         )
 
@@ -244,7 +257,7 @@ class TestTaskService:
         self.mock_db.add.assert_called_once()  # Audit log added
         self.mock_db.commit.assert_called_once()
 
-    def test_get_compliance_metrics(self):
+    async def test_get_compliance_metrics(self):
         """Test getting compliance metrics"""
         # Mock tasks
         mock_tasks = [
@@ -257,15 +270,15 @@ class TestTaskService:
         # Set overdue for task 3
         mock_tasks[2].due_date = datetime.now() - timedelta(days=1)
 
-        self.mock_db.query.return_value.filter.return_value.all.return_value = mock_tasks
+        query_all_result = self.mock_db.query.return_value.filter.return_value.all
+        query_all_result.return_value = mock_tasks
 
         # Mock blocking status check
-        self.service.compliance_checker.check_blocking_tasks_complete = Mock()
-        self.service.compliance_checker.check_blocking_tasks_complete.return_value.all_complete = (
-            False
-        )
+        self.service.compliance_checker.check_blocking_tasks_complete = AsyncMock()
+        check_result = self.service.compliance_checker.check_blocking_tasks_complete.return_value
+        check_result.all_complete = False
 
-        metrics = self.service.get_compliance_metrics(
+        metrics = await self.service.get_compliance_metrics(
             self.mock_db, date(2025, 7, 14), date(2025, 7, 20)
         )
 

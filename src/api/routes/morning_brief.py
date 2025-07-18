@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from src.db import get_db
 from src.services import PortfolioService
 from src.data.models import MorningBrief
+from src.data.models.market import VolatilityAlert, KeyPosition
 
 router = APIRouter(prefix="/morning-brief", tags=["morning-brief"])
 portfolio_service = PortfolioService()
@@ -39,12 +40,14 @@ async def get_morning_brief(
                 overnight_pnl_percent=float(db_brief.overnight_pnl_percent),
                 cash_available=db_brief.cash_available,
                 volatility_alerts=[
-                    VolatilityAlert(**alert) if isinstance(alert, dict) else alert
+                    VolatilityAlert(**alert)
                     for alert in (db_brief.volatility_alerts or [])
+                    if isinstance(alert, dict)
                 ],
                 key_positions=[
-                    KeyPosition(**pos) if isinstance(pos, dict) else pos
+                    KeyPosition(**pos)
                     for pos in (db_brief.key_positions or [])
+                    if isinstance(pos, dict)
                 ],
                 market_summary=(
                     db_brief.market_summary if isinstance(db_brief.market_summary, dict) else {}

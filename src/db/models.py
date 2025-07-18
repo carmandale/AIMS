@@ -20,7 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from src.data.models import BrokerType, TransactionType
 
@@ -55,8 +55,10 @@ class BrokerageAccount(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    positions: List["Position"] = relationship("Position", back_populates="account")
-    transactions: List["Transaction"] = relationship("Transaction", back_populates="account")
+    positions: Mapped[List["Position"]] = relationship("Position", back_populates="account")
+    transactions: Mapped[List["Transaction"]] = relationship(
+        "Transaction", back_populates="account"
+    )
 
     # Indexes
     __table_args__ = (
@@ -85,7 +87,9 @@ class Position(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    account: "BrokerageAccount" = relationship("BrokerageAccount", back_populates="positions")
+    account: Mapped["BrokerageAccount"] = relationship(
+        "BrokerageAccount", back_populates="positions"
+    )
 
     # Create composite index for broker + symbol
     __table_args__ = (
@@ -127,7 +131,9 @@ class Transaction(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    account: "BrokerageAccount" = relationship("BrokerageAccount", back_populates="transactions")
+    account: Mapped["BrokerageAccount"] = relationship(
+        "BrokerageAccount", back_populates="transactions"
+    )
 
     # Index for efficient date range queries
     __table_args__ = (
@@ -249,7 +255,7 @@ class TaxLot(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    position: "Position" = relationship("Position")
+    position: Mapped["Position"] = relationship("Position")
 
     # Indexes
     __table_args__ = (Index("idx_position_date", "position_id", "acquisition_date"),)
@@ -272,7 +278,7 @@ class SyncLog(Base):
     records_failed = Column(Integer, default=0)
 
     # Relationships
-    account = relationship("BrokerageAccount")
+    account: Mapped["BrokerageAccount"] = relationship("BrokerageAccount")
 
     # Indexes
     __table_args__ = (
