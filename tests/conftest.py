@@ -68,13 +68,22 @@ def test_session_factory(test_db_engine):
 
 
 @pytest.fixture
-def test_db_session(test_session_factory) -> Generator[Session, None, None]:
-    """Create a database session for a test"""
+def test_db_session(test_session_factory, test_db_engine) -> Generator[Session, None, None]:
+    """Create a database session for a test with proper isolation"""
     session = test_session_factory()
+    
+    # Clear all data before the test
+    for table in reversed(Base.metadata.sorted_tables):
+        session.execute(table.delete())
+    session.commit()
+    
     try:
         yield session
     finally:
-        session.rollback()
+        # Clear all data after the test to ensure isolation
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+        session.commit()
         session.close()
 
 

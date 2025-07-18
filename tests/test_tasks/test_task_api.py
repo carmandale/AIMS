@@ -1,59 +1,30 @@
-from datetime import timedelta
-
 """Integration tests for task management API endpoints"""
 
 import pytest
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-from datetime import timedelta
 
 from src.api.main import app
-from src.db.models import Base, TaskTemplate, TaskInstance
+from src.db.models import TaskTemplate, TaskInstance
 from src.db.session import get_db
-
-
-# Test database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    """Override database dependency for testing"""
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
 
 
 class TestTaskAPI:
     """Integration tests for task API endpoints"""
 
-    def setup_method(self):
+    @pytest.fixture(autouse=True)
+    def setup_method(self, test_db_session, override_get_db):
         """Set up test database"""
-        Base.metadata.create_all(bind=engine)
+        self.db = test_db_session
+        
+        # Override the FastAPI dependency
+        app.dependency_overrides[get_db] = override_get_db
         self.client = TestClient(app)
-        self.db = TestingSessionLocal()
 
         # Create test data
         self._create_test_data()
 
-    def teardown_method(self):
-        """Clean up test database"""
-        self.db.close()
-        Base.metadata.drop_all(bind=engine)
+
 
     def _create_test_data(self):
         """Create test templates and instances"""
