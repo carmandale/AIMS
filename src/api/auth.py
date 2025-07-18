@@ -58,7 +58,7 @@ def verify_token(token: str) -> dict:
         return payload
     except jwt.ExpiredSignatureError:
         raise AuthenticationError("Token has expired")
-    except jwt.JWTError:
+    except jwt.PyJWTError:
         raise AuthenticationError("Invalid token")
 
 
@@ -101,7 +101,7 @@ class RateLimitByUser:
 
     def __init__(self, requests_per_minute: int = 60):
         self.requests_per_minute = requests_per_minute
-        self.user_requests = {}
+        self.user_requests: dict[str, list[datetime]] = {}
         self.window_size = 60  # 1 minute window
 
     def is_allowed(self, user_id: str) -> bool:
@@ -132,8 +132,7 @@ class RateLimitByUser:
         """Check rate limit and raise exception if exceeded"""
         if not self.is_allowed(user_id):
             raise HTTPException(
-                status_code=429,
-                detail="Rate limit exceeded. Please try again later.",
+                status_code=429, detail="Rate limit exceeded. Please try again later."
             )
 
 

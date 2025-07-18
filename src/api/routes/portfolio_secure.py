@@ -185,10 +185,8 @@ async def generate_weekly_report(
                 status_code=409,
                 detail={
                     "message": "Cannot generate weekly report: blocking tasks incomplete",
-                    "blocking_tasks": [
-                        task.name for task in blocking_status.incomplete_blocking_tasks
-                    ],
-                    "total_blocking": len(blocking_status.incomplete_blocking_tasks),
+                    "blocking_tasks": [task["name"] for task in blocking_status.blocking_tasks],
+                    "total_blocking": len(blocking_status.blocking_tasks),
                 },
             )
 
