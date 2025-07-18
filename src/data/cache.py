@@ -33,7 +33,7 @@ class CacheManager:
         )
 
         if cached:
-            return cached.data
+            return cached.data  # type: ignore[return-value]
         return None
 
     def set(
@@ -47,8 +47,8 @@ class CacheManager:
         cached = db.query(CachedData).filter(CachedData.cache_key == key).first()
 
         if cached:
-            cached.data = data
-            cached.expires_at = expires_at
+            cached.data = data  # type: ignore[assignment]
+            cached.expires_at = expires_at  # type: ignore[assignment]
         else:
             cached = CachedData(cache_key=key, data=data, expires_at=expires_at)
             db.add(cached)

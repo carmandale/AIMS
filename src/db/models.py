@@ -54,7 +54,7 @@ class BrokerageAccount(Base):  # type: ignore  # type: ignore
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
-    brokerage_type = Column(SQLEnum(BrokerType), nullable=False)
+    brokerage_type: Column[BrokerType] = Column(SQLEnum(BrokerType), nullable=False)
     account_number = Column(String(50), nullable=False)
     account_name = Column(String(255), nullable=False)
     account_type = Column(String(50), nullable=False)  # individual, joint, ira, 401k
@@ -87,7 +87,7 @@ class Position(Base):  # type: ignore  # type: ignore
 
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("brokerage_accounts.id"), nullable=False)
-    broker = Column(SQLEnum(BrokerType), nullable=False, index=True)
+    broker: Column[BrokerType] = Column(SQLEnum(BrokerType), nullable=False, index=True)
     symbol = Column(String(20), nullable=False, index=True)
     name = Column(String(255), nullable=True)
     quantity = Column(Numeric(20, 8), nullable=False)
@@ -115,7 +115,7 @@ class Balance(Base):  # type: ignore  # type: ignore
     __tablename__ = "balances"
 
     id = Column(Integer, primary_key=True, index=True)
-    broker = Column(SQLEnum(BrokerType), nullable=False, unique=True, index=True)
+    broker: Column[BrokerType] = Column(SQLEnum(BrokerType), nullable=False, unique=True, index=True)
     cash = Column(Numeric(20, 2), default=0)
     margin = Column(Numeric(20, 2), default=0)
     crypto = Column(Numeric(20, 8), default=0)
@@ -129,8 +129,8 @@ class Transaction(Base):  # type: ignore
 
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("brokerage_accounts.id"), nullable=False)
-    broker = Column(SQLEnum(BrokerType), nullable=False, index=True)
-    type = Column(SQLEnum(TransactionType), nullable=False, index=True)
+    broker: Column[BrokerType] = Column(SQLEnum(BrokerType), nullable=False, index=True)
+    type: Column[TransactionType] = Column(SQLEnum(TransactionType), nullable=False, index=True)
     symbol = Column(String(20), nullable=True)
     quantity = Column(Numeric(20, 8), nullable=True)
     price = Column(Numeric(20, 2), nullable=True)
