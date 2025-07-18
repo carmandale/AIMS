@@ -56,7 +56,9 @@ class BrokerageAccount(Base):
 
     # Relationships
     positions: Mapped[List["Position"]] = relationship("Position", back_populates="account")
-    transactions: Mapped[List["Transaction"]] = relationship("Transaction", back_populates="account")
+    transactions: Mapped[List["Transaction"]] = relationship(
+        "Transaction", back_populates="account"
+    )
 
     # Indexes
     __table_args__ = (
@@ -85,7 +87,9 @@ class Position(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    account: Mapped["BrokerageAccount"] = relationship("BrokerageAccount", back_populates="positions")
+    account: Mapped["BrokerageAccount"] = relationship(
+        "BrokerageAccount", back_populates="positions"
+    )
 
     # Create composite index for broker + symbol
     __table_args__ = (
@@ -127,7 +131,9 @@ class Transaction(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    account: Mapped["BrokerageAccount"] = relationship("BrokerageAccount", back_populates="transactions")
+    account: Mapped["BrokerageAccount"] = relationship(
+        "BrokerageAccount", back_populates="transactions"
+    )
 
     # Index for efficient date range queries
     __table_args__ = (

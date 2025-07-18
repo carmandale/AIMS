@@ -42,9 +42,7 @@ async def get_morning_brief(
                 volatility_alerts=[
                     VolatilityAlert(**alert) for alert in (db_brief.volatility_alerts or [])
                 ],
-                key_positions=[
-                    KeyPosition(**pos) for pos in (db_brief.key_positions or [])
-                ],
+                key_positions=[KeyPosition(**pos) for pos in (db_brief.key_positions or [])],
                 market_summary=(
                     db_brief.market_summary if isinstance(db_brief.market_summary, dict) else {}
                 ),
