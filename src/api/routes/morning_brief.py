@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from src.db import get_db
 from src.services import PortfolioService
 from src.data.models import MorningBrief
+from src.data.models.market import VolatilityAlert, KeyPosition
 
 router = APIRouter(prefix="/morning-brief", tags=["morning-brief"])
 portfolio_service = PortfolioService()
