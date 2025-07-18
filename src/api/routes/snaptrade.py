@@ -7,8 +7,8 @@ from typing import Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.api.auth import get_current_user, CurrentUser, portfolio_rate_limiter, sensitive_rate_limiter
-from src.api.schemas.snaptrade import (
+from ..auth import get_current_user, CurrentUser, portfolio_rate_limiter, sensitive_rate_limiter
+from ..schemas.snaptrade import (
     SnapTradeUserRegistrationRequest,
     SnapTradeUserRegistrationResponse,
     ConnectionURLRequest,
@@ -26,10 +26,10 @@ from src.api.schemas.snaptrade import (
     UserDeletionResponse,
     ErrorResponse
 )
-from src.db import get_db
-from src.db.models import SnapTradeUser
-from src.services.snaptrade_service import snaptrade_service
-from src.utils.encryption import encryption_service
+from ...db import get_db
+from ...db.models import SnapTradeUser
+from ...services.snaptrade_service import snaptrade_service
+from ...utils.encryption import encryption_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/snaptrade", tags=["snaptrade"])

@@ -12,8 +12,8 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from src.core.config import settings
-from src.api.routes import (
+from ..core.config import settings
+from .routes import (
     health,
     portfolio,
     portfolio_secure,
@@ -23,8 +23,8 @@ from src.api.routes import (
     auth,
     snaptrade,
 )
-from src.db import init_db
-from src.services.scheduler import scheduler_service
+from ..db import init_db
+from ..services.scheduler import scheduler_service
 
 # Configure logging
 logging.basicConfig(

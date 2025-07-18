@@ -5,7 +5,7 @@ from datetime import date
 from typing import List, Dict, Any, Optional
 
 from snaptrade_client import SnapTrade
-from src.core.config import settings
+from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 
