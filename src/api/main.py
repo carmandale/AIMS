@@ -21,6 +21,7 @@ from src.api.routes import (
     morning_brief,
     tasks,
     auth,
+    snaptrade,
 )
 from src.db import init_db
 from src.services.scheduler import scheduler_service
@@ -110,6 +111,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # ty
 app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(portfolio_secure.router, prefix="/api")
+app.include_router(snaptrade.router, prefix="/api")
 app.include_router(market.router, prefix="/api")
 app.include_router(morning_brief.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api")

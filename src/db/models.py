@@ -45,6 +45,27 @@ class User(Base):  # type: ignore
 
     # Relationships
     brokerage_accounts = relationship("BrokerageAccount", back_populates="user")  # type: ignore
+    snaptrade_user = relationship("SnapTradeUser", back_populates="user", uselist=False)  # type: ignore
+
+
+class SnapTradeUser(Base):  # type: ignore
+    """SnapTrade user integration data"""
+
+    __tablename__ = "snaptrade_users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), unique=True, nullable=False, index=True)
+    snaptrade_user_secret = Column(String(255), nullable=False)  # Encrypted SnapTrade user secret
+    registration_date = Column(DateTime, server_default=func.now())
+    last_sync = Column(DateTime, nullable=True)
+    sync_status = Column(String(20), default="registered")  # registered, connected, synced, error
+    connection_count = Column(Integer, default=0)  # Number of connected brokerage accounts
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    user = relationship("User", back_populates="snaptrade_user")  # type: ignore
 
 
 class BrokerageAccount(Base):  # type: ignore  # type: ignore
