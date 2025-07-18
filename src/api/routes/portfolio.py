@@ -206,14 +206,16 @@ async def get_asset_allocation(
 @router.post("/rebalancing-suggestions", response_model=List[Dict[str, Any]])
 async def get_rebalancing_suggestions(
     user_id: str = Query(..., description="User identifier"),
-    request_body: Dict[str, Any] = Body(..., description="Request with target allocation and drift threshold"),
+    request_body: Dict[str, Any] = Body(
+        ..., description="Request with target allocation and drift threshold"
+    ),
     db: Session = Depends(get_db),
 ):
     """Get rebalancing suggestions"""
     try:
         target_allocation = request_body.get("target_allocation", {})
         drift_threshold = request_body.get("drift_threshold", 0.05)
-        
+
         suggestions = await portfolio_service.get_rebalancing_suggestions(
             db, user_id, target_allocation, drift_threshold
         )
