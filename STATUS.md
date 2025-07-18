@@ -1,14 +1,16 @@
 # AIMS Project Status Report 📊
 
 **Last Updated**: July 18, 2025  
-**Version**: Phase 1 Complete + Security Enhancement  
-**Next Phase**: SnapTrade Integration
+**Version**: Phase 1 Complete + SnapTrade Framework Implemented  
+**Next Phase**: SnapTrade Functional Integration
 
 ---
 
 ## 🎯 **Executive Summary**
 
-AIMS (Automated Investment Management System) has **completed Phase 1** with all core features implemented. The system is **production-ready** for task management and portfolio tracking, but currently uses **mock data**. The next critical milestone is **SnapTrade integration** to enable real brokerage data.
+AIMS (Automated Investment Management System) has **completed Phase 1** with all core features implemented. The system is **production-ready** for task management and portfolio tracking, but currently uses **mock data**. 
+
+**SnapTrade Integration Status**: The technical framework is **complete** (PR #33 merged), including service classes, API endpoints, database models, and encryption. However, the integration is **not functional** - no API credentials are configured, portfolio service still uses mock data, and frontend shows placeholder information.
 
 **Current Goal**: $10k/month net income within 3 months, limiting drawdowns < 20%
 
@@ -56,15 +58,18 @@ AIMS (Automated Investment Management System) has **completed Phase 1** with all
 - **Impact**: Blocks production deployment
 - **Action Required**: Review and merge security PR
 
-### **2. SnapTrade Integration** 📊 **HIGH PRIORITY**
+### **2. SnapTrade Functional Integration** 📊 **HIGH PRIORITY**
 - **Issue**: [#24](https://github.com/carmandale/AIMS/issues/24) - Implement Real Data Integration
-- **Status**: Service implemented but not connected to API/Frontend
+- **Status**: Framework complete, functional integration needed
 - **Current State**: 
   - ✅ SnapTrade service fully implemented (`src/services/snaptrade_service.py`)
   - ✅ SDK integrated (`snaptrade-python-sdk==11.0.114`)
-  - ❌ No API endpoints exposing SnapTrade functionality
-  - ❌ Portfolio service still uses mock fetchers
-  - ❌ No frontend integration
+  - ✅ API endpoints implemented (`src/api/routes/snaptrade.py`)
+  - ✅ Database models and encryption (`src/db/models.py`, `src/utils/encryption.py`)
+  - ❌ **No API credentials configured** (SNAPTRADE_CLIENT_ID, SNAPTRADE_CONSUMER_KEY empty)
+  - ❌ **Portfolio service still uses mock fetchers** (not connected to SnapTrade)
+  - ❌ **Frontend shows mock data** (no account connection flow)
+  - ❌ **No integration testing** with real SnapTrade sandbox
 - **Impact**: System uses mock data, preventing real investment decisions
 
 ### **3. Test Suite Stability** ⚠️ **MEDIUM PRIORITY**
@@ -99,10 +104,11 @@ AIMS (Automated Investment Management System) has **completed Phase 1** with all
 2. **Fix test suite** - Resolve database conflicts  
 3. **Close completed issues** - Issues #4-#7 appear to be implemented
 
-### **Week 2: SnapTrade API Integration**
-1. **Create SnapTrade API endpoints** - Bridge service to REST API
-2. **Update portfolio service** - Replace mock fetchers with SnapTrade
-3. **Test with sandbox credentials** - Verify integration works
+### **Week 2: SnapTrade Functional Integration**
+1. **Get SnapTrade API credentials** - Register developer account, configure environment
+2. **Update portfolio service** - Replace mock fetchers with SnapTrade service calls
+3. **Implement frontend connection flow** - Account linking and real data display
+4. **Test with sandbox credentials** - Verify end-to-end integration works
 
 ---
 
@@ -150,20 +156,54 @@ AIMS (Automated Investment Management System) has **completed Phase 1** with all
 AIMS/
 ├── Backend (FastAPI)
 │   ├── ✅ Task Management System
-│   ├── ✅ Portfolio Service (mock data)
-│   ├── ✅ SnapTrade Service (not connected)
+│   ├── ⚠️ Portfolio Service (uses mock data, needs SnapTrade integration)
+│   ├── ⚠️ SnapTrade Service (framework complete, needs API credentials)
+│   ├── ✅ SnapTrade API Endpoints (implemented but disabled without credentials)
 │   ├── ⚠️ Security Layer (PR pending)
-│   └── ✅ Database Models
+│   └── ✅ Database Models & Encryption
 ├── Frontend (React 19)
 │   ├── ✅ Dashboard Components
 │   ├── ✅ Task Management UI
-│   ├── ✅ Portfolio Display (mock data)
-│   └── ❌ Account Connection Flow
+│   ├── ⚠️ Portfolio Display (shows mock data, needs real data integration)
+│   └── ❌ SnapTrade Account Connection Flow
 └── Infrastructure
     ├── ✅ SQLite Database
     ├── ✅ APScheduler
     └── ⚠️ Production Deployment (pending)
 ```
+
+---
+
+## 🔧 **SnapTrade Integration Requirements**
+
+### **Immediate Prerequisites**
+1. **SnapTrade Developer Account**: Register at https://dashboard.snaptrade.com/signup
+2. **API Credentials**: Obtain Client ID and Consumer Key for sandbox environment
+3. **Environment Configuration**: Create `.env` file with SnapTrade credentials
+
+### **Integration Tasks**
+1. **Configure API Credentials**:
+   ```bash
+   SNAPTRADE_CLIENT_ID=your-client-id-here
+   SNAPTRADE_CONSUMER_KEY=your-consumer-key-here
+   SNAPTRADE_ENVIRONMENT=sandbox
+   ```
+
+2. **Connect Portfolio Service**: Update `src/services/portfolio.py` to call SnapTrade service instead of mock fetchers
+
+3. **Frontend Account Flow**: Implement React components for:
+   - User registration with SnapTrade
+   - Brokerage account connection portal
+   - Connected accounts management
+   - Real portfolio data display
+
+4. **End-to-End Testing**: Validate complete data flow from SnapTrade API → Backend → Frontend
+
+### **Success Criteria**
+- ✅ SnapTrade service returns real account data (not mock)
+- ✅ Portfolio displays actual positions and balances
+- ✅ Users can connect/disconnect brokerage accounts
+- ✅ Morning briefs show real portfolio metrics
 
 ---
 
@@ -179,4 +219,3 @@ AIMS/
 **Next Status Update**: July 25, 2025  
 **Responsible**: Development Team  
 **Review Cycle**: Weekly on Fridays
-
