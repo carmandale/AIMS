@@ -3,6 +3,7 @@
 import asyncio
 import logging
 from datetime import datetime
+from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 
 from src.db.session import SessionLocal, init_db
@@ -12,7 +13,7 @@ from src.services.tasks import TaskService
 logger = logging.getLogger(__name__)
 
 # Sample task templates based on PRD appendix
-SAMPLE_TEMPLATES = [
+SAMPLE_TEMPLATES: List[Dict[str, Any]] = [
     # Daily preparation tasks (non-blocking)
     {
         "name": "Morning Review: Check signals",
@@ -138,10 +139,10 @@ async def seed_task_templates(db: Session):
                     rrule=str(template_data["rrule"]),
                     is_blocking=bool(template_data["is_blocking"]),
                     category=str(template_data["category"]),
-                    priority=int(template_data["priority"]),
+                    priority=int(template_data["priority"]) if isinstance(template_data["priority"], (int, str)) else 1,
                     estimated_duration=(
                         int(template_data["estimated_duration"])
-                        if template_data.get("estimated_duration")
+                        if template_data.get("estimated_duration") and isinstance(template_data["estimated_duration"], (int, str))
                         else None
                     ),
                 )

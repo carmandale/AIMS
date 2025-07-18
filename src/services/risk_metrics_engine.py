@@ -106,7 +106,7 @@ class RiskMetricsEngine:
 
     async def calculate_portfolio_stress_test(
         self, positions: List[Position], scenarios: Optional[List[Dict[str, Any]]] = None
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> Dict[str, Dict[str, Any]]:
         """Run stress tests on the portfolio"""
 
         if not scenarios:
@@ -202,8 +202,8 @@ class RiskMetricsEngine:
 
         # Calculate largest positions
         sorted_positions = sorted(
-            position_data, key=lambda x: x["weight"], reverse=True
-        )  # type: ignore
+            position_data, key=lambda x: float(x["weight"]), reverse=True
+        )
 
         top_5_concentration = sum(p["weight"] for p in sorted_positions[:5])  # type: ignore
         top_10_concentration = sum(p["weight"] for p in sorted_positions[:10])  # type: ignore
