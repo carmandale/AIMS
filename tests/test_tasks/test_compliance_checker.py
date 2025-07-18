@@ -35,7 +35,8 @@ class TestComplianceChecker:
         assert len(result.blocking_tasks) == 0
         assert "can be closed" in result.message
 
-    def test_check_weekly_cycle_ready_incomplete_tasks(self):
+    @pytest.mark.asyncio
+    async def test_check_weekly_cycle_ready_incomplete_tasks(self):
         """Test weekly cycle not ready when blocking tasks incomplete"""
         # Mock blocking tasks - some incomplete
         mock_tasks = [
@@ -46,7 +47,7 @@ class TestComplianceChecker:
 
         self.mock_db.query.return_value.filter.return_value.all.return_value = mock_tasks
 
-        result = self.checker.check_weekly_cycle_ready(self.mock_db)
+        result = await self.checker.check_weekly_cycle_ready(self.mock_db)
 
         assert result.is_ready is False
         assert len(result.blocking_tasks) == 2
@@ -54,7 +55,8 @@ class TestComplianceChecker:
         assert result.blocking_tasks[1]["name"] == "Task 3"
         assert "Cannot close weekly cycle" in result.message
 
-    def test_get_blocking_tasks_for_week(self):
+    @pytest.mark.asyncio
+    async def test_get_blocking_tasks_for_week(self):
         """Test getting blocking tasks for a specific week"""
         check_date = date(2025, 7, 16)  # Wednesday
         mock_tasks = [
@@ -64,13 +66,14 @@ class TestComplianceChecker:
 
         self.mock_db.query.return_value.filter.return_value.all.return_value = mock_tasks
 
-        tasks = self.checker.get_blocking_tasks(self.mock_db, check_date)
+        tasks = await self.checker.get_blocking_tasks(self.mock_db, check_date)
 
         assert len(tasks) == 2
         # Verify the query was called with correct date range (Monday to Sunday)
         self.mock_db.query.assert_called_once()
 
-    def test_check_blocking_tasks_complete_all_done(self):
+    @pytest.mark.asyncio
+    async def test_check_blocking_tasks_complete_all_done(self):
         """Test checking if all blocking tasks are complete"""
         mock_tasks = [
             self._create_mock_task(1, "Task 1", True, "completed"),
@@ -78,16 +81,17 @@ class TestComplianceChecker:
         ]
 
         # Mock the get_blocking_tasks method
-        self.checker.get_blocking_tasks = Mock(return_value=mock_tasks)
+        self.checker.get_blocking_tasks = AsyncMock(return_value=mock_tasks)
 
-        result = self.checker.check_blocking_tasks_complete(self.mock_db)
+        result = await self.checker.check_blocking_tasks_complete(self.mock_db)
 
         assert result.all_complete is True
         assert len(result.incomplete_tasks) == 0
         assert result.total_blocking == 2
         assert result.completed_blocking == 2
 
-    def test_check_blocking_tasks_complete_some_incomplete(self):
+    @pytest.mark.asyncio
+    async def test_check_blocking_tasks_complete_some_incomplete(self):
         """Test checking blocking tasks with some incomplete"""
         mock_tasks = [
             self._create_mock_task(1, "Task 1", True, "completed"),
@@ -95,16 +99,17 @@ class TestComplianceChecker:
             self._create_mock_task(3, "Task 3", True, "in_progress"),
         ]
 
-        self.checker.get_blocking_tasks = Mock(return_value=mock_tasks)
+        self.checker.get_blocking_tasks = AsyncMock(return_value=mock_tasks)
 
-        result = self.checker.check_blocking_tasks_complete(self.mock_db)
+        result = await self.checker.check_blocking_tasks_complete(self.mock_db)
 
         assert result.all_complete is False
         assert len(result.incomplete_tasks) == 2
         assert result.total_blocking == 3
         assert result.completed_blocking == 1
 
-    def test_calculate_compliance_rate_all_complete(self):
+    @pytest.mark.asyncio
+    async def test_calculate_compliance_rate_all_complete(self):
         """Test compliance rate calculation with all tasks complete"""
         mock_tasks = [
             self._create_mock_task(1, "Task 1", False, "completed"),
@@ -114,13 +119,14 @@ class TestComplianceChecker:
 
         self.mock_db.query.return_value.filter.return_value.all.return_value = mock_tasks
 
-        rate = self.checker.calculate_compliance_rate(
+        rate = await self.checker.calculate_compliance_rate(
             self.mock_db, date(2025, 7, 14), date(2025, 7, 20)
         )
 
         assert rate == 100.0
 
-    def test_calculate_compliance_rate_partial(self):
+    @pytest.mark.asyncio
+    async def test_calculate_compliance_rate_partial(self):
         """Test compliance rate calculation with partial completion"""
         mock_tasks = [
             self._create_mock_task(1, "Task 1", False, "completed"),
@@ -131,23 +137,25 @@ class TestComplianceChecker:
 
         self.mock_db.query.return_value.filter.return_value.all.return_value = mock_tasks
 
-        rate = self.checker.calculate_compliance_rate(
+        rate = await self.checker.calculate_compliance_rate(
             self.mock_db, date(2025, 7, 14), date(2025, 7, 20)
         )
 
         assert rate == 50.0  # 2 out of 4 tasks completed/skipped
 
-    def test_calculate_compliance_rate_no_tasks(self):
+    @pytest.mark.asyncio
+    async def test_calculate_compliance_rate_no_tasks(self):
         """Test compliance rate when no tasks exist"""
         self.mock_db.query.return_value.filter.return_value.all.return_value = []
 
-        rate = self.checker.calculate_compliance_rate(
+        rate = await self.checker.calculate_compliance_rate(
             self.mock_db, date(2025, 7, 14), date(2025, 7, 20)
         )
 
         assert rate == 100.0  # No tasks means 100% compliance
 
-    def test_get_compliance_trends(self):
+    @pytest.mark.asyncio
+    async def test_get_compliance_trends(self):
         """Test getting compliance trends for multiple weeks"""
         # Mock tasks for different weeks
         week1_tasks = [
@@ -166,10 +174,10 @@ class TestComplianceChecker:
         ]
 
         # Mock check_blocking_tasks_complete
-        self.checker.check_blocking_tasks_complete = Mock()
+        self.checker.check_blocking_tasks_complete = AsyncMock()
         self.checker.check_blocking_tasks_complete.return_value.all_complete = True
 
-        trends = self.checker.get_compliance_trends(self.mock_db, weeks=2)
+        trends = await self.checker.get_compliance_trends(self.mock_db, weeks=2)
 
         assert len(trends) == 2
         assert trends[0].compliance_rate == 100.0  # First week

@@ -206,12 +206,16 @@ async def get_asset_allocation(
 @router.post("/rebalancing-suggestions", response_model=List[Dict[str, Any]])
 async def get_rebalancing_suggestions(
     user_id: str = Query(..., description="User identifier"),
-    target_allocation: Dict[str, float] = Body(..., description="Target allocation percentages"),
-    drift_threshold: float = Query(0.05, description="Drift threshold for rebalancing"),
+    request_body: Dict[str, Any] = Body(
+        ..., description="Request with target allocation and drift threshold"
+    ),
     db: Session = Depends(get_db),
 ):
     """Get rebalancing suggestions"""
     try:
+        target_allocation = request_body.get("target_allocation", {})
+        drift_threshold = request_body.get("drift_threshold", 0.05)
+
         suggestions = await portfolio_service.get_rebalancing_suggestions(
             db, user_id, target_allocation, drift_threshold
         )
@@ -235,7 +239,7 @@ async def get_concentration_analysis(
 @router.post("/stress-test", response_model=Dict[str, Any])
 async def run_stress_test(
     user_id: str = Query(..., description="User identifier"),
-    scenarios: Optional[List[Dict[str, Any]]] = None,
+    scenarios: Optional[List[Dict[str, Any]]] = Body(None, description="Stress test scenarios"),
     db: Session = Depends(get_db),
 ):
     """Run portfolio stress test"""
