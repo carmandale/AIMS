@@ -301,7 +301,7 @@ class PerformanceSnapshot(Base):  # type: ignore
     created_at = Column(DateTime, server_default=func.now())
 
     # Indexes
-    __table_args__ = (Index("idx_user_date", "user_id", "snapshot_date"),)
+    __table_args__ = (Index("idx_performance_user_date", "user_id", "snapshot_date"),)
 
 
 class Report(Base):  # type: ignore
@@ -349,4 +349,4 @@ class AssetAllocation(Base):  # type: ignore
     created_at = Column(DateTime, server_default=func.now())
 
     # Indexes
-    __table_args__ = (Index("idx_user_date", "user_id", "snapshot_date"),)
+    __table_args__ = (Index("idx_allocation_user_date", "user_id", "snapshot_date"),)
