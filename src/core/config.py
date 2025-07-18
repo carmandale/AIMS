@@ -38,7 +38,9 @@ class Settings(BaseSettings):
     # SnapTrade Configuration
     snaptrade_client_id: str = Field(default="", description="SnapTrade Client ID")
     snaptrade_consumer_key: str = Field(default="", description="SnapTrade Consumer Key")
-    snaptrade_environment: str = Field(default="sandbox", description="SnapTrade environment (sandbox/production)")
+    snaptrade_environment: str = Field(
+        default="sandbox", description="SnapTrade environment (sandbox/production)"
+    )
 
     # Logging
     log_level: str = Field(default="INFO", description="Logging level")
