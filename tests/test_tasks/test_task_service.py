@@ -55,7 +55,9 @@ class TestTaskService:
         self.service.rrule_parser.validate_rrule.return_value.error_message = "Invalid syntax"
 
         with pytest.raises(ValueError, match="Invalid RRULE"):
-            await self.service.create_task_template(self.mock_db, name="Test Task", rrule="INVALID_RRULE")
+            await self.service.create_task_template(
+                self.mock_db, name="Test Task", rrule="INVALID_RRULE"
+            )
 
     async def test_update_task_template(self):
         """Test updating an existing task template"""
