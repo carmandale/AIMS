@@ -201,7 +201,7 @@ class RiskMetricsEngine:
         effective_positions = 1 / herfindahl_index if herfindahl_index > 0 else 0
 
         # Calculate largest positions
-        sorted_positions = sorted(position_data, key=lambda x: float(x["weight"]), reverse=True)
+        sorted_positions = sorted(position_data, key=lambda x: float(x["weight"]) if x["weight"] is not None else 0.0, reverse=True)
 
         top_5_concentration = sum(p["weight"] for p in sorted_positions[:5])  # type: ignore
         top_10_concentration = sum(p["weight"] for p in sorted_positions[:10])  # type: ignore

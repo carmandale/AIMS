@@ -35,7 +35,7 @@ class BrokerageAccount(Base):  # type: ignore  # type: ignore
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(100), nullable=False, index=True)
-    brokerage_type: Column[BrokerType] = Column(SQLEnum(BrokerType), nullable=False)
+    brokerage_type = Column(SQLEnum(BrokerType), nullable=False)
     account_number = Column(String(50), nullable=False)
     account_name = Column(String(255), nullable=False)
     account_type = Column(String(50), nullable=False)  # individual, joint, ira, 401k
@@ -50,8 +50,8 @@ class BrokerageAccount(Base):  # type: ignore  # type: ignore
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    positions = relationship("Position", back_populates="account")
-    transactions = relationship("Transaction", back_populates="account")
+    positions: List["Position"] = relationship("Position", back_populates="account")
+    transactions: List["Transaction"] = relationship("Transaction", back_populates="account")
 
     # Indexes
     __table_args__ = (
@@ -80,7 +80,7 @@ class Position(Base):  # type: ignore  # type: ignore
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    account = relationship("BrokerageAccount", back_populates="positions")
+    account: "BrokerageAccount" = relationship("BrokerageAccount", back_populates="positions")
 
     # Create composite index for broker + symbol
     __table_args__ = (
@@ -122,7 +122,7 @@ class Transaction(Base):  # type: ignore
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    account = relationship("BrokerageAccount", back_populates="transactions")
+    account: "BrokerageAccount" = relationship("BrokerageAccount", back_populates="transactions")
 
     # Index for efficient date range queries
     __table_args__ = (
@@ -244,7 +244,7 @@ class TaxLot(Base):  # type: ignore
     created_at = Column(DateTime, server_default=func.now())
 
     # Relationships
-    position = relationship("Position")
+    position: "Position" = relationship("Position")
 
     # Indexes
     __table_args__ = (Index("idx_position_date", "position_id", "acquisition_date"),)
@@ -267,7 +267,7 @@ class SyncLog(Base):  # type: ignore
     records_failed = Column(Integer, default=0)
 
     # Relationships
-    account = relationship("BrokerageAccount")
+    account: "BrokerageAccount" = relationship("BrokerageAccount")
 
     # Indexes
     __table_args__ = (
