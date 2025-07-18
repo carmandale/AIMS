@@ -145,7 +145,7 @@ class TaskService:
             return False
 
         # Soft delete by marking as inactive
-        template.is_active = False
+        template.is_active = False  # type: ignore[assignment]
         db.commit()
 
         logger.info(f"Deleted task template: {template.name} (ID: {template.id})")
@@ -289,11 +289,11 @@ class TaskService:
             raise ValueError(f"Task {task_id} not found")
 
         old_status = task.status
-        task.status = "completed"
-        task.completed_at = datetime.now()
-        task.completed_by = user_id
+        task.status = "completed"  # type: ignore[assignment]
+        task.completed_at = datetime.now()  # type: ignore[assignment]
+        task.completed_by = user_id  # type: ignore[assignment]
         if notes:
-            task.notes = notes
+            task.notes = notes  # type: ignore[assignment]
 
         # Create audit log entry
         audit = TaskAuditLog(
@@ -329,8 +329,8 @@ class TaskService:
             raise ValueError(f"Task {task_id} not found")
 
         old_status = task.status
-        task.status = "skipped"
-        task.notes = reason
+        task.status = "skipped"  # type: ignore[assignment]
+        task.notes = reason  # type: ignore[assignment]
 
         # Create audit log entry
         audit = TaskAuditLog(
@@ -368,7 +368,7 @@ class TaskService:
             raise ValueError(f"Task {task_id} not found")
 
         old_status = task.status
-        task.status = status
+        task.status = status  # type: ignore[assignment]
 
         # Create audit log entry
         audit = TaskAuditLog(

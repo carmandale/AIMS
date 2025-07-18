@@ -5,28 +5,22 @@ import secrets
 from datetime import timedelta
 from typing import Dict, Any
 
-import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.api.auth import create_access_token, AuthenticationError, get_current_user
+from src.api.auth import (
+    create_access_token,
+    AuthenticationError,
+    get_current_user,
+    hash_password,
+    verify_password,
+)
 from src.api.schemas.portfolio import LoginRequest, UserRegistrationRequest, AuthResponse
 from src.db import get_db
 from src.db.models import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["authentication"])
-
-
-def hash_password(password: str) -> str:
-    """Hash a password using bcrypt"""
-    salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash"""
-    return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 def generate_user_id() -> str:

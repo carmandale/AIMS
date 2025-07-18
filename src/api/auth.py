@@ -2,16 +2,13 @@
 
 import logging
 from datetime import datetime, timedelta
-from typing import Optional, Dict, List
+from typing import Optional
 
 import jwt
-from fastapi import HTTPException, Request, Depends
+import bcrypt
+from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
-
 from src.core.config import settings
-from src.db import get_db
-from src.db.models import BrokerageAccount
 
 logger = logging.getLogger(__name__)
 
@@ -88,35 +85,15 @@ async def get_current_user(
         raise AuthenticationError("Authentication failed")
 
 
-async def verify_user_owns_account(
-    user_id: str, account_id: Optional[int] = None, db: Session = Depends(get_db)
-) -> bool:
-    """Verify that the authenticated user owns the specified account"""
-    if not account_id:
-        return True
-
-    account = (
-        db.query(BrokerageAccount)
-        .filter(BrokerageAccount.id == account_id, BrokerageAccount.user_id == user_id)
-        .first()
-    )
-
-    return account is not None
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
-async def require_user_owns_account(
-    user_id: str, account_id: Optional[int] = None, db: Session = Depends(get_db)
-) -> None:
-    """Require that the authenticated user owns the specified account"""
-    if not await verify_user_owns_account(user_id, account_id, db):
-        raise AuthorizationError("You don't have permission to access this account")
-
-
-def validate_user_id(current_user: CurrentUser, requested_user_id: str) -> str:
-    """Validate that the requested user_id matches the authenticated user"""
-    if current_user.user_id != requested_user_id:
-        raise AuthorizationError("You can only access your own data")
-    return current_user.user_id
+def verify_password(password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash"""
+    return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 class RateLimitByUser:
@@ -124,7 +101,7 @@ class RateLimitByUser:
 
     def __init__(self, requests_per_minute: int = 60):
         self.requests_per_minute = requests_per_minute
-        self.user_requests: Dict[str, List[datetime]] = {}
+        self.user_requests: dict[str, list[datetime]] = {}
         self.window_size = 60  # 1 minute window
 
     def is_allowed(self, user_id: str) -> bool:

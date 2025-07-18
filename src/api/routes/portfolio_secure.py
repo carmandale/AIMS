@@ -26,7 +26,6 @@ from src.api.schemas.portfolio import (
 from src.db import get_db
 from src.services import PortfolioService
 from src.data.models import Position, Balance, Transaction, PortfolioSummary
-from src.data.models.market import MorningBrief
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -186,9 +185,7 @@ async def generate_weekly_report(
                 status_code=409,
                 detail={
                     "message": "Cannot generate weekly report: blocking tasks incomplete",
-                    "blocking_tasks": [
-                        task.get("name", "Unknown") for task in blocking_status.blocking_tasks
-                    ],
+                    "blocking_tasks": [task["name"] for task in blocking_status.blocking_tasks],
                     "total_blocking": len(blocking_status.blocking_tasks),
                 },
             )
