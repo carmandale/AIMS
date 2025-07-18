@@ -142,7 +142,9 @@ class RRuleParser:
             Next occurrence datetime or None if no future occurrences
         """
         try:
-            rule = self.parse_rrule(rrule_string)
+            # Use the after_date as the dtstart to ensure proper calculation
+            dtstart = after_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            rule = self.parse_rrule(rrule_string, dtstart=dtstart)
 
             # Get next occurrence
             next_occurrence = rule.after(after_date, inc=False)

@@ -1,7 +1,7 @@
 """Unit tests for RRuleParser"""
 
 import pytest
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from dateutil.rrule import DAILY, WEEKLY, MONTHLY
 
 from src.services.tasks.rrule_parser import RRuleParser, ValidationResult
@@ -137,7 +137,9 @@ class TestRRuleParser:
         next_occ = self.parser.get_next_occurrence(rrule_string, after_date)
 
         assert next_occ is not None
-        assert next_occ.date() == date(2025, 7, 17)  # Next day
+        # Should be the next day at 10 AM (since after_date is 3 PM, next 10 AM is tomorrow)
+        expected_date = after_date.date() + timedelta(days=1)
+        assert next_occ.date() == expected_date
         assert next_occ.hour == 10
 
     def test_get_next_occurrence_none_for_invalid_rrule(self):

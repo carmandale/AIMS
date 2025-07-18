@@ -3,53 +3,31 @@
 import pytest
 from datetime import date, datetime, timedelta
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from src.api.main import app
-from src.db.models import Base, TaskTemplate, TaskInstance
+from src.db.models import TaskTemplate, TaskInstance
 from src.db.session import get_db
 from src.services.tasks import TaskService
-
-
-# Test database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    """Override database dependency for testing"""
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
 
 
 class TestE2EWorkflow:
     """End-to-end tests for complete weekly workflow"""
 
+    @pytest.fixture(autouse=True)
+    def setup_test_app(self, override_get_db):
+        """Set up test app with database override"""
+        app.dependency_overrides[get_db] = override_get_db
+        yield
+        app.dependency_overrides.clear()
+
     def setup_method(self):
-        """Set up test database and client"""
-        Base.metadata.create_all(bind=engine)
+        """Set up test client"""
         self.client = TestClient(app)
-        self.db = TestingSessionLocal()
         self.task_service = TaskService()
 
     def teardown_method(self):
-        """Clean up test database"""
-        self.db.close()
-        Base.metadata.drop_all(bind=engine)
+        """Clean up"""
+        pass
 
     def test_complete_weekly_workflow(self):
         """Test the complete weekly task workflow from setup to closure"""
@@ -234,18 +212,24 @@ class TestE2EWorkflow:
     def test_overdue_task_handling(self):
         """Test that overdue tasks are properly identified and handled"""
 
-        # Create a task instance that's already overdue
-        yesterday = datetime.now() - timedelta(days=1)
-        task = TaskInstance(
-            template_id=1,
-            name="Overdue Task",
-            due_date=yesterday,
-            status="pending",
-            is_blocking=True,
-            priority=1,
+        # Create a task template for yesterday
+        template_data = {
+            "name": "Overdue Task",
+            "rrule": "RRULE:FREQ=DAILY",
+            "is_blocking": True,
+            "category": "daily",
+            "priority": 1,
+        }
+
+        template_resp = self.client.post("/api/tasks/templates", json=template_data)
+        assert template_resp.status_code == 200
+
+        # Generate task for yesterday (making it overdue)
+        yesterday = date.today() - timedelta(days=1)
+        generate_resp = self.client.post(
+            f"/api/tasks/generate?start_date={yesterday.isoformat()}&end_date={yesterday.isoformat()}"
         )
-        self.db.add(task)
-        self.db.commit()
+        assert generate_resp.status_code == 200
 
         # Get overdue tasks
         overdue_resp = self.client.get("/api/tasks/overdue")
