@@ -98,6 +98,72 @@ cd frontend && yarn format
 - API versioning in URL path (/api/v1/...)
 - Comprehensive error responses with status codes and messages
 
+## Security Guidelines
+
+### Authentication & Authorization
+- Never trust client-provided user identifiers
+- Use JWT tokens or session-based authentication for stateless APIs
+- Implement proper RBAC for multi-user scenarios
+- Get user context from authenticated sessions, not query parameters
+- Validate all inputs with Pydantic models
+
+### API Security
+- Rate limiting on all endpoints (not just refresh)
+- Input sanitization and validation for all user inputs
+- Proper error handling that doesn't leak sensitive information
+- HTTPS only in production environments
+- Secure headers (CORS, CSP, etc.)
+
+### Development Security
+- Security review required for all auth-related changes
+- No hardcoded secrets or API keys in code
+- Environment-based configuration management
+- Regular dependency updates and vulnerability scanning
+- Use secure coding practices (OWASP guidelines)
+
+### Data Protection
+- Encrypt sensitive data at rest
+- Use secure communication channels
+- Implement proper session management
+- Log security events for audit trails
+
+## Development Workflow
+
+### Code Review Process
+1. All changes must be submitted via Pull Request
+2. Security-related changes require additional security review
+3. Breaking changes require migration plan and documentation
+4. All tests must pass before merge
+5. Code must meet style guidelines (Black, Ruff, MyPy)
+
+### Security Review Checklist
+For any changes involving authentication, authorization, or sensitive data:
+- [ ] No hardcoded secrets or credentials
+- [ ] Input validation implemented with Pydantic models
+- [ ] Authentication/authorization properly implemented
+- [ ] Rate limiting considered and implemented where needed
+- [ ] Error handling doesn't leak sensitive information
+- [ ] Security implications documented and reviewed
+
+### Quality Gates
+- [ ] All tests pass (minimum 80% coverage)
+- [ ] Code style checks pass (Black, Ruff)
+- [ ] Type checking passes (MyPy)
+- [ ] No security vulnerabilities in dependencies
+- [ ] Documentation updated for new features
+
+### Branch Protection
+- Main branch requires PR review
+- No direct commits to main branch
+- CI checks must pass before merge
+- Security-sensitive changes require additional approval
+
+### Deployment Process
+- Staging deployment for testing
+- Security review for production deployments
+- Database migration strategy for schema changes
+- Rollback plan documented for major changes
+
 ## Testing Standards
 
 - Minimum 80% code coverage for backend code
