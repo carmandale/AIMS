@@ -25,10 +25,6 @@ class TestE2EWorkflow:
         self.client = TestClient(app)
         self.task_service = TaskService()
 
-    def teardown_method(self):
-        """Clean up"""
-        pass
-
     def test_complete_weekly_workflow(self):
         """Test the complete weekly task workflow from setup to closure"""
 
