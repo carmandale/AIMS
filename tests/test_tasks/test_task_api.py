@@ -16,15 +16,13 @@ class TestTaskAPI:
     def setup_method(self, test_db_session, override_get_db):
         """Set up test database"""
         self.db = test_db_session
-        
+
         # Override the FastAPI dependency
         app.dependency_overrides[get_db] = override_get_db
         self.client = TestClient(app)
 
         # Create test data
         self._create_test_data()
-
-
 
     def _create_test_data(self):
         """Create test templates and instances"""
