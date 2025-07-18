@@ -203,7 +203,7 @@ class RiskMetricsEngine:
         # Calculate largest positions
         sorted_positions = sorted(
             position_data,
-            key=lambda x: float(x["weight"]) if x["weight"] is not None else 0.0,
+            key=lambda x: float(x["weight"]) if x["weight"] is not None and x["weight"] != "" else 0.0,  # type: ignore
             reverse=True,
         )
 
