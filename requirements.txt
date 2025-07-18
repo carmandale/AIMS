@@ -18,7 +18,7 @@ ccxt==4.3.24
 python-dateutil==2.8.2
 PyJWT==2.8.0
 bcrypt==4.0.1
-cryptography==42.0.8
+cryptography>=43.0.3,<44.0.0
 
 # SnapTrade integration for real brokerage data
 snaptrade-python-sdk==11.0.114
