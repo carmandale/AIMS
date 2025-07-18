@@ -115,7 +115,9 @@ class Balance(Base):  # type: ignore  # type: ignore
     __tablename__ = "balances"
 
     id = Column(Integer, primary_key=True, index=True)
-    broker: Column[BrokerType] = Column(SQLEnum(BrokerType), nullable=False, unique=True, index=True)
+    broker: Column[BrokerType] = Column(
+        SQLEnum(BrokerType), nullable=False, unique=True, index=True
+    )
     cash = Column(Numeric(20, 2), default=0)
     margin = Column(Numeric(20, 2), default=0)
     crypto = Column(Numeric(20, 8), default=0)

@@ -7,13 +7,21 @@ from typing import AsyncGenerator
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from src.core.config import settings
-from src.api.routes import health, portfolio, portfolio_secure, market, morning_brief, tasks, auth
+from src.api.routes import (
+    health,
+    portfolio,
+    portfolio_secure,
+    market,
+    morning_brief,
+    tasks,
+    auth,
+)
 from src.db import init_db
 from src.services.scheduler import scheduler_service
 

@@ -11,6 +11,7 @@ from sqlalchemy.pool import StaticPool
 
 # Add src to path for imports
 import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.db.models import Base
@@ -36,9 +37,9 @@ def anyio_backend():
 def test_db_engine():
     """Create a test database engine"""
     # Create a temporary database file
-    db_fd, db_path = tempfile.mkstemp(suffix='.db')
+    db_fd, db_path = tempfile.mkstemp(suffix=".db")
     os.close(db_fd)  # Close the file descriptor, we just need the path
-    
+
     # Create engine for test database
     test_database_url = f"sqlite:///{db_path}"
     engine = create_engine(
@@ -47,12 +48,12 @@ def test_db_engine():
         poolclass=StaticPool,
         echo=False,
     )
-    
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     yield engine
-    
+
     # Cleanup: close engine and remove temp file
     engine.dispose()
     try:
@@ -71,12 +72,12 @@ def test_session_factory(test_db_engine):
 def test_db_session(test_session_factory, test_db_engine) -> Generator[Session, None, None]:
     """Create a database session for a test with proper isolation"""
     session = test_session_factory()
-    
+
     # Clear all data before the test
     for table in reversed(Base.metadata.sorted_tables):
         session.execute(table.delete())
     session.commit()
-    
+
     try:
         yield session
     finally:
@@ -90,7 +91,8 @@ def test_db_session(test_session_factory, test_db_engine) -> Generator[Session, 
 @pytest.fixture
 def override_get_db(test_db_session):
     """Override the get_db dependency for FastAPI tests"""
+
     def _get_test_db():
         yield test_db_session
-    
+
     return _get_test_db
