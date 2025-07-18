@@ -1,6 +1,7 @@
 """SnapTrade service for brokerage account integration"""
 
 import logging
+from datetime import date
 from typing import List, Dict, Any, Optional
 
 from snaptrade_client import SnapTrade
