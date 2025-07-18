@@ -53,7 +53,7 @@ class BrokerageAccount(Base):  # type: ignore  # type: ignore
     __tablename__ = "brokerage_accounts"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
     brokerage_type = Column(SQLEnum(BrokerType), nullable=False)
     account_number = Column(String(50), nullable=False)
     account_name = Column(String(255), nullable=False)
@@ -302,7 +302,7 @@ class PerformanceSnapshot(Base):  # type: ignore
     __tablename__ = "performance_snapshots"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
     snapshot_date = Column(Date, nullable=False)
     total_value = Column(Numeric(20, 2), nullable=False)
     cash_value = Column(Numeric(20, 2), nullable=False)
@@ -321,7 +321,7 @@ class PerformanceSnapshot(Base):  # type: ignore
     created_at = Column(DateTime, server_default=func.now())
 
     # Indexes
-    __table_args__ = (Index("idx_user_date", "user_id", "snapshot_date"),)
+    __table_args__ = (Index("idx_performance_user_date", "user_id", "snapshot_date"),)
 
 
 class Report(Base):  # type: ignore
@@ -330,7 +330,7 @@ class Report(Base):  # type: ignore
     __tablename__ = "reports"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
     report_type = Column(String(50), nullable=False)  # summary, performance, tax, allocation
     title = Column(String(255), nullable=False)
     parameters = Column(JSON, nullable=False)  # Report generation parameters
@@ -357,7 +357,7 @@ class AssetAllocation(Base):  # type: ignore
     __tablename__ = "asset_allocations"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(100), nullable=False, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
     snapshot_date = Column(Date, nullable=False)
     total_value = Column(Numeric(20, 2), nullable=False)
     by_asset_class = Column(JSON, nullable=False)  # {stocks: 0.6, bonds: 0.3, cash: 0.1}
@@ -369,4 +369,4 @@ class AssetAllocation(Base):  # type: ignore
     created_at = Column(DateTime, server_default=func.now())
 
     # Indexes
-    __table_args__ = (Index("idx_user_date", "user_id", "snapshot_date"),)
+    __table_args__ = (Index("idx_allocation_user_date", "user_id", "snapshot_date"),)

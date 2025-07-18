@@ -237,7 +237,7 @@ async def get_concentration_analysis(
 @router.post("/stress-test", response_model=Dict[str, Any])
 async def run_stress_test(
     user_id: str = Query(..., description="User identifier"),
-    scenarios: Optional[List[Dict[str, Any]]] = None,
+    scenarios: Optional[List[Dict[str, Any]]] = Body(None, description="Stress test scenarios"),
     db: Session = Depends(get_db),
 ):
     """Run portfolio stress test"""
