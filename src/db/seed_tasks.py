@@ -139,10 +139,15 @@ async def seed_task_templates(db: Session):
                     rrule=str(template_data["rrule"]),
                     is_blocking=bool(template_data["is_blocking"]),
                     category=str(template_data["category"]),
-                    priority=int(template_data["priority"]) if isinstance(template_data["priority"], (int, str)) else 1,
+                    priority=(
+                        int(template_data["priority"])
+                        if isinstance(template_data["priority"], (int, str))
+                        else 1
+                    ),
                     estimated_duration=(
                         int(template_data["estimated_duration"])
-                        if template_data.get("estimated_duration") and isinstance(template_data["estimated_duration"], (int, str))
+                        if template_data.get("estimated_duration")
+                        and isinstance(template_data["estimated_duration"], (int, str))
                         else None
                     ),
                 )
