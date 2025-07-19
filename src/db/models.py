@@ -54,7 +54,9 @@ class SnapTradeUser(Base):  # type: ignore
     __tablename__ = "snaptrade_users"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(100), ForeignKey("users.user_id"), unique=True, nullable=False, index=True)
+    user_id = Column(
+        String(100), ForeignKey("users.user_id"), unique=True, nullable=False, index=True
+    )
     snaptrade_user_secret = Column(String(255), nullable=False)  # Encrypted SnapTrade user secret
     registration_date = Column(DateTime, server_default=func.now())
     last_sync = Column(DateTime, nullable=True)
