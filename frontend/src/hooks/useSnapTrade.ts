@@ -44,7 +44,7 @@ export function useSnapTradeRegistration(): UseSnapTradeRegistration {
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.accounts() });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as any).response?.data?.detail || error.message || 'Registration failed';
+      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Registration failed';
       toast.error(`Registration failed: ${errorMessage}`);
     }
   });
@@ -79,7 +79,7 @@ export function useSnapTradeConnection(): UseSnapTradeConnection {
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.accounts() });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as any).response?.data?.detail || error.message || 'Failed to get connection URL';
+      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Failed to get connection URL';
       toast.error(`Connection failed: ${errorMessage}`);
     }
   });
@@ -213,7 +213,7 @@ export function useSnapTradeSync() {
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.all });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as any).response?.data?.detail || error.message || 'Sync failed';
+      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Sync failed';
       toast.error(`Sync failed: ${errorMessage}`);
     }
   });
@@ -236,7 +236,7 @@ export function useSnapTradeDelete() {
       queryClient.removeQueries({ queryKey: snapTradeKeys.all });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as any).response?.data?.detail || error.message || 'Delete failed';
+      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Delete failed';
       toast.error(`Delete failed: ${errorMessage}`);
     }
   });

@@ -168,8 +168,8 @@ export function AccountConnectionFlow({
       }
     } catch (err: unknown) {
       console.error('Connection error:', err);
-      const error = err as any;
-      const errorMessage = error.response?.data?.detail || error.message || 'Connection failed';
+      const errorMessage = (err as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
+                           (err as { message?: string })?.message || 'Connection failed';
       setError(errorMessage);
       toast.error(`Connection failed: ${errorMessage}`);
       setConnectionProgress(0);

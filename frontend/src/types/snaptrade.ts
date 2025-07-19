@@ -5,14 +5,14 @@
 
 // ===== REQUEST TYPES =====
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SnapTradeUserRegistrationRequest {
   /** User registration request (currently empty but extensible) */
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SnapTradeConnectionRequest {
   /** Connection portal request (currently empty but extensible) */
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 }
 
 // ===== RESPONSE TYPES =====
