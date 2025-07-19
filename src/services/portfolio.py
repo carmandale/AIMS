@@ -13,6 +13,8 @@ from src.data.models.portfolio import (
     Position,
     Balance,
     Transaction,
+    TransactionType,
+    BrokerType,
     PerformanceMetrics,
     RiskMetrics,
     AssetAllocation,
@@ -52,32 +54,34 @@ class PortfolioService:
     def _get_user_snaptrade_credentials(self, db: Session, user_id: str) -> Optional[str]:
         """
         Get decrypted SnapTrade user secret from database
-        
+
         Args:
             db: Database session
             user_id: User ID
-            
+
         Returns:
             Decrypted user secret or None if not found
         """
         from src.db.models import SnapTradeUser
-        
+
         snaptrade_user = (
             db.query(SnapTradeUser)
             .filter(SnapTradeUser.user_id == user_id, SnapTradeUser.is_active == True)
             .first()
         )
-        
+
         if not snaptrade_user:
             return None
-        
+
         try:
             return encryption_service.decrypt(snaptrade_user.snaptrade_user_secret)
         except Exception as e:
             logger.error(f"Failed to decrypt SnapTrade user secret for {user_id}: {e}")
             return None
 
-    async def fetch_all_positions(self, db: Session, user_id: Optional[str] = None) -> List[Position]:
+    async def fetch_all_positions(
+        self, db: Session, user_id: Optional[str] = None
+    ) -> List[Position]:
         """Fetch positions from all brokers (SnapTrade if configured, otherwise mock data)"""
         all_positions = []
 
@@ -88,30 +92,32 @@ class PortfolioService:
                 try:
                     # Get all SnapTrade accounts for the user
                     accounts = await snaptrade_service.get_user_accounts(user_id, user_secret)
-                    
+
                     for account in accounts:
                         account_id = account.get("id")
                         if not account_id:
                             continue
-                            
+
                         # Get positions for this account
                         snaptrade_positions = await snaptrade_service.get_account_positions(
                             user_id, user_secret, account_id
                         )
-                        
+
                         for st_position in snaptrade_positions:
                             # Transform SnapTrade position to our Position model
                             position = Position(
                                 broker=account.get("institution_name", "SnapTrade"),
                                 symbol=st_position.get("symbol", ""),
                                 quantity=Decimal(str(st_position.get("quantity", 0))),
-                                cost_basis=Decimal(str(st_position.get("average_purchase_price", 0))),
+                                cost_basis=Decimal(
+                                    str(st_position.get("average_purchase_price", 0))
+                                ),
                                 current_price=Decimal(str(st_position.get("last_ask_price", 0))),
                                 position_type="stock",  # SnapTrade doesn't specify type
                             )
                             position.calculate_metrics()
                             all_positions.append(position)
-                            
+
                             # Save to database
                             db_position = (
                                 db.query(db_models.Position)
@@ -139,13 +145,17 @@ class PortfolioService:
                                     position_type=position.position_type,
                                 )
                                 db.add(db_position)
-                    
+
                     db.commit()
-                    logger.info(f"Fetched {len(all_positions)} positions from SnapTrade for user {user_id}")
+                    logger.info(
+                        f"Fetched {len(all_positions)} positions from SnapTrade for user {user_id}"
+                    )
                     return all_positions
-                    
+
                 except Exception as e:
-                    logger.error(f"Failed to fetch positions from SnapTrade for user {user_id}: {e}")
+                    logger.error(
+                        f"Failed to fetch positions from SnapTrade for user {user_id}: {e}"
+                    )
                     # Fall through to mock data
 
         # Fall back to mock data fetchers
@@ -215,28 +225,28 @@ class PortfolioService:
                 try:
                     # Get all SnapTrade accounts for the user
                     accounts = await snaptrade_service.get_user_accounts(user_id, user_secret)
-                    
+
                     for account in accounts:
                         account_id = account.get("id")
                         if not account_id:
                             continue
-                            
+
                         # Get balances for this account
                         snaptrade_balances = await snaptrade_service.get_account_balances(
                             user_id, user_secret, account_id
                         )
-                        
+
                         # Transform SnapTrade balances to our Balance model
                         cash = Decimal("0")
                         margin = Decimal("0")
                         crypto = Decimal("0")
-                        
+
                         for key, value in snaptrade_balances.items():
                             if "cash" in key.lower():
                                 cash += Decimal(str(value))
                             elif "buying_power" in key.lower():
                                 margin += Decimal(str(value))
-                        
+
                         balance = Balance(
                             broker=account.get("institution_name", "SnapTrade"),
                             cash=cash,
@@ -245,7 +255,7 @@ class PortfolioService:
                         )
                         balance.calculate_total()
                         all_balances.append(balance)
-                        
+
                         # Save to database
                         db_balance = (
                             db.query(db_models.Balance)
@@ -265,11 +275,13 @@ class PortfolioService:
                                 crypto=balance.crypto,
                             )
                             db.add(db_balance)
-                    
+
                     db.commit()
-                    logger.info(f"Fetched {len(all_balances)} balances from SnapTrade for user {user_id}")
+                    logger.info(
+                        f"Fetched {len(all_balances)} balances from SnapTrade for user {user_id}"
+                    )
                     return all_balances
-                    
+
                 except Exception as e:
                     logger.error(f"Failed to fetch balances from SnapTrade for user {user_id}: {e}")
                     # Fall through to mock data
@@ -320,7 +332,9 @@ class PortfolioService:
         return all_balances
 
     @cached("portfolio_summary", ttl_hours=1)
-    async def get_portfolio_summary(self, db: Session, user_id: Optional[str] = None) -> Dict[str, Any]:
+    async def get_portfolio_summary(
+        self, db: Session, user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Get complete portfolio summary with caching"""
         # Fetch all data
         positions = await self.fetch_all_positions(db, user_id)
@@ -382,33 +396,58 @@ class PortfolioService:
                 try:
                     # Get transactions from SnapTrade
                     snaptrade_transactions = await snaptrade_service.get_account_transactions(
-                        user_id, 
-                        user_secret, 
+                        user_id,
+                        user_secret,
                         start_date=start_date.date() if start_date else None,
-                        end_date=end_date.date() if end_date else None
+                        end_date=end_date.date() if end_date else None,
                     )
-                    
+
                     for st_transaction in snaptrade_transactions:
                         # Transform SnapTrade transaction to our Transaction model
+                        quantity = Decimal(str(st_transaction.get("quantity", 0)))
+                        price = Decimal(str(st_transaction.get("price", 0)))
+                        amount = quantity * price  # Calculate amount from quantity and price
+
+                        # Map SnapTrade transaction type to our enum
+                        transaction_type_str = st_transaction.get("type", "buy").lower()
+                        if transaction_type_str in [
+                            "buy",
+                            "sell",
+                            "dividend",
+                            "deposit",
+                            "withdrawal",
+                            "fee",
+                        ]:
+                            transaction_type = TransactionType(transaction_type_str)
+                        else:
+                            transaction_type = TransactionType.BUY  # Default fallback
+
                         transaction = Transaction(
                             id=st_transaction.get("id", ""),
-                            broker="SnapTrade",
+                            broker=BrokerType.FIDELITY,  # Use a valid broker type as fallback
                             symbol=st_transaction.get("symbol", ""),
-                            transaction_type=st_transaction.get("type", "unknown"),
-                            quantity=Decimal(str(st_transaction.get("quantity", 0))),
-                            price=Decimal(str(st_transaction.get("price", 0))),
-                            timestamp=datetime.fromisoformat(st_transaction.get("trade_date", datetime.utcnow().isoformat())),
+                            type=transaction_type,
+                            quantity=quantity,
+                            price=price,
+                            amount=amount,
+                            timestamp=datetime.fromisoformat(
+                                st_transaction.get("trade_date", datetime.utcnow().isoformat())
+                            ),
                             description=st_transaction.get("description", ""),
                         )
                         all_transactions.append(transaction)
-                    
-                    logger.info(f"Fetched {len(all_transactions)} transactions from SnapTrade for user {user_id}")
+
+                    logger.info(
+                        f"Fetched {len(all_transactions)} transactions from SnapTrade for user {user_id}"
+                    )
                     # Sort by timestamp descending
                     all_transactions.sort(key=lambda x: x.timestamp, reverse=True)
                     return all_transactions
-                    
+
                 except Exception as e:
-                    logger.error(f"Failed to fetch transactions from SnapTrade for user {user_id}: {e}")
+                    logger.error(
+                        f"Failed to fetch transactions from SnapTrade for user {user_id}: {e}"
+                    )
                     # Fall through to mock data
 
         # Fall back to mock data fetchers
@@ -432,7 +471,9 @@ class PortfolioService:
 
         return all_transactions
 
-    async def generate_morning_brief(self, db: Session, user_id: Optional[str] = None) -> MorningBrief:
+    async def generate_morning_brief(
+        self, db: Session, user_id: Optional[str] = None
+    ) -> MorningBrief:
         """Generate morning brief with overnight changes and alerts"""
         # Get current portfolio
         summary = await self.get_portfolio_summary(db, user_id)
@@ -556,7 +597,9 @@ class PortfolioService:
         """Get portfolio performance metrics"""
 
         positions = await self.fetch_all_positions(db, user_id)
-        transactions = await self.get_transactions(db, start_date=None, end_date=None, user_id=user_id)
+        transactions = await self.get_transactions(
+            db, start_date=None, end_date=None, user_id=user_id
+        )
 
         performance_metrics = await self.performance_calculator.calculate_performance_metrics(
             positions, transactions, timeframe
@@ -576,7 +619,9 @@ class PortfolioService:
         """Get portfolio risk metrics"""
 
         positions = await self.fetch_all_positions(db, user_id)
-        transactions = await self.get_transactions(db, start_date=None, end_date=None, user_id=user_id)
+        transactions = await self.get_transactions(
+            db, start_date=None, end_date=None, user_id=user_id
+        )
 
         risk_metrics = await self.risk_metrics_engine.calculate_comprehensive_risk_metrics(
             positions, transactions, timeframe
