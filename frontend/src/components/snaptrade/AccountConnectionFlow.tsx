@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   ArrowRight,
-  Shield, 
-  CheckCircle, 
-  RefreshCw, 
-  Search, 
-  Star, 
-  Lock, 
-  Eye, 
-  AlertTriangle, 
-  ExternalLink, 
-  Wifi, 
-  Clock, 
-  Check 
+  Shield,
+  CheckCircle,
+  RefreshCw,
+  Search,
+  Star,
+  Lock,
+  Eye,
+  AlertTriangle,
+  ExternalLink,
+  Wifi,
+  Clock,
+  Check,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api-client';
@@ -24,7 +24,7 @@ import type { AccountConnectionFlowProps, BrokerInfo } from '../../types/snaptra
 export function AccountConnectionFlow({
   className,
   onBack,
-  onConnectionComplete
+  onConnectionComplete,
 }: AccountConnectionFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedBroker, setSelectedBroker] = useState<string | null>(null);
@@ -43,7 +43,7 @@ export function AccountConnectionFlow({
       rating: 4.8,
       users: '2.1M',
       features: ['Commission-free trades', 'Advanced tools', 'Research'],
-      connectionTime: '~30 seconds'
+      connectionTime: '~30 seconds',
     },
     {
       id: 'fidelity',
@@ -53,7 +53,7 @@ export function AccountConnectionFlow({
       rating: 4.9,
       users: '3.2M',
       features: ['Zero fees', 'Mutual funds', '24/7 support'],
-      connectionTime: '~45 seconds'
+      connectionTime: '~45 seconds',
     },
     {
       id: 'schwab',
@@ -63,7 +63,7 @@ export function AccountConnectionFlow({
       rating: 4.7,
       users: '1.8M',
       features: ['No minimums', 'Global trading', 'Research'],
-      connectionTime: '~60 seconds'
+      connectionTime: '~60 seconds',
     },
     {
       id: 'etrade',
@@ -73,7 +73,7 @@ export function AccountConnectionFlow({
       rating: 4.6,
       users: '1.2M',
       features: ['Mobile trading', 'Options', 'Education'],
-      connectionTime: '~45 seconds'
+      connectionTime: '~45 seconds',
     },
     {
       id: 'robinhood',
@@ -83,7 +83,7 @@ export function AccountConnectionFlow({
       rating: 4.2,
       users: '2.5M',
       features: ['Commission-free', 'Crypto', 'Simple UI'],
-      connectionTime: '~20 seconds'
+      connectionTime: '~20 seconds',
     },
     {
       id: 'webull',
@@ -93,8 +93,8 @@ export function AccountConnectionFlow({
       rating: 4.4,
       users: '800K',
       features: ['Extended hours', 'Paper trading', 'Analytics'],
-      connectionTime: '~30 seconds'
-    }
+      connectionTime: '~30 seconds',
+    },
   ];
 
   const filteredBrokers = brokers.filter(broker =>
@@ -107,7 +107,7 @@ export function AccountConnectionFlow({
   const steps = [
     { number: 1, title: 'Choose Broker', description: 'Select your brokerage' },
     { number: 2, title: 'Secure Connection', description: 'Verify security' },
-    { number: 3, title: 'Authorize Access', description: 'Complete connection' }
+    { number: 3, title: 'Authorize Access', description: 'Complete connection' },
   ];
 
   const handleBrokerSelect = (brokerId: string) => {
@@ -138,11 +138,11 @@ export function AccountConnectionFlow({
 
       // Get connection URL from backend
       const response = await api.snaptrade.getConnectionUrl();
-      
+
       if (response.data.connection_url) {
         setConnectionUrl(response.data.connection_url);
         setConnectionProgress(100);
-        
+
         // Open SnapTrade portal in new window
         const popup = window.open(
           response.data.connection_url,
@@ -169,8 +169,11 @@ export function AccountConnectionFlow({
       }
     } catch (err: unknown) {
       console.error('Connection error:', err);
-      const errorMessage = (err as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
-                           (err as { message?: string })?.message || 'Connection failed';
+      const errorMessage =
+        (err as { response?: { data?: { detail?: string } }; message?: string })?.response?.data
+          ?.detail ||
+        (err as { message?: string })?.message ||
+        'Connection failed';
       setError(errorMessage);
       toast.error(`Connection failed: ${errorMessage}`);
       setConnectionProgress(0);
@@ -183,7 +186,7 @@ export function AccountConnectionFlow({
     try {
       // Check if accounts were connected
       const accountsResponse = await api.snaptrade.getAccounts();
-      
+
       if (accountsResponse.data.accounts && accountsResponse.data.accounts.length > 0) {
         toast.success('Account connected successfully!');
         onConnectionComplete?.();
@@ -199,7 +202,12 @@ export function AccountConnectionFlow({
   const selectedBrokerInfo = brokers.find(b => b.id === selectedBroker);
 
   return (
-    <div className={cn("min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900", className)}>
+    <div
+      className={cn(
+        'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+        className
+      )}
+    >
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -214,17 +222,18 @@ export function AccountConnectionFlow({
             <ArrowLeft className="w-5 h-5" />
             <span>Back</span>
           </button>
-
           {/* Progress Steps */}
           <div className="flex items-center space-x-4">
             {steps.map((step, index) => (
               <div key={step.number} className="flex items-center">
-                <div className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors",
-                  currentStep >= step.number
-                    ? "bg-blue-500 border-blue-500 text-white"
-                    : "border-slate-600 text-slate-400"
-                )}>
+                <div
+                  className={cn(
+                    'flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors',
+                    currentStep >= step.number
+                      ? 'bg-blue-500 border-blue-500 text-white'
+                      : 'border-slate-600 text-slate-400'
+                  )}
+                >
                   {currentStep > step.number ? (
                     <Check className="w-4 h-4" />
                   ) : (
@@ -232,15 +241,16 @@ export function AccountConnectionFlow({
                   )}
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={cn(
-                    "w-12 h-0.5 mx-2 transition-colors",
-                    currentStep > step.number ? "bg-blue-500" : "bg-slate-600"
-                  )} />
+                  <div
+                    className={cn(
+                      'w-12 h-0.5 mx-2 transition-colors',
+                      currentStep > step.number ? 'bg-blue-500' : 'bg-slate-600'
+                    )}
+                  />
                 )}
               </div>
             ))}
           </div>
-
           <div className="w-16" /> {/* Spacer for centering */}
         </motion.div>
 
@@ -257,9 +267,7 @@ export function AccountConnectionFlow({
                 className="space-y-8"
               >
                 <div className="text-center">
-                  <h1 className="text-3xl font-bold text-white mb-4">
-                    Choose Your Broker
-                  </h1>
+                  <h1 className="text-3xl font-bold text-white mb-4">Choose Your Broker</h1>
                   <p className="text-slate-300 max-w-2xl mx-auto">
                     Select your brokerage to connect your investment account securely
                   </p>
@@ -273,7 +281,7 @@ export function AccountConnectionFlow({
                       type="text"
                       placeholder="Search brokers..."
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={e => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                     />
                   </div>
@@ -287,7 +295,7 @@ export function AccountConnectionFlow({
                       Popular Brokers
                     </h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {popularBrokers.map((broker) => (
+                      {popularBrokers.map(broker => (
                         <motion.button
                           key={broker.id}
                           onClick={() => handleBrokerSelect(broker.id)}
@@ -329,11 +337,9 @@ export function AccountConnectionFlow({
                 {/* Other Brokers */}
                 {otherBrokers.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-semibold text-white mb-4">
-                      All Brokers
-                    </h2>
+                    <h2 className="text-xl font-semibold text-white mb-4">All Brokers</h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {otherBrokers.map((broker) => (
+                      {otherBrokers.map(broker => (
                         <motion.button
                           key={broker.id}
                           onClick={() => handleBrokerSelect(broker.id)}
@@ -384,11 +390,10 @@ export function AccountConnectionFlow({
                 className="max-w-2xl mx-auto text-center space-y-8"
               >
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-4">
-                    Secure Connection
-                  </h1>
+                  <h1 className="text-3xl font-bold text-white mb-4">Secure Connection</h1>
                   <p className="text-slate-300">
-                    Your connection to {selectedBrokerInfo.name} will be secured with industry-standard encryption
+                    Your connection to {selectedBrokerInfo.name} will be secured with
+                    industry-standard encryption
                   </p>
                 </div>
 
@@ -435,7 +440,7 @@ export function AccountConnectionFlow({
                       <div className="text-left">
                         <h4 className="font-medium text-blue-300 mb-1">What happens next?</h4>
                         <p className="text-sm text-blue-200">
-                          You'll be redirected to {selectedBrokerInfo.name}'s secure login page. 
+                          You'll be redirected to {selectedBrokerInfo.name}'s secure login page.
                           After you authorize the connection, you'll return here automatically.
                         </p>
                       </div>
@@ -463,9 +468,7 @@ export function AccountConnectionFlow({
                 className="max-w-2xl mx-auto text-center space-y-8"
               >
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-4">
-                    Authorize Access
-                  </h1>
+                  <h1 className="text-3xl font-bold text-white mb-4">Authorize Access</h1>
                   <p className="text-slate-300">
                     Complete the connection to {selectedBrokerInfo.name}
                   </p>
@@ -480,18 +483,19 @@ export function AccountConnectionFlow({
                         <ExternalLink className="w-8 h-8 text-blue-400" />
                       </div>
 
-                      <h3 className="text-xl font-semibold text-white mb-4">
-                        Ready to Connect
-                      </h3>
+                      <h3 className="text-xl font-semibold text-white mb-4">Ready to Connect</h3>
                       <p className="text-slate-300 mb-6">
-                        Click below to open {selectedBrokerInfo.name}'s secure login page in a new window
+                        Click below to open {selectedBrokerInfo.name}'s secure login page in a new
+                        window
                       </p>
 
                       <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 mb-6">
                         <div className="flex items-start space-x-3">
                           <Clock className="w-5 h-5 text-yellow-400 mt-0.5" />
                           <div className="text-left">
-                            <h4 className="font-medium text-yellow-300 mb-1">Estimated time: {selectedBrokerInfo.connectionTime}</h4>
+                            <h4 className="font-medium text-yellow-300 mb-1">
+                              Estimated time: {selectedBrokerInfo.connectionTime}
+                            </h4>
                             <p className="text-sm text-yellow-200">
                               This will open in a new window. Don't close this page.
                             </p>
@@ -514,14 +518,12 @@ export function AccountConnectionFlow({
                       <div className="bg-blue-500/20 p-4 rounded-full w-16 h-16 mx-auto mb-6">
                         <RefreshCw className="w-8 h-8 text-blue-400 animate-spin" />
                       </div>
-                      <h3 className="text-xl font-semibold text-white mb-4">
-                        Connecting...
-                      </h3>
+                      <h3 className="text-xl font-semibold text-white mb-4">Connecting...</h3>
                       <p className="text-slate-300 mb-6">
                         Opening {selectedBrokerInfo.name} connection portal
                       </p>
                       <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
-                        <div 
+                        <div
                           className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${connectionProgress}%` }}
                         />
@@ -535,12 +537,8 @@ export function AccountConnectionFlow({
                       <div className="bg-red-500/20 p-4 rounded-full w-16 h-16 mx-auto mb-6">
                         <AlertTriangle className="w-8 h-8 text-red-400" />
                       </div>
-                      <h3 className="text-xl font-semibold text-white mb-4">
-                        Connection Failed
-                      </h3>
-                      <p className="text-slate-300 mb-6">
-                        {error}
-                      </p>
+                      <h3 className="text-xl font-semibold text-white mb-4">Connection Failed</h3>
+                      <p className="text-slate-300 mb-6">{error}</p>
                       <button
                         onClick={handleConnect}
                         className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200"

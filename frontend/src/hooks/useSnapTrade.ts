@@ -14,7 +14,7 @@ import type {
   UseSnapTradeBalances,
   UseSnapTradeTransactions,
   SnapTradeRegistrationState,
-  SnapTradeConnectionState
+  SnapTradeConnectionState,
 } from '../types/snaptrade';
 
 // Query Keys
@@ -23,7 +23,7 @@ export const snapTradeKeys = {
   accounts: () => [...snapTradeKeys.all, 'accounts'] as const,
   positions: (accountId: string) => [...snapTradeKeys.all, 'positions', accountId] as const,
   balances: (accountId: string) => [...snapTradeKeys.all, 'balances', accountId] as const,
-  transactions: (startDate?: string, endDate?: string) => 
+  transactions: (startDate?: string, endDate?: string) =>
     [...snapTradeKeys.all, 'transactions', { startDate, endDate }] as const,
 };
 
@@ -32,34 +32,42 @@ export const snapTradeKeys = {
  */
 export function useSnapTradeRegistration(): UseSnapTradeRegistration {
   const queryClient = useQueryClient();
-  
+
   const mutation = useMutation({
     mutationFn: async () => {
       const response = await api.snaptrade.register();
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success('Successfully registered with SnapTrade!');
       // Invalidate accounts query to refresh status
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.accounts() });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Registration failed';
+      const errorMessage =
+        (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data
+          ?.detail ||
+        error.message ||
+        'Registration failed';
       toast.error(`Registration failed: ${errorMessage}`);
-    }
+    },
   });
 
   const state: SnapTradeRegistrationState = {
-    status: mutation.isPending ? 'loading' : 
-            mutation.isSuccess ? 'success' : 
-            mutation.isError ? 'error' : 'idle',
-    error: mutation.error?.message
+    status: mutation.isPending
+      ? 'loading'
+      : mutation.isSuccess
+        ? 'success'
+        : mutation.isError
+          ? 'error'
+          : 'idle',
+    error: mutation.error?.message,
   };
 
   return {
     register: () => mutation.mutateAsync(),
     state,
-    isLoading: mutation.isPending
+    isLoading: mutation.isPending,
   };
 }
 
@@ -68,7 +76,7 @@ export function useSnapTradeRegistration(): UseSnapTradeRegistration {
  */
 export function useSnapTradeConnection(): UseSnapTradeConnection {
   const queryClient = useQueryClient();
-  
+
   const mutation = useMutation({
     mutationFn: async () => {
       const response = await api.snaptrade.getConnectionUrl();
@@ -79,23 +87,31 @@ export function useSnapTradeConnection(): UseSnapTradeConnection {
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.accounts() });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Failed to get connection URL';
+      const errorMessage =
+        (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data
+          ?.detail ||
+        error.message ||
+        'Failed to get connection URL';
       toast.error(`Connection failed: ${errorMessage}`);
-    }
+    },
   });
 
   const state: SnapTradeConnectionState = {
-    status: mutation.isPending ? 'connecting' : 
-            mutation.isSuccess ? 'success' : 
-            mutation.isError ? 'error' : 'idle',
+    status: mutation.isPending
+      ? 'connecting'
+      : mutation.isSuccess
+        ? 'success'
+        : mutation.isError
+          ? 'error'
+          : 'idle',
     currentStep: 1,
-    error: mutation.error?.message
+    error: mutation.error?.message,
   };
 
   return {
     getConnectionUrl: () => mutation.mutateAsync(),
     state,
-    isLoading: mutation.isPending
+    isLoading: mutation.isPending,
   };
 }
 
@@ -118,7 +134,7 @@ export function useSnapTradeAccounts(): UseSnapTradeAccounts {
     accounts: query.data?.accounts || [],
     isLoading: query.isLoading,
     error: query.error ? { message: query.error.message } : null,
-    refetch: query.refetch
+    refetch: query.refetch,
   };
 }
 
@@ -142,7 +158,7 @@ export function useSnapTradePositions(accountId: string): UseSnapTradePositions 
     positions: query.data?.positions || [],
     isLoading: query.isLoading,
     error: query.error ? { message: query.error.message } : null,
-    refetch: query.refetch
+    refetch: query.refetch,
   };
 }
 
@@ -166,7 +182,7 @@ export function useSnapTradeBalances(accountId: string): UseSnapTradeBalances {
     balances: query.data?.balances || null,
     isLoading: query.isLoading,
     error: query.error ? { message: query.error.message } : null,
-    refetch: query.refetch
+    refetch: query.refetch,
   };
 }
 
@@ -174,7 +190,7 @@ export function useSnapTradeBalances(accountId: string): UseSnapTradeBalances {
  * Hook for fetching SnapTrade transactions
  */
 export function useSnapTradeTransactions(
-  startDate?: string, 
+  startDate?: string,
   endDate?: string
 ): UseSnapTradeTransactions {
   const query = useQuery({
@@ -192,7 +208,7 @@ export function useSnapTradeTransactions(
     transactions: query.data?.transactions || [],
     isLoading: query.isLoading,
     error: query.error ? { message: query.error.message } : null,
-    refetch: query.refetch
+    refetch: query.refetch,
   };
 }
 
@@ -201,7 +217,7 @@ export function useSnapTradeTransactions(
  */
 export function useSnapTradeSync() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
       const response = await api.snaptrade.syncData();
@@ -213,9 +229,13 @@ export function useSnapTradeSync() {
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.all });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Sync failed';
+      const errorMessage =
+        (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data
+          ?.detail ||
+        error.message ||
+        'Sync failed';
       toast.error(`Sync failed: ${errorMessage}`);
-    }
+    },
   });
 }
 
@@ -224,7 +244,7 @@ export function useSnapTradeSync() {
  */
 export function useSnapTradeDelete() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
       const response = await api.snaptrade.deleteUser();
@@ -236,9 +256,13 @@ export function useSnapTradeDelete() {
       queryClient.removeQueries({ queryKey: snapTradeKeys.all });
     },
     onError: (error: Error) => {
-      const errorMessage = (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data?.detail || error.message || 'Delete failed';
+      const errorMessage =
+        (error as { response?: { data?: { detail?: string } }; message?: string }).response?.data
+          ?.detail ||
+        error.message ||
+        'Delete failed';
       toast.error(`Delete failed: ${errorMessage}`);
-    }
+    },
   });
 }
 
@@ -247,16 +271,16 @@ export function useSnapTradeDelete() {
  */
 export function useSnapTradeStatus() {
   const { accounts, isLoading, error } = useSnapTradeAccounts();
-  
+
   const isRegistered = !error || (error && !error.message.includes('not registered'));
   const hasConnectedAccounts = accounts.length > 0;
-  
+
   return {
     isRegistered,
     hasConnectedAccounts,
     accountCount: accounts.length,
     isLoading,
-    error
+    error,
   };
 }
 
@@ -265,27 +289,27 @@ export function useSnapTradeStatus() {
  */
 export function useSnapTradePortfolio() {
   const { accounts } = useSnapTradeAccounts();
-  
+
   // Create stable account IDs array to prevent infinite re-renders
   const accountIds = React.useMemo(() => accounts.map(account => account.id), [accounts]);
-  
+
   // Use React Query to fetch all positions and balances
   const portfolioQuery = useQuery({
     queryKey: [...snapTradeKeys.all, 'portfolio', accountIds],
     queryFn: async () => {
-      const positionsPromises = accountIds.map(id => 
+      const positionsPromises = accountIds.map(id =>
         api.snaptrade.getPositions(id).then(res => res.data.positions || [])
       );
-      
-      const balancesPromises = accountIds.map(id => 
+
+      const balancesPromises = accountIds.map(id =>
         api.snaptrade.getBalances(id).then(res => res.data.balances)
       );
-      
+
       const [positionsArrays, balancesArray] = await Promise.all([
         Promise.all(positionsPromises),
-        Promise.all(balancesPromises)
+        Promise.all(balancesPromises),
       ]);
-      
+
       const allPositions = positionsArrays.flat();
       const totalBalance = balancesArray.reduce((total, balance) => {
         return total + (balance?.total_value || 0);
@@ -293,12 +317,12 @@ export function useSnapTradePortfolio() {
       const totalCash = balancesArray.reduce((total, balance) => {
         return total + (balance?.cash || 0);
       }, 0);
-      
+
       return {
         positions: allPositions,
         totalBalance,
         totalCash,
-        accountCount: accounts.length
+        accountCount: accounts.length,
       };
     },
     enabled: accountIds.length > 0,
@@ -306,7 +330,7 @@ export function useSnapTradePortfolio() {
     retry: 2,
     staleTime: 1000 * 30, // Consider data stale after 30 seconds
   });
-  
+
   return {
     positions: portfolioQuery.data?.positions || [],
     totalBalance: portfolioQuery.data?.totalBalance || 0,
@@ -314,6 +338,6 @@ export function useSnapTradePortfolio() {
     accountCount: portfolioQuery.data?.accountCount || 0,
     isLoading: portfolioQuery.isLoading,
     error: portfolioQuery.error ? { message: portfolioQuery.error.message } : null,
-    refetch: portfolioQuery.refetch
+    refetch: portfolioQuery.refetch,
   };
 }

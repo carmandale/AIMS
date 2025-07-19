@@ -8,7 +8,11 @@ import { MorningBriefCard } from './components/MorningBriefCard';
 import { IncomeGoalTracker } from './components/IncomeGoalTracker';
 import { TasksPage } from './components/TasksPage';
 import { TradeTicketForm } from './components/TradeTicketForm';
-import { SnapTradeRegistration, AccountConnectionFlow, ConnectedAccountsList } from './components/snaptrade';
+import {
+  SnapTradeRegistration,
+  AccountConnectionFlow,
+  ConnectedAccountsList,
+} from './components/snaptrade';
 import { Toaster } from 'sonner';
 
 const theme: Theme = 'dark';
@@ -85,7 +89,7 @@ function App() {
         return (
           <ConnectedAccountsList
             onAddAccount={() => setCurrentComponent('snaptrade-connect')}
-            onAccountDisconnect={(accountId) => {
+            onAccountDisconnect={accountId => {
               console.log('Account disconnected:', accountId);
             }}
           />

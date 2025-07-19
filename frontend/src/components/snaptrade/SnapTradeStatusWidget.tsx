@@ -1,17 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle, 
-  Settings, 
-  RefreshCw, 
+import {
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Settings,
+  RefreshCw,
   Plus,
   Wifi,
   WifiOff,
   Clock,
   TrendingUp,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -21,14 +21,14 @@ import type { SnapTradeStatusWidgetProps, SnapTradeConnectionStatus } from '../.
 export function SnapTradeStatusWidget({
   className,
   onManageAccounts,
-  compact = false
+  compact = false,
 }: SnapTradeStatusWidgetProps) {
   // Fetch accounts data
-  const { 
-    data: accountsData, 
-    isLoading, 
+  const {
+    data: accountsData,
+    isLoading,
     error,
-    dataUpdatedAt
+    dataUpdatedAt,
   } = useQuery({
     queryKey: ['snaptrade-accounts'],
     queryFn: async () => {
@@ -49,7 +49,7 @@ export function SnapTradeStatusWidget({
         hasConnectedAccounts: false,
         accountCount: 0,
         lastSync: null,
-        connectionHealth: 'error'
+        connectionHealth: 'error',
       };
     }
 
@@ -59,7 +59,7 @@ export function SnapTradeStatusWidget({
         hasConnectedAccounts: false,
         accountCount: 0,
         lastSync: null,
-        connectionHealth: 'error'
+        connectionHealth: 'error',
       };
     }
 
@@ -67,11 +67,11 @@ export function SnapTradeStatusWidget({
     const lastSyncTimes = accounts.map(acc => new Date(acc.last_sync).getTime());
     const mostRecentSync = Math.max(...lastSyncTimes);
     const lastSyncDate = new Date(mostRecentSync);
-    
+
     // Determine health based on most recent sync
     const now = new Date();
     const diffHours = (now.getTime() - mostRecentSync) / (1000 * 60 * 60);
-    
+
     let health: 'healthy' | 'warning' | 'error' = 'healthy';
     if (diffHours > 24) health = 'error';
     else if (diffHours > 1) health = 'warning';
@@ -81,7 +81,7 @@ export function SnapTradeStatusWidget({
       hasConnectedAccounts: true,
       accountCount: accounts.length,
       lastSync: lastSyncDate.toISOString(),
-      connectionHealth: health
+      connectionHealth: health,
     };
   };
 
@@ -89,12 +89,12 @@ export function SnapTradeStatusWidget({
 
   const formatLastSync = (dateString: string | null) => {
     if (!dateString) return 'Never';
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
@@ -112,9 +112,11 @@ export function SnapTradeStatusWidget({
       case 'warning':
         return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
       case 'error':
-        return status.hasConnectedAccounts ? 
-          <WifiOff className="w-5 h-5 text-red-400" /> : 
-          <XCircle className="w-5 h-5 text-red-400" />;
+        return status.hasConnectedAccounts ? (
+          <WifiOff className="w-5 h-5 text-red-400" />
+        ) : (
+          <XCircle className="w-5 h-5 text-red-400" />
+        );
       default:
         return <Wifi className="w-5 h-5 text-slate-400" />;
     }
@@ -122,17 +124,17 @@ export function SnapTradeStatusWidget({
 
   const getStatusText = () => {
     if (isLoading) return 'Loading...';
-    
+
     if (!status.isRegistered) {
       return 'Not registered';
     }
-    
+
     if (!status.hasConnectedAccounts) {
       return 'No accounts connected';
     }
 
     const accountText = status.accountCount === 1 ? 'account' : 'accounts';
-    
+
     switch (status.connectionHealth) {
       case 'healthy':
         return `${status.accountCount} ${accountText} connected`;
@@ -147,7 +149,7 @@ export function SnapTradeStatusWidget({
 
   const getStatusColor = () => {
     if (isLoading) return 'border-blue-500/20 bg-blue-500/5';
-    
+
     switch (status.connectionHealth) {
       case 'healthy':
         return 'border-green-500/20 bg-green-500/5';
@@ -180,7 +182,7 @@ export function SnapTradeStatusWidget({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className={cn(
-          "bg-slate-800/50 backdrop-blur-sm border rounded-xl p-4 transition-all duration-200 hover:border-slate-600/50",
+          'bg-slate-800/50 backdrop-blur-sm border rounded-xl p-4 transition-all duration-200 hover:border-slate-600/50',
           getStatusColor(),
           className
         )}
@@ -189,15 +191,11 @@ export function SnapTradeStatusWidget({
           <div className="flex items-center space-x-3">
             {getStatusIcon()}
             <div>
-              <p className="text-sm font-medium text-white">
-                SnapTrade
-              </p>
-              <p className="text-xs text-slate-400">
-                {getStatusText()}
-              </p>
+              <p className="text-sm font-medium text-white">SnapTrade</p>
+              <p className="text-xs text-slate-400">{getStatusText()}</p>
             </div>
           </div>
-          
+
           <button
             onClick={onManageAccounts}
             className="p-2 text-slate-400 hover:text-white transition-colors"
@@ -214,7 +212,7 @@ export function SnapTradeStatusWidget({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "bg-slate-800/50 backdrop-blur-sm border rounded-2xl p-6 transition-all duration-200 hover:border-slate-600/50",
+        'bg-slate-800/50 backdrop-blur-sm border rounded-2xl p-6 transition-all duration-200 hover:border-slate-600/50',
         getStatusColor(),
         className
       )}
@@ -226,15 +224,11 @@ export function SnapTradeStatusWidget({
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">
-              SnapTrade Connection
-            </h3>
-            <p className="text-sm text-slate-400">
-              Brokerage account integration
-            </p>
+            <h3 className="text-lg font-semibold text-white">SnapTrade Connection</h3>
+            <p className="text-sm text-slate-400">Brokerage account integration</p>
           </div>
         </div>
-        
+
         <button
           onClick={onManageAccounts}
           className="flex items-center space-x-2 px-3 py-2 text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
@@ -250,9 +244,7 @@ export function SnapTradeStatusWidget({
           <div className="flex items-center space-x-3">
             {getStatusIcon()}
             <div>
-              <p className="font-medium text-white">
-                {getStatusText()}
-              </p>
+              <p className="font-medium text-white">{getStatusText()}</p>
               {status.lastSync && (
                 <p className="text-sm text-slate-400">
                   Last sync: {formatLastSync(status.lastSync)}
@@ -267,15 +259,11 @@ export function SnapTradeStatusWidget({
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700/50">
             <div>
               <p className="text-sm text-slate-400 mb-1">Total Value</p>
-              <p className="text-xl font-bold text-white">
-                {formatCurrency(getTotalValue())}
-              </p>
+              <p className="text-xl font-bold text-white">{formatCurrency(getTotalValue())}</p>
             </div>
             <div>
               <p className="text-sm text-slate-400 mb-1">Accounts</p>
-              <p className="text-xl font-bold text-white">
-                {status.accountCount}
-              </p>
+              <p className="text-xl font-bold text-white">{status.accountCount}</p>
             </div>
           </div>
         )}
@@ -339,4 +327,3 @@ export function SnapTradeStatusWidget({
     </motion.div>
   );
 }
-

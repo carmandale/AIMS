@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, 
-  RefreshCw, 
-  Trash2, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
-  DollarSign, 
-  TrendingUp, 
-  Wifi, 
+import {
+  Plus,
+  RefreshCw,
+  Trash2,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  TrendingUp,
+  Wifi,
   WifiOff,
   Eye,
   Settings,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api-client';
@@ -25,18 +25,18 @@ import type { ConnectedAccountsListProps, SnapTradeAccount } from '../../types/s
 export function ConnectedAccountsList({
   className,
   onAddAccount,
-  onAccountDisconnect
+  onAccountDisconnect,
 }: ConnectedAccountsListProps) {
   const [refreshingAccounts, setRefreshingAccounts] = useState<Set<string>>(new Set());
   const [disconnectingAccount, setDisconnectingAccount] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch connected accounts
-  const { 
-    data: accountsData, 
-    isLoading, 
-    error, 
-    refetch 
+  const {
+    data: accountsData,
+    isLoading,
+    error,
+    refetch,
   } = useQuery({
     queryKey: ['snaptrade-accounts'],
     queryFn: async () => {
@@ -59,13 +59,13 @@ export function ConnectedAccountsList({
     },
     onError: (error: Error) => {
       toast.error(`Failed to refresh accounts: ${error.message}`);
-    }
+    },
   });
 
   // Individual account refresh
   const handleRefreshAccount = async (accountId: string) => {
     setRefreshingAccounts(prev => new Set(prev).add(accountId));
-    
+
     try {
       await api.snaptrade.syncData();
       toast.success('Account refreshed successfully');
@@ -84,14 +84,18 @@ export function ConnectedAccountsList({
 
   // Disconnect account
   const handleDisconnectAccount = async (accountId: string, accountName: string) => {
-    if (!confirm(`Are you sure you want to disconnect ${accountName}? This will remove all associated data.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to disconnect ${accountName}? This will remove all associated data.`
+      )
+    ) {
       return;
     }
 
     setDisconnectingAccount(accountId);
-    
+
     try {
-      // Note: The backend doesn't have individual account disconnect, 
+      // Note: The backend doesn't have individual account disconnect,
       // so this would need to be implemented or we disconnect all
       toast.success(`${accountName} disconnected successfully`);
       onAccountDisconnect?.(accountId);
@@ -118,7 +122,7 @@ export function ConnectedAccountsList({
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
@@ -130,7 +134,7 @@ export function ConnectedAccountsList({
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
-    
+
     if (diffHours < 1) return 'healthy';
     if (diffHours < 24) return 'warning';
     return 'error';
@@ -164,13 +168,18 @@ export function ConnectedAccountsList({
 
   if (isLoading) {
     return (
-      <div className={cn("min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900", className)}>
+      <div
+        className={cn(
+          'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+          className
+        )}
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="animate-pulse space-y-6">
               <div className="h-8 bg-slate-700 rounded w-1/3"></div>
               <div className="grid gap-6">
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3].map(i => (
                   <div key={i} className="h-32 bg-slate-800 rounded-xl"></div>
                 ))}
               </div>
@@ -182,7 +191,12 @@ export function ConnectedAccountsList({
   }
 
   return (
-    <div className={cn("min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900", className)}>
+    <div
+      className={cn(
+        'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+        className
+      )}
+    >
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -211,7 +225,9 @@ export function ConnectedAccountsList({
                 disabled={refreshAllMutation.isPending}
                 className="flex items-center space-x-2 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 hover:text-white hover:border-slate-600 transition-colors disabled:opacity-50"
               >
-                <RefreshCw className={cn("w-4 h-4", refreshAllMutation.isPending && "animate-spin")} />
+                <RefreshCw
+                  className={cn('w-4 h-4', refreshAllMutation.isPending && 'animate-spin')}
+                />
                 <span>Refresh All</span>
               </button>
 
@@ -238,11 +254,10 @@ export function ConnectedAccountsList({
                   <div className="bg-slate-700/50 p-4 rounded-full w-16 h-16 mx-auto mb-6">
                     <Wifi className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-4">
-                    No Accounts Connected
-                  </h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">No Accounts Connected</h3>
                   <p className="text-slate-300 mb-6">
-                    Connect your first brokerage account to start tracking your portfolio with real-time data
+                    Connect your first brokerage account to start tracking your portfolio with
+                    real-time data
                   </p>
                   <button
                     onClick={onAddAccount}
@@ -268,7 +283,7 @@ export function ConnectedAccountsList({
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       className={cn(
-                        "bg-slate-800/50 backdrop-blur-sm border rounded-2xl p-6 transition-all duration-200 hover:border-slate-600/50",
+                        'bg-slate-800/50 backdrop-blur-sm border rounded-2xl p-6 transition-all duration-200 hover:border-slate-600/50',
                         getStatusColor(connectionStatus)
                       )}
                     >
@@ -344,7 +359,7 @@ export function ConnectedAccountsList({
                             disabled={isRefreshing}
                             className="flex items-center space-x-2 px-3 py-2 text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors disabled:opacity-50"
                           >
-                            <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                            <RefreshCw className={cn('w-4 h-4', isRefreshing && 'animate-spin')} />
                             <span>Refresh</span>
                           </button>
 
@@ -355,7 +370,9 @@ export function ConnectedAccountsList({
                         </div>
 
                         <button
-                          onClick={() => handleDisconnectAccount(account.id, account.institution_name)}
+                          onClick={() =>
+                            handleDisconnectAccount(account.id, account.institution_name)
+                          }
                           disabled={isDisconnecting}
                           className="flex items-center space-x-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                         >

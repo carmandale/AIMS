@@ -12,6 +12,5 @@ export type {
   SnapTradeRegistrationProps,
   AccountConnectionFlowProps,
   ConnectedAccountsListProps,
-  SnapTradeStatusWidgetProps
+  SnapTradeStatusWidgetProps,
 } from '../../types/snaptrade';
-

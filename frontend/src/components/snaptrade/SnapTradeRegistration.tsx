@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  TrendingUp, 
-  Shield, 
-  Users, 
-  BarChart3, 
-  CheckCircle, 
-  ArrowRight, 
-  RefreshCw, 
-  Lock, 
-  Zap, 
-  Globe, 
-  Award, 
+import {
+  TrendingUp,
+  Shield,
+  Users,
+  BarChart3,
+  CheckCircle,
+  ArrowRight,
+  RefreshCw,
+  Lock,
+  Zap,
+  Globe,
+  Award,
   Star,
-  AlertTriangle 
+  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api-client';
@@ -23,9 +23,11 @@ import type { SnapTradeRegistrationProps } from '../../types/snaptrade';
 export function SnapTradeRegistration({
   className,
   onRegistrationComplete,
-  onNavigateToConnection
+  onNavigateToConnection,
 }: SnapTradeRegistrationProps) {
-  const [registrationStatus, setRegistrationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [registrationStatus, setRegistrationStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +38,7 @@ export function SnapTradeRegistration({
 
     try {
       const response = await api.snaptrade.register();
-      
+
       if (response.data.status === 'success') {
         setRegistrationStatus('success');
         toast.success('Successfully registered with SnapTrade!');
@@ -51,8 +53,11 @@ export function SnapTradeRegistration({
       }
     } catch (err: unknown) {
       console.error('SnapTrade registration error:', err);
-      const errorMessage = (err as { response?: { data?: { detail?: string } }; message?: string })?.response?.data?.detail || 
-                           (err as { message?: string })?.message || 'Registration failed';
+      const errorMessage =
+        (err as { response?: { data?: { detail?: string } }; message?: string })?.response?.data
+          ?.detail ||
+        (err as { message?: string })?.message ||
+        'Registration failed';
       setError(errorMessage);
       setRegistrationStatus('error');
       toast.error(`Registration failed: ${errorMessage}`);
@@ -66,37 +71,45 @@ export function SnapTradeRegistration({
       icon: Shield,
       title: 'Bank-Level Security',
       description: '256-bit encryption, OAuth 2.0, and read-only access to keep your data safe',
-      highlight: 'Enterprise Security'
+      highlight: 'Enterprise Security',
     },
     {
       icon: Users,
       title: '12,000+ Brokers',
-      description: 'Connect to any major brokerage including TD Ameritrade, Fidelity, Schwab, and more',
-      highlight: 'Universal Coverage'
+      description:
+        'Connect to any major brokerage including TD Ameritrade, Fidelity, Schwab, and more',
+      highlight: 'Universal Coverage',
     },
     {
       icon: BarChart3,
       title: 'Real-Time Analytics',
-      description: 'Live portfolio updates, performance tracking, and comprehensive investment insights',
-      highlight: 'Live Data'
+      description:
+        'Live portfolio updates, performance tracking, and comprehensive investment insights',
+      highlight: 'Live Data',
     },
     {
       icon: Zap,
       title: 'Instant Sync',
-      description: 'Automatic portfolio synchronization with real-time position and balance updates',
-      highlight: 'Real-Time'
-    }
+      description:
+        'Automatic portfolio synchronization with real-time position and balance updates',
+      highlight: 'Real-Time',
+    },
   ];
 
   const trustIndicators = [
     { icon: Lock, text: 'SOC 2 Type II Certified' },
     { icon: Shield, text: 'Read-Only Access' },
     { icon: Globe, text: 'Used by 50,000+ investors' },
-    { icon: Award, text: 'Regulated by FINRA' }
+    { icon: Award, text: 'Regulated by FINRA' },
   ];
 
   return (
-    <div className={cn("min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900", className)}>
+    <div
+      className={cn(
+        'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+        className
+      )}
+    >
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -109,19 +122,16 @@ export function SnapTradeRegistration({
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Connect Your Brokerage Account
-          </h1>
+          <h1 className="text-4xl font-bold text-white mb-4">Connect Your Brokerage Account</h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-            Securely link your investment accounts to get real-time portfolio data, 
-            automated tracking, and comprehensive analytics.
+            Securely link your investment accounts to get real-time portfolio data, automated
+            tracking, and comprehensive analytics.
           </p>
         </motion.div>
 
         {/* Main Content */}
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            
             {/* Left Side - Features */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -234,9 +244,7 @@ export function SnapTradeRegistration({
                       <h3 className="text-xl font-semibold text-white mb-2">
                         Setting Up Your Account
                       </h3>
-                      <p className="text-slate-300">
-                        Registering with SnapTrade...
-                      </p>
+                      <p className="text-slate-300">Registering with SnapTrade...</p>
                     </div>
                     <div className="w-full bg-slate-700 rounded-full h-2">
                       <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full animate-pulse w-3/4"></div>
@@ -282,9 +290,7 @@ export function SnapTradeRegistration({
                       <div className="bg-red-500/20 p-4 rounded-full w-16 h-16 mx-auto mb-4">
                         <AlertTriangle className="w-8 h-8 text-red-400" />
                       </div>
-                      <h3 className="text-xl font-semibold text-white mb-2">
-                        Registration Failed
-                      </h3>
+                      <h3 className="text-xl font-semibold text-white mb-2">Registration Failed</h3>
                       <p className="text-slate-300 mb-4">
                         {error || 'Something went wrong. Please try again.'}
                       </p>

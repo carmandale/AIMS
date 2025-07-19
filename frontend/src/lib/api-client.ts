@@ -145,28 +145,27 @@ export const api = {
   snaptrade: {
     // User registration
     register: () => apiClient.post('/snaptrade/register'),
-    
+
     // Account connection
     getConnectionUrl: () => apiClient.get('/snaptrade/connect'),
-    
+
     // Account management
     getAccounts: () => apiClient.get('/snaptrade/accounts'),
-    
+
     // Portfolio data
-    getPositions: (accountId: string) => 
+    getPositions: (accountId: string) =>
       apiClient.get(`/snaptrade/accounts/${accountId}/positions`),
-    
-    getBalances: (accountId: string) => 
-      apiClient.get(`/snaptrade/accounts/${accountId}/balances`),
-    
-    getTransactions: (startDate?: string, endDate?: string) => 
-      apiClient.get('/snaptrade/transactions', { 
-        params: { start_date: startDate, end_date: endDate } 
+
+    getBalances: (accountId: string) => apiClient.get(`/snaptrade/accounts/${accountId}/balances`),
+
+    getTransactions: (startDate?: string, endDate?: string) =>
+      apiClient.get('/snaptrade/transactions', {
+        params: { start_date: startDate, end_date: endDate },
       }),
-    
+
     // Data synchronization
     syncData: () => apiClient.post('/snaptrade/sync'),
-    
+
     // User deletion
     deleteUser: () => apiClient.delete('/snaptrade/user'),
   },

@@ -407,7 +407,7 @@ class PortfolioService:
                         price = Decimal(str(st_transaction.get("price", 0)))
                         quantity = Decimal(str(st_transaction.get("quantity", 0)))
                         amount = price * quantity
-                        
+
                         transaction = Transaction(
                             id=st_transaction.get("id", ""),
                             broker=BrokerType.SNAPTRADE,
