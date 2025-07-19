@@ -166,9 +166,10 @@ export function AccountConnectionFlow({
       } else {
         throw new Error('Failed to get connection URL');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Connection error:', err);
-      const errorMessage = err.response?.data?.detail || err.message || 'Connection failed';
+      const error = err as any;
+      const errorMessage = error.response?.data?.detail || error.message || 'Connection failed';
       setError(errorMessage);
       toast.error(`Connection failed: ${errorMessage}`);
       setConnectionProgress(0);
@@ -188,7 +189,7 @@ export function AccountConnectionFlow({
       } else {
         setError('No accounts were connected. Please try again.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to verify connection:', err);
       setError('Failed to verify connection. Please try again.');
     }
@@ -556,4 +557,3 @@ export function AccountConnectionFlow({
     </div>
   );
 }
-

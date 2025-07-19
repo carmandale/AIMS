@@ -57,7 +57,7 @@ export function ConnectedAccountsList({
       toast.success('All accounts refreshed successfully');
       queryClient.invalidateQueries({ queryKey: ['snaptrade-accounts'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to refresh accounts: ${error.message}`);
     }
   });
@@ -70,8 +70,9 @@ export function ConnectedAccountsList({
       await api.snaptrade.syncData();
       toast.success('Account refreshed successfully');
       queryClient.invalidateQueries({ queryKey: ['snaptrade-accounts'] });
-    } catch (error: any) {
-      toast.error(`Failed to refresh account: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      toast.error(`Failed to refresh account: ${err.message}`);
     } finally {
       setRefreshingAccounts(prev => {
         const newSet = new Set(prev);
@@ -95,8 +96,9 @@ export function ConnectedAccountsList({
       toast.success(`${accountName} disconnected successfully`);
       onAccountDisconnect?.(accountId);
       queryClient.invalidateQueries({ queryKey: ['snaptrade-accounts'] });
-    } catch (error: any) {
-      toast.error(`Failed to disconnect account: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as Error;
+      toast.error(`Failed to disconnect account: ${err.message}`);
     } finally {
       setDisconnectingAccount(null);
     }
@@ -397,4 +399,3 @@ export function ConnectedAccountsList({
     </div>
   );
 }
-

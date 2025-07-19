@@ -49,9 +49,10 @@ export function SnapTradeRegistration({
       } else {
         throw new Error(response.data.message || 'Registration failed');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('SnapTrade registration error:', err);
-      const errorMessage = err.response?.data?.detail || err.message || 'Registration failed';
+      const error = err as any;
+      const errorMessage = error.response?.data?.detail || error.message || 'Registration failed';
       setError(errorMessage);
       setRegistrationStatus('error');
       toast.error(`Registration failed: ${errorMessage}`);
@@ -304,4 +305,3 @@ export function SnapTradeRegistration({
     </div>
   );
 }
-

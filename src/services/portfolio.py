@@ -19,6 +19,7 @@ from src.data.models.portfolio import (
     BrokerageAccount,
     Report,
     SyncResult,
+    BrokerType,
 )
 from src.data.models.market import (
     MorningBrief,
@@ -404,9 +405,9 @@ class PortfolioService:
                         # Transform SnapTrade transaction to our Transaction model
                         transaction = Transaction(
                             id=st_transaction.get("id", ""),
-                            broker="SnapTrade",
+                            broker=BrokerType.SNAPTRADE,
                             symbol=st_transaction.get("symbol", ""),
-                            transaction_type=st_transaction.get("type", "unknown"),
+                            type=st_transaction.get("type", "unknown"),
                             quantity=Decimal(str(st_transaction.get("quantity", 0))),
                             price=Decimal(str(st_transaction.get("price", 0))),
                             timestamp=datetime.fromisoformat(

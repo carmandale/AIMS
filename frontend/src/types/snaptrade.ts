@@ -7,10 +7,12 @@
 
 export interface SnapTradeUserRegistrationRequest {
   /** User registration request (currently empty but extensible) */
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 }
 
 export interface SnapTradeConnectionRequest {
   /** Connection portal request (currently empty but extensible) */
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 }
 
 // ===== RESPONSE TYPES =====
@@ -128,7 +130,7 @@ export interface BrokerInfo {
 export interface SnapTradeError {
   message: string;
   code?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 // ===== HOOK RETURN TYPES =====
@@ -198,4 +200,3 @@ export interface SnapTradeStatusWidgetProps {
   onManageAccounts?: () => void;
   compact?: boolean;
 }
-

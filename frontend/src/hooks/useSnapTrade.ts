@@ -2,6 +2,7 @@
  * React Query hooks for SnapTrade data fetching and mutations
  */
 
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
@@ -42,8 +43,8 @@ export function useSnapTradeRegistration(): UseSnapTradeRegistration {
       // Invalidate accounts query to refresh status
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.accounts() });
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.detail || error.message || 'Registration failed';
+    onError: (error: Error) => {
+      const errorMessage = (error as any).response?.data?.detail || error.message || 'Registration failed';
       toast.error(`Registration failed: ${errorMessage}`);
     }
   });
@@ -77,8 +78,8 @@ export function useSnapTradeConnection(): UseSnapTradeConnection {
       // Invalidate accounts query after connection
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.accounts() });
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.detail || error.message || 'Failed to get connection URL';
+    onError: (error: Error) => {
+      const errorMessage = (error as any).response?.data?.detail || error.message || 'Failed to get connection URL';
       toast.error(`Connection failed: ${errorMessage}`);
     }
   });
@@ -211,8 +212,8 @@ export function useSnapTradeSync() {
       // Invalidate all SnapTrade queries to refresh data
       queryClient.invalidateQueries({ queryKey: snapTradeKeys.all });
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.detail || error.message || 'Sync failed';
+    onError: (error: Error) => {
+      const errorMessage = (error as any).response?.data?.detail || error.message || 'Sync failed';
       toast.error(`Sync failed: ${errorMessage}`);
     }
   });
@@ -234,8 +235,8 @@ export function useSnapTradeDelete() {
       // Clear all SnapTrade data from cache
       queryClient.removeQueries({ queryKey: snapTradeKeys.all });
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.detail || error.message || 'Delete failed';
+    onError: (error: Error) => {
+      const errorMessage = (error as any).response?.data?.detail || error.message || 'Delete failed';
       toast.error(`Delete failed: ${errorMessage}`);
     }
   });
@@ -265,45 +266,54 @@ export function useSnapTradeStatus() {
 export function useSnapTradePortfolio() {
   const { accounts } = useSnapTradeAccounts();
   
-  // Get positions for all accounts
-  const positionQueries = accounts.map(account => 
-    useSnapTradePositions(account.id)
-  );
+  // Create stable account IDs array to prevent infinite re-renders
+  const accountIds = React.useMemo(() => accounts.map(account => account.id), [accounts]);
   
-  // Get balances for all accounts
-  const balanceQueries = accounts.map(account => 
-    useSnapTradeBalances(account.id)
-  );
-  
-  const isLoading = positionQueries.some(q => q.isLoading) || 
-                   balanceQueries.some(q => q.isLoading);
-  
-  const error = positionQueries.find(q => q.error)?.error || 
-               balanceQueries.find(q => q.error)?.error;
-  
-  // Aggregate all positions
-  const allPositions = positionQueries.flatMap(q => q.positions);
-  
-  // Aggregate all balances
-  const totalBalance = balanceQueries.reduce((total, q) => {
-    return total + (q.balances?.total_value || 0);
-  }, 0);
-  
-  const totalCash = balanceQueries.reduce((total, q) => {
-    return total + (q.balances?.cash || 0);
-  }, 0);
+  // Use React Query to fetch all positions and balances
+  const portfolioQuery = useQuery({
+    queryKey: [...snapTradeKeys.all, 'portfolio', accountIds],
+    queryFn: async () => {
+      const positionsPromises = accountIds.map(id => 
+        api.snaptrade.getPositions(id).then(res => res.data.positions || [])
+      );
+      
+      const balancesPromises = accountIds.map(id => 
+        api.snaptrade.getBalances(id).then(res => res.data.balances)
+      );
+      
+      const [positionsArrays, balancesArray] = await Promise.all([
+        Promise.all(positionsPromises),
+        Promise.all(balancesPromises)
+      ]);
+      
+      const allPositions = positionsArrays.flat();
+      const totalBalance = balancesArray.reduce((total, balance) => {
+        return total + (balance?.total_value || 0);
+      }, 0);
+      const totalCash = balancesArray.reduce((total, balance) => {
+        return total + (balance?.cash || 0);
+      }, 0);
+      
+      return {
+        positions: allPositions,
+        totalBalance,
+        totalCash,
+        accountCount: accounts.length
+      };
+    },
+    enabled: accountIds.length > 0,
+    refetchInterval: 60000, // Refetch every minute
+    retry: 2,
+    staleTime: 1000 * 30, // Consider data stale after 30 seconds
+  });
   
   return {
-    positions: allPositions,
-    totalBalance,
-    totalCash,
-    accountCount: accounts.length,
-    isLoading,
-    error,
-    refetch: () => {
-      positionQueries.forEach(q => q.refetch());
-      balanceQueries.forEach(q => q.refetch());
-    }
+    positions: portfolioQuery.data?.positions || [],
+    totalBalance: portfolioQuery.data?.totalBalance || 0,
+    totalCash: portfolioQuery.data?.totalCash || 0,
+    accountCount: portfolioQuery.data?.accountCount || 0,
+    isLoading: portfolioQuery.isLoading,
+    error: portfolioQuery.error ? { message: portfolioQuery.error.message } : null,
+    refetch: portfolioQuery.refetch
   };
 }
-

@@ -16,6 +16,7 @@ class BrokerType(str, Enum):
     FIDELITY = "fidelity"
     ROBINHOOD = "robinhood"
     COINBASE = "coinbase"
+    SNAPTRADE = "snaptrade"
 
 
 class TransactionType(str, Enum):
