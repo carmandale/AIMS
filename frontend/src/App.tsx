@@ -8,6 +8,7 @@ import { MorningBriefCard } from './components/MorningBriefCard';
 import { IncomeGoalTracker } from './components/IncomeGoalTracker';
 import { TasksPage } from './components/TasksPage';
 import { TradeTicketForm } from './components/TradeTicketForm';
+import { SnapTradeRegistration, AccountConnectionFlow, ConnectedAccountsList } from './components/snaptrade';
 import { Toaster } from 'sonner';
 
 const theme: Theme = 'dark';
@@ -32,7 +33,10 @@ type ComponentType =
   | 'morning-brief'
   | 'income-tracker'
   | 'tasks'
-  | 'trade-ticket';
+  | 'trade-ticket'
+  | 'snaptrade-register'
+  | 'snaptrade-connect'
+  | 'snaptrade-accounts';
 
 function App() {
   const [currentComponent, setCurrentComponent] = useState<ComponentType>('home');
@@ -61,6 +65,31 @@ function App() {
         return <TasksPage />;
       case 'trade-ticket':
         return <TradeTicketForm />;
+      case 'snaptrade-register':
+        return (
+          <SnapTradeRegistration
+            onRegistrationComplete={() => {
+              console.log('SnapTrade registration completed');
+            }}
+            onNavigateToConnection={() => setCurrentComponent('snaptrade-connect')}
+          />
+        );
+      case 'snaptrade-connect':
+        return (
+          <AccountConnectionFlow
+            onBack={() => setCurrentComponent('snaptrade-register')}
+            onConnectionComplete={() => setCurrentComponent('snaptrade-accounts')}
+          />
+        );
+      case 'snaptrade-accounts':
+        return (
+          <ConnectedAccountsList
+            onAddAccount={() => setCurrentComponent('snaptrade-connect')}
+            onAccountDisconnect={(accountId) => {
+              console.log('Account disconnected:', accountId);
+            }}
+          />
+        );
       default:
         return <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />;
     }

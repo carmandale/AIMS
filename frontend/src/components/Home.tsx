@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Calendar, Target, CheckSquare, TrendingUp } from 'lucide-react';
+import { Activity, Calendar, Target, CheckSquare, TrendingUp, Link } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (component: string) => void;
@@ -41,6 +41,13 @@ const navigationItems = [
     description: 'Execute trades with real-time market data',
     icon: TrendingUp,
     color: 'from-pink-600 to-purple-600',
+  },
+  {
+    id: 'snaptrade-register',
+    title: 'Connect Brokerage',
+    description: 'Link your brokerage accounts with SnapTrade for real-time data',
+    icon: Link,
+    color: 'from-indigo-600 to-blue-600',
   },
 ];
 
