@@ -30,6 +30,8 @@ from src.db import models as db_models
 from src.services.performance_calculator import PerformanceCalculator
 from src.services.allocation_analyzer import AllocationAnalyzer
 from src.services.risk_metrics_engine import RiskMetricsEngine
+from src.services.snaptrade_service import snaptrade_service
+from src.utils.encryption import encryption_service
 
 logger = logging.getLogger(__name__)
 
@@ -47,10 +49,107 @@ class PortfolioService:
         self.allocation_analyzer = AllocationAnalyzer()
         self.risk_metrics_engine = RiskMetricsEngine()
 
-    async def fetch_all_positions(self, db: Session) -> List[Position]:
-        """Fetch positions from all brokers"""
+    def _get_user_snaptrade_credentials(self, db: Session, user_id: str) -> Optional[str]:
+        """
+        Get decrypted SnapTrade user secret from database
+        
+        Args:
+            db: Database session
+            user_id: User ID
+            
+        Returns:
+            Decrypted user secret or None if not found
+        """
+        from src.db.models import SnapTradeUser
+        
+        snaptrade_user = (
+            db.query(SnapTradeUser)
+            .filter(SnapTradeUser.user_id == user_id, SnapTradeUser.is_active == True)
+            .first()
+        )
+        
+        if not snaptrade_user:
+            return None
+        
+        try:
+            return encryption_service.decrypt(snaptrade_user.snaptrade_user_secret)
+        except Exception as e:
+            logger.error(f"Failed to decrypt SnapTrade user secret for {user_id}: {e}")
+            return None
+
+    async def fetch_all_positions(self, db: Session, user_id: Optional[str] = None) -> List[Position]:
+        """Fetch positions from all brokers (SnapTrade if configured, otherwise mock data)"""
         all_positions = []
 
+        # Try SnapTrade first if user_id provided and service is enabled
+        if user_id and snaptrade_service.is_enabled():
+            user_secret = self._get_user_snaptrade_credentials(db, user_id)
+            if user_secret:
+                try:
+                    # Get all SnapTrade accounts for the user
+                    accounts = await snaptrade_service.get_user_accounts(user_id, user_secret)
+                    
+                    for account in accounts:
+                        account_id = account.get("id")
+                        if not account_id:
+                            continue
+                            
+                        # Get positions for this account
+                        snaptrade_positions = await snaptrade_service.get_account_positions(
+                            user_id, user_secret, account_id
+                        )
+                        
+                        for st_position in snaptrade_positions:
+                            # Transform SnapTrade position to our Position model
+                            position = Position(
+                                broker=account.get("institution_name", "SnapTrade"),
+                                symbol=st_position.get("symbol", ""),
+                                quantity=Decimal(str(st_position.get("quantity", 0))),
+                                cost_basis=Decimal(str(st_position.get("average_purchase_price", 0))),
+                                current_price=Decimal(str(st_position.get("last_ask_price", 0))),
+                                position_type="stock",  # SnapTrade doesn't specify type
+                            )
+                            position.calculate_metrics()
+                            all_positions.append(position)
+                            
+                            # Save to database
+                            db_position = (
+                                db.query(db_models.Position)
+                                .filter(
+                                    db_models.Position.broker == position.broker,
+                                    db_models.Position.symbol == position.symbol,
+                                )
+                                .first()
+                            )
+
+                            if db_position:
+                                # Update existing
+                                db_position.quantity = position.quantity
+                                db_position.cost_basis = position.cost_basis
+                                db_position.current_price = position.current_price
+                                db_position.position_type = position.position_type
+                            else:
+                                # Create new
+                                db_position = db_models.Position(
+                                    broker=position.broker,
+                                    symbol=position.symbol,
+                                    quantity=position.quantity,
+                                    cost_basis=position.cost_basis,
+                                    current_price=position.current_price,
+                                    position_type=position.position_type,
+                                )
+                                db.add(db_position)
+                    
+                    db.commit()
+                    logger.info(f"Fetched {len(all_positions)} positions from SnapTrade for user {user_id}")
+                    return all_positions
+                    
+                except Exception as e:
+                    logger.error(f"Failed to fetch positions from SnapTrade for user {user_id}: {e}")
+                    # Fall through to mock data
+
+        # Fall back to mock data fetchers
+        logger.info("Using mock data fetchers for positions")
         for broker_name, fetcher in self.fetchers.items():
             try:
                 positions = await fetcher.fetch_positions()
@@ -105,10 +204,78 @@ class PortfolioService:
 
         return all_positions
 
-    async def fetch_all_balances(self, db: Session) -> List[Balance]:
-        """Fetch balances from all brokers"""
+    async def fetch_all_balances(self, db: Session, user_id: Optional[str] = None) -> List[Balance]:
+        """Fetch balances from all brokers (SnapTrade if configured, otherwise mock data)"""
         all_balances = []
 
+        # Try SnapTrade first if user_id provided and service is enabled
+        if user_id and snaptrade_service.is_enabled():
+            user_secret = self._get_user_snaptrade_credentials(db, user_id)
+            if user_secret:
+                try:
+                    # Get all SnapTrade accounts for the user
+                    accounts = await snaptrade_service.get_user_accounts(user_id, user_secret)
+                    
+                    for account in accounts:
+                        account_id = account.get("id")
+                        if not account_id:
+                            continue
+                            
+                        # Get balances for this account
+                        snaptrade_balances = await snaptrade_service.get_account_balances(
+                            user_id, user_secret, account_id
+                        )
+                        
+                        # Transform SnapTrade balances to our Balance model
+                        cash = Decimal("0")
+                        margin = Decimal("0")
+                        crypto = Decimal("0")
+                        
+                        for key, value in snaptrade_balances.items():
+                            if "cash" in key.lower():
+                                cash += Decimal(str(value))
+                            elif "buying_power" in key.lower():
+                                margin += Decimal(str(value))
+                        
+                        balance = Balance(
+                            broker=account.get("institution_name", "SnapTrade"),
+                            cash=cash,
+                            margin=margin,
+                            crypto=crypto,
+                        )
+                        balance.calculate_total()
+                        all_balances.append(balance)
+                        
+                        # Save to database
+                        db_balance = (
+                            db.query(db_models.Balance)
+                            .filter(db_models.Balance.broker == balance.broker)
+                            .first()
+                        )
+
+                        if db_balance:
+                            db_balance.cash = balance.cash
+                            db_balance.margin = balance.margin
+                            db_balance.crypto = balance.crypto
+                        else:
+                            db_balance = db_models.Balance(
+                                broker=balance.broker,
+                                cash=balance.cash,
+                                margin=balance.margin,
+                                crypto=balance.crypto,
+                            )
+                            db.add(db_balance)
+                    
+                    db.commit()
+                    logger.info(f"Fetched {len(all_balances)} balances from SnapTrade for user {user_id}")
+                    return all_balances
+                    
+                except Exception as e:
+                    logger.error(f"Failed to fetch balances from SnapTrade for user {user_id}: {e}")
+                    # Fall through to mock data
+
+        # Fall back to mock data fetchers
+        logger.info("Using mock data fetchers for balances")
         for broker_name, fetcher in self.fetchers.items():
             try:
                 balance = await fetcher.fetch_balance()
@@ -153,11 +320,11 @@ class PortfolioService:
         return all_balances
 
     @cached("portfolio_summary", ttl_hours=1)
-    async def get_portfolio_summary(self, db: Session) -> Dict[str, Any]:
+    async def get_portfolio_summary(self, db: Session, user_id: Optional[str] = None) -> Dict[str, Any]:
         """Get complete portfolio summary with caching"""
         # Fetch all data
-        positions = await self.fetch_all_positions(db)
-        balances = await self.fetch_all_balances(db)
+        positions = await self.fetch_all_positions(db, user_id)
+        balances = await self.fetch_all_balances(db, user_id)
 
         # Calculate totals
         total_positions_value = sum(p.market_value or Decimal("0") for p in positions)
@@ -197,8 +364,9 @@ class PortfolioService:
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
         broker: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> List[Transaction]:
-        """Get transactions with optional filtering"""
+        """Get transactions with optional filtering (SnapTrade if configured, otherwise mock data)"""
         all_transactions = []
 
         # Default to last 30 days
@@ -207,6 +375,44 @@ class PortfolioService:
         if not end_date:
             end_date = datetime.utcnow()
 
+        # Try SnapTrade first if user_id provided and service is enabled
+        if user_id and snaptrade_service.is_enabled():
+            user_secret = self._get_user_snaptrade_credentials(db, user_id)
+            if user_secret:
+                try:
+                    # Get transactions from SnapTrade
+                    snaptrade_transactions = await snaptrade_service.get_account_transactions(
+                        user_id, 
+                        user_secret, 
+                        start_date=start_date.date() if start_date else None,
+                        end_date=end_date.date() if end_date else None
+                    )
+                    
+                    for st_transaction in snaptrade_transactions:
+                        # Transform SnapTrade transaction to our Transaction model
+                        transaction = Transaction(
+                            id=st_transaction.get("id", ""),
+                            broker="SnapTrade",
+                            symbol=st_transaction.get("symbol", ""),
+                            transaction_type=st_transaction.get("type", "unknown"),
+                            quantity=Decimal(str(st_transaction.get("quantity", 0))),
+                            price=Decimal(str(st_transaction.get("price", 0))),
+                            timestamp=datetime.fromisoformat(st_transaction.get("trade_date", datetime.utcnow().isoformat())),
+                            description=st_transaction.get("description", ""),
+                        )
+                        all_transactions.append(transaction)
+                    
+                    logger.info(f"Fetched {len(all_transactions)} transactions from SnapTrade for user {user_id}")
+                    # Sort by timestamp descending
+                    all_transactions.sort(key=lambda x: x.timestamp, reverse=True)
+                    return all_transactions
+                    
+                except Exception as e:
+                    logger.error(f"Failed to fetch transactions from SnapTrade for user {user_id}: {e}")
+                    # Fall through to mock data
+
+        # Fall back to mock data fetchers
+        logger.info("Using mock data fetchers for transactions")
         fetchers_to_use = self.fetchers.items()
         if broker:
             fetchers_to_use = [(broker, self.fetchers.get(broker))]
@@ -226,10 +432,10 @@ class PortfolioService:
 
         return all_transactions
 
-    async def generate_morning_brief(self, db: Session) -> MorningBrief:
+    async def generate_morning_brief(self, db: Session, user_id: Optional[str] = None) -> MorningBrief:
         """Generate morning brief with overnight changes and alerts"""
         # Get current portfolio
-        summary = await self.get_portfolio_summary(db)
+        summary = await self.get_portfolio_summary(db, user_id)
         positions = summary["positions"]
 
         # Calculate overnight changes (mock for now)
@@ -349,8 +555,8 @@ class PortfolioService:
     ) -> PerformanceMetrics:
         """Get portfolio performance metrics"""
 
-        positions = await self.fetch_all_positions(db)
-        transactions = await self.get_transactions(db, start_date=None, end_date=None)
+        positions = await self.fetch_all_positions(db, user_id)
+        transactions = await self.get_transactions(db, start_date=None, end_date=None, user_id=user_id)
 
         performance_metrics = await self.performance_calculator.calculate_performance_metrics(
             positions, transactions, timeframe
@@ -369,8 +575,8 @@ class PortfolioService:
     ) -> RiskMetrics:
         """Get portfolio risk metrics"""
 
-        positions = await self.fetch_all_positions(db)
-        transactions = await self.get_transactions(db, start_date=None, end_date=None)
+        positions = await self.fetch_all_positions(db, user_id)
+        transactions = await self.get_transactions(db, start_date=None, end_date=None, user_id=user_id)
 
         risk_metrics = await self.risk_metrics_engine.calculate_comprehensive_risk_metrics(
             positions, transactions, timeframe
@@ -381,8 +587,8 @@ class PortfolioService:
     async def get_asset_allocation(self, db: Session, user_id: str) -> AssetAllocation:
         """Get portfolio asset allocation analysis"""
 
-        positions = await self.fetch_all_positions(db)
-        balances = await self.fetch_all_balances(db)
+        positions = await self.fetch_all_positions(db, user_id)
+        balances = await self.fetch_all_balances(db, user_id)
 
         # Calculate total cash
         total_cash = sum(b.cash for b in balances)
@@ -400,8 +606,8 @@ class PortfolioService:
     ) -> List[Dict[str, Any]]:
         """Get rebalancing suggestions"""
 
-        positions = await self.fetch_all_positions(db)
-        summary = await self.get_portfolio_summary(db)
+        positions = await self.fetch_all_positions(db, user_id)
+        summary = await self.get_portfolio_summary(db, user_id)
         total_value = summary["total_value"]
 
         actions = await self.allocation_analyzer.suggest_rebalancing_actions(
@@ -413,8 +619,8 @@ class PortfolioService:
     async def get_concentration_analysis(self, db: Session, user_id: str) -> Dict[str, Any]:
         """Get concentration risk analysis"""
 
-        positions = await self.fetch_all_positions(db)
-        summary = await self.get_portfolio_summary(db)
+        positions = await self.fetch_all_positions(db, user_id)
+        summary = await self.get_portfolio_summary(db, user_id)
         total_value = summary["total_value"]
 
         concentration_metrics = await self.risk_metrics_engine.calculate_concentration_risk(
@@ -428,7 +634,7 @@ class PortfolioService:
     ) -> Dict[str, Any]:
         """Run portfolio stress test"""
 
-        positions = await self.fetch_all_positions(db)
+        positions = await self.fetch_all_positions(db, user_id)
 
         stress_results = await self.risk_metrics_engine.calculate_portfolio_stress_test(
             positions, scenarios
@@ -441,8 +647,8 @@ class PortfolioService:
     ) -> Dict[str, Dict[str, float]]:
         """Get risk contribution of each position"""
 
-        positions = await self.fetch_all_positions(db)
-        summary = await self.get_portfolio_summary(db)
+        positions = await self.fetch_all_positions(db, user_id)
+        summary = await self.get_portfolio_summary(db, user_id)
         total_value = summary["total_value"]
 
         risk_contributions = await self.risk_metrics_engine.calculate_position_risk_contribution(
@@ -456,7 +662,7 @@ class PortfolioService:
     ) -> Dict[str, Dict[str, float]]:
         """Get correlation matrix between assets"""
 
-        positions = await self.fetch_all_positions(db)
+        positions = await self.fetch_all_positions(db, user_id)
 
         correlation_matrix = await self.allocation_analyzer.calculate_correlation_matrix(positions)
 
