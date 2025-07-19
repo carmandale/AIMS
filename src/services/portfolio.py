@@ -403,13 +403,19 @@ class PortfolioService:
 
                     for st_transaction in snaptrade_transactions:
                         # Transform SnapTrade transaction to our Transaction model
+                        # Calculate amount from price * quantity
+                        price = Decimal(str(st_transaction.get("price", 0)))
+                        quantity = Decimal(str(st_transaction.get("quantity", 0)))
+                        amount = price * quantity
+                        
                         transaction = Transaction(
                             id=st_transaction.get("id", ""),
                             broker=BrokerType.SNAPTRADE,
                             symbol=st_transaction.get("symbol", ""),
                             type=st_transaction.get("type", "unknown"),
-                            quantity=Decimal(str(st_transaction.get("quantity", 0))),
-                            price=Decimal(str(st_transaction.get("price", 0))),
+                            quantity=quantity,
+                            price=price,
+                            amount=amount,
                             timestamp=datetime.fromisoformat(
                                 st_transaction.get("trade_date", datetime.utcnow().isoformat())
                             ),

@@ -57,7 +57,7 @@ export function useSnapTradeRegistration(): UseSnapTradeRegistration {
   };
 
   return {
-    register: mutation.mutate,
+    register: () => mutation.mutateAsync(),
     state,
     isLoading: mutation.isPending
   };
@@ -93,7 +93,7 @@ export function useSnapTradeConnection(): UseSnapTradeConnection {
   };
 
   return {
-    getConnectionUrl: mutation.mutate,
+    getConnectionUrl: () => mutation.mutateAsync(),
     state,
     isLoading: mutation.isPending
   };
