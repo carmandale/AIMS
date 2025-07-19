@@ -78,11 +78,9 @@ class SnapTradeService:
 
         try:
             response = self.client.authentication.login_snap_trade_user(
-                query_params={
-                    "userId": user_id,
-                    "userSecret": user_secret,
-                    "connectionType": connection_type,
-                }
+                user_id=user_id,
+                user_secret=user_secret,
+                connection_type=connection_type,
             )
 
             if response.body and "redirectURI" in response.body:
