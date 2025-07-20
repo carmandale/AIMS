@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  RefreshCw, 
-  Plus, 
+import {
+  TrendingUp,
+  TrendingDown,
+  RefreshCw,
+  Plus,
   Building2,
   AlertCircle,
-  Clock
+  Clock,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useSnapTradeAccounts } from '../../hooks/useSnapTrade';
@@ -63,7 +63,7 @@ export function MultiAccountSummary({
     }
 
     const totalValue = accounts.reduce((sum, account) => sum + account.balance, 0);
-    
+
     const accountBreakdown: AccountSummary[] = accounts.map(account => ({
       accountId: account.id,
       institutionName: account.institution_name,
@@ -103,10 +103,14 @@ export function MultiAccountSummary({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'syncing': return 'bg-yellow-500';
-      case 'error': return 'bg-red-500';
-      default: return 'bg-slate-500';
+      case 'active':
+        return 'bg-green-500';
+      case 'syncing':
+        return 'bg-yellow-500';
+      case 'error':
+        return 'bg-red-500';
+      default:
+        return 'bg-slate-500';
     }
   };
 
@@ -206,22 +210,26 @@ export function MultiAccountSummary({
             {formatCurrency(portfolioSummary.totalValue)}
           </p>
         </div>
-        
+
         <div className="space-y-2">
           <p className="text-sm text-slate-400">Daily P&L</p>
           <div className="flex items-center gap-2">
-            <p className={cn(
-              'text-2xl font-bold',
-              portfolioSummary.dailyPnL >= 0 ? 'text-green-400' : 'text-red-400'
-            )}>
+            <p
+              className={cn(
+                'text-2xl font-bold',
+                portfolioSummary.dailyPnL >= 0 ? 'text-green-400' : 'text-red-400'
+              )}
+            >
               {formatCurrency(portfolioSummary.dailyPnL)}
             </p>
-            <div className={cn(
-              'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
-              portfolioSummary.dailyPnL >= 0 
-                ? 'bg-green-900/30 text-green-400' 
-                : 'bg-red-900/30 text-red-400'
-            )}>
+            <div
+              className={cn(
+                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
+                portfolioSummary.dailyPnL >= 0
+                  ? 'bg-green-900/30 text-green-400'
+                  : 'bg-red-900/30 text-red-400'
+              )}
+            >
               {portfolioSummary.dailyPnL >= 0 ? (
                 <TrendingUp className="w-3 h-3" />
               ) : (
@@ -245,7 +253,7 @@ export function MultiAccountSummary({
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-slate-200">Account Breakdown</h3>
           <div className="space-y-3">
-            {portfolioSummary.accountBreakdown.map((account) => (
+            {portfolioSummary.accountBreakdown.map(account => (
               <motion.div
                 key={account.accountId}
                 initial={{ opacity: 0, x: -20 }}
@@ -260,9 +268,7 @@ export function MultiAccountSummary({
                   <Building2 className="w-5 h-5 text-slate-400" />
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium text-slate-200">
-                        {account.institutionName}
-                      </p>
+                      <p className="font-medium text-slate-200">{account.institutionName}</p>
                       <span className="text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">
                         {account.accountType}
                       </span>
@@ -277,9 +283,7 @@ export function MultiAccountSummary({
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-mono text-slate-200">
-                    {formatCurrency(account.value)}
-                  </p>
+                  <p className="font-mono text-slate-200">{formatCurrency(account.value)}</p>
                   <p className="text-xs text-slate-400">
                     {account.percentage.toFixed(1)}% of total
                   </p>

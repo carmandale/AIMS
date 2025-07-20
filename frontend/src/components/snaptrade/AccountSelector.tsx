@@ -18,25 +18,25 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
   onAccountSelect,
   onConnectAccounts,
   size = 'md',
-  className
+  className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  
+
   const { accounts = [], isLoading, error } = useSnapTradeAccounts();
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
 
   const sizeClasses = {
     sm: 'px-2 py-1 text-xs',
     md: 'px-3 py-2 text-sm',
-    lg: 'px-4 py-3 text-base'
+    lg: 'px-4 py-3 text-base',
   };
 
   const dropdownSizeClasses = {
     sm: 'text-xs',
     md: 'text-sm',
-    lg: 'text-base'
+    lg: 'text-base',
   };
 
   // Handle click outside and keyboard navigation
@@ -77,17 +77,21 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
       style: 'currency',
       currency: currency || 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(balance);
   };
 
   // Get status indicator color
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'active': return 'bg-green-500';
-      case 'syncing': return 'bg-yellow-500';
-      case 'error': return 'bg-red-500';
-      default: return 'bg-slate-500';
+      case 'active':
+        return 'bg-green-500';
+      case 'syncing':
+        return 'bg-yellow-500';
+      case 'error':
+        return 'bg-red-500';
+      default:
+        return 'bg-slate-500';
     }
   };
 
@@ -112,8 +116,8 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
     <div className="p-4 text-center">
       <Building2 className="w-8 h-8 text-slate-500 mx-auto mb-2" />
       <p className="text-slate-400 text-sm mb-3">No accounts connected</p>
-      <button 
-        onClick={onConnectAccounts} 
+      <button
+        onClick={onConnectAccounts}
         className="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 text-sm transition-colors"
       >
         <span>Connect accounts</span>
@@ -125,10 +129,12 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
   // Error state
   if (error) {
     return (
-      <div className={cn(
-        'flex items-center gap-2 px-3 py-2 bg-red-900/20 border border-red-700/50 rounded-lg text-red-300',
-        className
-      )}>
+      <div
+        className={cn(
+          'flex items-center gap-2 px-3 py-2 bg-red-900/20 border border-red-700/50 rounded-lg text-red-300',
+          className
+        )}
+      >
         <AlertCircle className="w-4 h-4" />
         <span className="text-sm">Failed to load accounts</span>
       </div>
@@ -136,12 +142,12 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
   }
 
   return (
-    <div ref={dropdownRef} className={cn("relative inline-flex", className)}>
+    <div ref={dropdownRef} className={cn('relative inline-flex', className)}>
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "inline-flex items-center justify-between space-x-2 bg-slate-800 border border-slate-700 rounded-md text-slate-200 hover:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors",
+          'inline-flex items-center justify-between space-x-2 bg-slate-800 border border-slate-700 rounded-md text-slate-200 hover:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-colors',
           sizeClasses[size]
         )}
         aria-expanded={isOpen}
@@ -162,11 +168,11 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
             )}
           </span>
         </div>
-        <ChevronDown 
+        <ChevronDown
           className={cn(
-            "w-4 h-4 text-slate-400 transition-transform flex-shrink-0",
-            isOpen && "rotate-180"
-          )} 
+            'w-4 h-4 text-slate-400 transition-transform flex-shrink-0',
+            isOpen && 'rotate-180'
+          )}
         />
       </button>
 
@@ -176,9 +182,9 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
             className={cn(
-              "absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-md shadow-xl z-50 min-w-64",
+              'absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-md shadow-xl z-50 min-w-64',
               dropdownSizeClasses[size]
             )}
             role="listbox"
@@ -197,8 +203,8 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
                       setIsOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-slate-700 focus:bg-slate-700 focus:outline-none transition-colors",
-                      selectedAccountId === account.id && "bg-slate-700"
+                      'w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-slate-700 focus:bg-slate-700 focus:outline-none transition-colors',
+                      selectedAccountId === account.id && 'bg-slate-700'
                     )}
                     role="option"
                     aria-selected={selectedAccountId === account.id}
@@ -217,7 +223,9 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
                         <span className="text-slate-500 text-xs">
                           {formatAccountNumber(account.account_number)}
                         </span>
-                        <div className={cn('w-2 h-2 rounded-full', getStatusColor(account.status))} />
+                        <div
+                          className={cn('w-2 h-2 rounded-full', getStatusColor(account.status))}
+                        />
                       </div>
                     </div>
                     <div className="text-slate-300 font-medium text-right flex-shrink-0">

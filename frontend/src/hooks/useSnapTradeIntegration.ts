@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import type { 
-  SnapTradeAccount, 
-  SnapTradePosition, 
-  SnapTradeBalance, 
-  SnapTradeTransaction 
+import type {
+  SnapTradeAccount,
+  SnapTradePosition,
+  SnapTradeBalance,
+  SnapTradeTransaction,
 } from '../types/snaptrade';
 
 export interface AggregatedPortfolio {
@@ -35,23 +35,23 @@ export interface UseSnapTradeIntegrationReturn {
   selectedAccount: SnapTradeAccount | null;
   selectedAccountId: string | null;
   selectAccount: (accountId: string) => void;
-  
+
   // Data Fetching
   positions: SnapTradePosition[];
   balances: SnapTradeBalance | null;
   transactions: SnapTradeTransaction[];
-  
+
   // State Management
   isLoading: boolean;
   isConnected: boolean;
   lastSyncTime: Date | null;
   error: string | null;
-  
+
   // Actions
   syncData: () => Promise<void>;
   refreshAccounts: () => Promise<void>;
   connectAccount: () => void;
-  
+
   // Aggregated Data
   portfolioSummary: AggregatedPortfolio;
   connectionStatus: ConnectionStatus;
@@ -61,7 +61,7 @@ const SELECTED_ACCOUNT_KEY = 'snaptrade_selected_account';
 
 export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
   const queryClient = useQueryClient();
-  
+
   // Selected account state with localStorage persistence
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
@@ -71,11 +71,11 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
   });
 
   // Fetch accounts
-  const { 
-    data: accounts = [], 
-    isLoading: accountsLoading, 
+  const {
+    data: accounts = [],
+    isLoading: accountsLoading,
     error: accountsError,
-    refetch: refetchAccounts 
+    refetch: refetchAccounts,
   } = useQuery({
     queryKey: ['snaptrade-accounts'],
     queryFn: async () => {
@@ -112,10 +112,10 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
   }, [accounts, selectedAccountId]);
 
   // Fetch positions for selected account
-  const { 
-    data: positions = [], 
+  const {
+    data: positions = [],
     isLoading: positionsLoading,
-    error: positionsError 
+    error: positionsError,
   } = useQuery({
     queryKey: ['snaptrade-positions', selectedAccountId],
     queryFn: async () => {
@@ -128,10 +128,10 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
   });
 
   // Fetch balances for selected account
-  const { 
-    data: balances = null, 
+  const {
+    data: balances = null,
     isLoading: balancesLoading,
-    error: balancesError 
+    error: balancesError,
   } = useQuery({
     queryKey: ['snaptrade-balances', selectedAccountId],
     queryFn: async () => {
@@ -144,10 +144,10 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
   });
 
   // Fetch transactions
-  const { 
-    data: transactions = [], 
+  const {
+    data: transactions = [],
     isLoading: transactionsLoading,
-    error: transactionsError 
+    error: transactionsError,
   } = useQuery({
     queryKey: ['snaptrade-transactions'],
     queryFn: async () => {
@@ -207,7 +207,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     }
 
     const totalValue = accounts.reduce((sum, account) => sum + account.balance, 0);
-    
+
     const accountBreakdown: AccountSummary[] = accounts.map(account => ({
       accountId: account.id,
       institutionName: account.institution_name,
@@ -220,7 +220,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
 
     // Calculate total cash from balances
     const totalCash = balances ? balances.cash : 0;
-    
+
     // Calculate total positions count
     const totalPositions = positions.length;
 
@@ -248,7 +248,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     }
     const hasActiveAccounts = accounts.some(acc => acc.status === 'active');
     const hasErrorAccounts = accounts.some(acc => acc.status === 'error');
-    
+
     if (hasErrorAccounts && hasActiveAccounts) {
       return 'partial';
     }
@@ -261,21 +261,32 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
   // Calculate last sync time
   const lastSyncTime = useMemo(() => {
     if (!accounts.length) return null;
-    
+
     const syncTimes = accounts
       .map(acc => new Date(acc.last_sync))
       .filter(date => !isNaN(date.getTime()));
-    
+
     if (syncTimes.length === 0) return null;
-    
+
     return new Date(Math.max(...syncTimes.map(date => date.getTime())));
   }, [accounts]);
 
   // Aggregate loading state
-  const isLoading = accountsLoading || positionsLoading || balancesLoading || transactionsLoading || syncMutation.isPending;
+  const isLoading =
+    accountsLoading ||
+    positionsLoading ||
+    balancesLoading ||
+    transactionsLoading ||
+    syncMutation.isPending;
 
   // Aggregate error state
-  const error = accountsError?.message || positionsError?.message || balancesError?.message || transactionsError?.message || syncMutation.error?.message || null;
+  const error =
+    accountsError?.message ||
+    positionsError?.message ||
+    balancesError?.message ||
+    transactionsError?.message ||
+    syncMutation.error?.message ||
+    null;
 
   // Connection status
   const isConnected = connectionStatus === 'connected' || connectionStatus === 'partial';
@@ -286,23 +297,23 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     selectedAccount,
     selectedAccountId,
     selectAccount,
-    
+
     // Data Fetching
     positions,
     balances,
     transactions,
-    
+
     // State Management
     isLoading,
     isConnected,
     lastSyncTime,
     error,
-    
+
     // Actions
     syncData,
     refreshAccounts,
     connectAccount,
-    
+
     // Aggregated Data
     portfolioSummary,
     connectionStatus,
