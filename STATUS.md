@@ -49,7 +49,7 @@ AIMS (Automated Investment Management System) has **completed Phase 1** with all
 - **Linting**: ✅ Flake8 passing
 - **Test Suite**: ⚠️ **83/96 tests passing** (11 failed, 2 skipped) - **VERIFIED July 20, 2025**
   - **Unit Tests**: ✅ 71/73 passing (97.3% pass rate)
-  - **Integration Tests**: ❌ 12/23 passing (52.2% pass rate - SnapTrade credentials missing)
+  - **Integration Tests**: ❌ 12/23 passing (52.2% pass rate - SnapTrade credentials available in .env.example)
   - **Frontend Tests**: ❌ **None configured**
   - **E2E Tests**: ❌ **None configured**
 
@@ -197,7 +197,7 @@ AIMS/
    - ✅ Performance and reliability validation (all core functionality validated)
 
 **Test Results**: **12/23 tests passing (52.2% success rate)** - **VERIFIED July 20, 2025**
-**Production Status**: ⚠️ **Integration tests failing due to missing SnapTrade credentials**
+**Production Status**: ⚠️ **Integration tests failing - SnapTrade credentials available in .env.example**
 
 ---
 
