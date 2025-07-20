@@ -47,7 +47,7 @@ export function MultiAccountSummary({
   onAddAccount,
   onSyncAll,
 }: MultiAccountSummaryProps) {
-  const { data: accounts = [], isLoading, error, refetch } = useSnapTradeAccounts();
+  const { accounts = [], isLoading, error, refetch } = useSnapTradeAccounts();
 
   // Calculate aggregated portfolio data
   const portfolioSummary: AggregatedPortfolio = React.useMemo(() => {
@@ -292,4 +292,3 @@ export function MultiAccountSummary({
     </motion.div>
   );
 }
-

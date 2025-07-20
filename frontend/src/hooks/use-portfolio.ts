@@ -89,15 +89,15 @@ export function usePortfolioSummary() {
             position_type: pos.quantity > 0 ? 'long' : 'short',
             updated_at: new Date().toISOString(),
           })),
-          balances: snapTrade.balances.map(balance => ({
+          balances: snapTrade.balances ? [{
             broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
-            cash: balance.cash,
-            margin: balance.margin || 0,
-            crypto: balance.crypto || 0,
-            total_value: balance.total_value || (balance.cash + (balance.margin || 0) + (balance.crypto || 0)),
-            buying_power: balance.buying_power || balance.cash,
+            cash: snapTrade.balances.cash,
+            margin: 0, // SnapTrade doesn't provide margin data
+            crypto: 0, // SnapTrade doesn't provide crypto data
+            total_value: snapTrade.balances.total_value,
+            buying_power: snapTrade.balances.buying_power || snapTrade.balances.cash,
             updated_at: new Date().toISOString(),
-          })),
+          }] : [],
           last_updated: snapTrade.lastSyncTime?.toISOString() || new Date().toISOString(),
         } as PortfolioSummary;
       }
@@ -153,15 +153,15 @@ export function useBalances() {
       // Use SnapTrade data if connected and account selected
       if (snapTrade.isConnected && snapTrade.selectedAccountId) {
         // Convert SnapTrade balances to Portfolio balances format
-        return snapTrade.balances.map(balance => ({
+        return snapTrade.balances ? [{
           broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
-          cash: balance.cash,
-          margin: balance.margin || 0,
-          crypto: balance.crypto || 0,
-          total_value: balance.total_value || (balance.cash + (balance.margin || 0) + (balance.crypto || 0)),
-          buying_power: balance.buying_power || balance.cash,
+          cash: snapTrade.balances.cash,
+          margin: 0, // SnapTrade doesn't provide margin data
+          crypto: 0, // SnapTrade doesn't provide crypto data
+          total_value: snapTrade.balances.total_value,
+          buying_power: snapTrade.balances.buying_power || snapTrade.balances.cash,
           updated_at: new Date().toISOString(),
-        })) as Balance[];
+        }] as Balance[] : [];
       }
       
       // Fallback to original portfolio API
@@ -185,7 +185,7 @@ export function useTransactions(days = 7, broker?: string) {
         cutoffDate.setDate(cutoffDate.getDate() - days);
         
         return snapTrade.transactions
-          .filter(tx => new Date(tx.timestamp) >= cutoffDate)
+          .filter(tx => new Date(tx.trade_date) >= cutoffDate)
           .map(tx => ({
             broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
             type: tx.type,
@@ -194,7 +194,7 @@ export function useTransactions(days = 7, broker?: string) {
             price: tx.price || undefined,
             amount: tx.amount,
             fees: tx.fees,
-            timestamp: tx.timestamp,
+            timestamp: tx.trade_date,
             description: tx.description || undefined,
           })) as Transaction[];
       }

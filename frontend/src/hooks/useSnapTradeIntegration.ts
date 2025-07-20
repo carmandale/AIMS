@@ -38,7 +38,7 @@ export interface UseSnapTradeIntegrationReturn {
   
   // Data Fetching
   positions: SnapTradePosition[];
-  balances: SnapTradeBalance[];
+  balances: SnapTradeBalance | null;
   transactions: SnapTradeTransaction[];
   
   // State Management
@@ -80,7 +80,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     queryKey: ['snaptrade-accounts'],
     queryFn: async () => {
       const response = await api.snaptrade.getAccounts();
-      return response.accounts || [];
+      return response.data.accounts || [];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 10 * 60 * 1000, // 10 minutes
@@ -121,7 +121,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     queryFn: async () => {
       if (!selectedAccountId) return [];
       const response = await api.snaptrade.getPositions(selectedAccountId);
-      return response.positions || [];
+      return response.data.positions || [];
     },
     enabled: !!selectedAccountId,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -129,15 +129,15 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
 
   // Fetch balances for selected account
   const { 
-    data: balances = [], 
+    data: balances = null, 
     isLoading: balancesLoading,
     error: balancesError 
   } = useQuery({
     queryKey: ['snaptrade-balances', selectedAccountId],
     queryFn: async () => {
-      if (!selectedAccountId) return [];
+      if (!selectedAccountId) return null;
       const response = await api.snaptrade.getBalances(selectedAccountId);
-      return response.balances || [];
+      return response.data.balances || null;
     },
     enabled: !!selectedAccountId,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -152,7 +152,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     queryKey: ['snaptrade-transactions'],
     queryFn: async () => {
       const response = await api.snaptrade.getTransactions();
-      return response.transactions || [];
+      return response.data.transactions || [];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -219,7 +219,7 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     }));
 
     // Calculate total cash from balances
-    const totalCash = balances.reduce((sum, balance) => sum + balance.cash, 0);
+    const totalCash = balances ? balances.cash : 0;
     
     // Calculate total positions count
     const totalPositions = positions.length;
@@ -308,4 +308,3 @@ export function useSnapTradeIntegration(): UseSnapTradeIntegrationReturn {
     connectionStatus,
   };
 }
-

@@ -24,7 +24,7 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   
-  const { data: accounts = [], isLoading, error } = useSnapTradeAccounts();
+  const { accounts = [], isLoading, error } = useSnapTradeAccounts();
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
 
   const sizeClasses = {
@@ -233,4 +233,3 @@ export const AccountSelector: React.FC<AccountSelectorProps> = ({
     </div>
   );
 };
-
