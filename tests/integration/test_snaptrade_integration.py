@@ -39,7 +39,7 @@ from src.core.config import settings
 # Skip all SnapTrade tests if credentials are not configured
 skip_if_no_snaptrade_credentials = pytest.mark.skipif(
     not settings.snaptrade_client_id or not settings.snaptrade_consumer_key,
-    reason="SnapTrade credentials not configured - skipping integration tests"
+    reason="SnapTrade credentials not configured - skipping integration tests",
 )
 
 
