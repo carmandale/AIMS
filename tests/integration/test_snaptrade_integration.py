@@ -25,7 +25,7 @@ from typing import Dict, List, Any, Optional
 from unittest.mock import patch, MagicMock
 
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from src.api.main import app
@@ -34,6 +34,13 @@ from src.db.models import User, SnapTradeUser
 from src.db.session import get_db
 from src.db.models import Base
 from src.core.config import settings
+
+
+# Skip all SnapTrade tests if credentials are not configured
+skip_if_no_snaptrade_credentials = pytest.mark.skipif(
+    not settings.snaptrade_client_id or not settings.snaptrade_consumer_key,
+    reason="SnapTrade credentials not configured - skipping integration tests"
+)
 
 
 # Test Database Setup
@@ -57,6 +64,7 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
+@skip_if_no_snaptrade_credentials
 class TestSnapTradeAPIConnectivity:
     """Test basic SnapTrade service functionality"""
 
@@ -165,6 +173,7 @@ class TestSnapTradeAPIConnectivity:
             assert "name" in account
 
 
+@skip_if_no_snaptrade_credentials
 class TestAccountConnectionFlow:
     """Test complete account linking process"""
 
@@ -229,6 +238,7 @@ class TestAccountConnectionFlow:
         assert mock_disconnected_account["sync_status"] == "DISCONNECTED"
 
 
+@skip_if_no_snaptrade_credentials
 class TestDataRetrieval:
     """Test all data fetching operations"""
 
@@ -337,6 +347,7 @@ class TestDataRetrieval:
         assert isinstance(mock_balance["total"], (int, float))
 
 
+@skip_if_no_snaptrade_credentials
 class TestBackendIntegration:
     """Test API endpoints with real SnapTrade data"""
 
@@ -394,6 +405,7 @@ class TestBackendIntegration:
         print("✅ Error handling working correctly")
 
 
+@skip_if_no_snaptrade_credentials
 class TestPerformanceAndReliability:
     """Test performance and reliability aspects"""
 
@@ -454,6 +466,7 @@ class TestPerformanceAndReliability:
                 print(f"⚠️ Unexpected exception: {e}")
 
 
+@skip_if_no_snaptrade_credentials
 class TestDataAccuracy:
     """Test data accuracy and validation"""
 
@@ -508,6 +521,7 @@ class TestDataAccuracy:
 class TestEnvironmentSetup:
     """Validate test environment and configuration"""
 
+    @skip_if_no_snaptrade_credentials
     def test_environment_variables(self):
         """Test that required environment variables are set"""
         # Check for SnapTrade credentials
@@ -531,7 +545,7 @@ class TestEnvironmentSetup:
         db = TestingSessionLocal()
         try:
             # Test basic database operations
-            result = db.execute("SELECT 1")
+            result = db.execute(text("SELECT 1"))
             assert result.fetchone()[0] == 1
             print("✅ Test database connection successful")
         finally:
