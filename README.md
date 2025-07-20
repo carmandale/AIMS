@@ -27,6 +27,8 @@ Success is measured by achieving $10k/month net income within three months while
 
 ### Prerequisites
 - Python 3.12 or higher
+- Node.js 24.x or higher
+- Yarn 1.22.x
 - Git
 - [uv](https://github.com/astral-sh/uv) - Modern Python package manager
 
