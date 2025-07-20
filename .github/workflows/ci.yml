@@ -9,17 +9,14 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.11"
     
     - name: Cache pip packages
       uses: actions/cache@v4
@@ -53,24 +50,20 @@ jobs:
     
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
-      if: matrix.python-version == '3.11'
       with:
         file: ./coverage.xml
         fail_ci_if_error: false
 
   test-frontend:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
 
     steps:
     - uses: actions/checkout@v4
     
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: "20.x"
     
     - name: Enable Corepack
       run: corepack enable

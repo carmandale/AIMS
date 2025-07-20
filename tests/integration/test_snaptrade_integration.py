@@ -553,7 +553,7 @@ class TestEnvironmentSetup:
 
     def test_api_client_setup(self):
         """Test FastAPI test client setup"""
-        response = client.get("/health")
+        response = client.get("/api/health")
         assert response.status_code == 200
         print("✅ API test client setup successful")
 
