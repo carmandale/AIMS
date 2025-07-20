@@ -25,7 +25,7 @@ from typing import Dict, List, Any, Optional
 from unittest.mock import patch, MagicMock
 
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from src.api.main import app
@@ -526,7 +526,7 @@ class TestEnvironmentSetup:
         db = TestingSessionLocal()
         try:
             # Test basic database operations
-            result = db.execute("SELECT 1")
+            result = db.execute(text("SELECT 1"))
             assert result.fetchone()[0] == 1
             print("✅ Test database connection successful")
         finally:
@@ -534,7 +534,7 @@ class TestEnvironmentSetup:
     
     def test_api_client_setup(self):
         """Test FastAPI test client setup"""
-        response = client.get("/health")
+        response = client.get("/api/health")
         assert response.status_code == 200
         print("✅ API test client setup successful")
 
