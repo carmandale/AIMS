@@ -49,7 +49,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ userId, clas
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeOption>('ytd');
   const [selectedBenchmark, setSelectedBenchmark] = useState<BenchmarkOption>('SPY');
   const [showRiskMetrics, setShowRiskMetrics] = useState(false);
-  
+
   const snapTrade = useSnapTradeIntegration();
 
   const {
@@ -197,7 +197,8 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ userId, clas
           <Activity className="w-16 h-16 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No Performance Data</h3>
           <p className="text-slate-400 mb-6 max-w-md mx-auto">
-            Connect your brokerage account to view performance metrics and track your portfolio over time.
+            Connect your brokerage account to view performance metrics and track your portfolio over
+            time.
           </p>
           <button
             onClick={snapTrade.connectAccount}

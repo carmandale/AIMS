@@ -208,7 +208,7 @@ class TestE2EWorkflow:
     def test_overdue_task_handling(self):
         """Test that overdue tasks are properly identified and handled"""
 
-        # Create a task template for yesterday
+        # Create a task template for earlier in the current week
         template_data = {
             "name": "Overdue Task",
             "rrule": "RRULE:FREQ=DAILY",
@@ -220,10 +220,15 @@ class TestE2EWorkflow:
         template_resp = self.client.post("/api/tasks/templates", json=template_data)
         assert template_resp.status_code == 200
 
-        # Generate task for yesterday (making it overdue)
-        yesterday = date.today() - timedelta(days=1)
+        # Generate task for earlier in the current week (making it overdue)
+        today = date.today()
+        # Get the start of the current week (Monday)
+        week_start = today - timedelta(days=today.weekday())
+        # Create task for 2 days ago within the current week to ensure it's overdue
+        task_date = max(week_start, today - timedelta(days=2))
+        
         generate_resp = self.client.post(
-            f"/api/tasks/generate?start_date={yesterday.isoformat()}&end_date={yesterday.isoformat()}"
+            f"/api/tasks/generate?start_date={task_date.isoformat()}&end_date={task_date.isoformat()}"
         )
         assert generate_resp.status_code == 200
 

@@ -302,7 +302,7 @@ export function MorningBriefCard() {
               <Briefcase className="w-5 h-5 mr-2 text-blue-400" />
               Portfolio Connections
             </h2>
-            
+
             {!snapTrade.isConnected ? (
               <div className="text-center py-6">
                 <div className="w-12 h-12 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -324,23 +324,27 @@ export function MorningBriefCard() {
                 {/* Connection Status */}
                 <div className="flex items-center justify-between p-3 bg-slate-700/40 rounded-xl border border-slate-600/30">
                   <div className="flex items-center space-x-3">
-                    <div className={cn(
-                      'w-3 h-3 rounded-full',
-                      snapTrade.connectionStatus === 'connected' && 'bg-green-400',
-                      snapTrade.connectionStatus === 'partial' && 'bg-yellow-400',
-                      snapTrade.connectionStatus === 'error' && 'bg-red-400'
-                    )} />
+                    <div
+                      className={cn(
+                        'w-3 h-3 rounded-full',
+                        snapTrade.connectionStatus === 'connected' && 'bg-green-400',
+                        snapTrade.connectionStatus === 'partial' && 'bg-yellow-400',
+                        snapTrade.connectionStatus === 'error' && 'bg-red-400'
+                      )}
+                    />
                     <div>
                       <span className="text-white font-medium">
-                        {snapTrade.accounts.length} Account{snapTrade.accounts.length !== 1 ? 's' : ''} Connected
+                        {snapTrade.accounts.length} Account
+                        {snapTrade.accounts.length !== 1 ? 's' : ''} Connected
                       </span>
                       <p className="text-xs text-slate-400">
-                        Last sync: {snapTrade.lastSyncTime ? 
-                          snapTrade.lastSyncTime.toLocaleTimeString('en-US', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          }) : 'Never'
-                        }
+                        Last sync:{' '}
+                        {snapTrade.lastSyncTime
+                          ? snapTrade.lastSyncTime.toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : 'Never'}
                       </p>
                     </div>
                   </div>
@@ -363,10 +367,12 @@ export function MorningBriefCard() {
                   </div>
                   <div className="p-3 bg-slate-700/40 rounded-xl border border-slate-600/30">
                     <div className="text-sm text-slate-400 mb-1">Daily P&L</div>
-                    <div className={cn(
-                      'text-lg font-medium',
-                      snapTrade.portfolioSummary.dailyPnL >= 0 ? 'text-green-400' : 'text-red-400'
-                    )}>
+                    <div
+                      className={cn(
+                        'text-lg font-medium',
+                        snapTrade.portfolioSummary.dailyPnL >= 0 ? 'text-green-400' : 'text-red-400'
+                      )}
+                    >
                       {formatCurrency(snapTrade.portfolioSummary.dailyPnL)}
                     </div>
                   </div>
@@ -381,7 +387,7 @@ export function MorningBriefCard() {
                     Add Account
                   </button>
                   <button
-                    onClick={() => window.location.hash = '#holdings'}
+                    onClick={() => (window.location.hash = '#holdings')}
                     className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     View Holdings

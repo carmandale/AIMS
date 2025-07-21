@@ -188,7 +188,8 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
           <PieChart className="w-16 h-16 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No Accounts Connected</h3>
           <p className="text-slate-400 mb-6 max-w-md mx-auto">
-            Connect your brokerage account to view your holdings and track your portfolio performance.
+            Connect your brokerage account to view your holdings and track your portfolio
+            performance.
           </p>
           <button
             onClick={snapTrade.connectAccount}

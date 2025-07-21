@@ -54,7 +54,7 @@ export const NextActionsWidget: React.FC = () => {
   const [completing, setCompleting] = useState<number | null>(null);
   const [showSkipDialog, setShowSkipDialog] = useState<number | null>(null);
   const [skipReason, setSkipReason] = useState('');
-  
+
   const snapTrade = useSnapTradeIntegration();
 
   const fetchTasks = async () => {
@@ -334,7 +334,7 @@ export const NextActionsWidget: React.FC = () => {
               </div>
             </motion.li>
           ))}
-          
+
           {/* Regular Tasks */}
           {pendingTasks.map(task => (
             <motion.li
