@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
+import { useSnapTradeIntegration } from './useSnapTradeIntegration';
 
 export interface Position {
   id?: number;
@@ -56,9 +57,60 @@ export interface PortfolioSummary {
 }
 
 export function usePortfolioSummary() {
+  const snapTrade = useSnapTradeIntegration();
+
   return useQuery({
-    queryKey: ['portfolio-summary'],
+    queryKey: ['portfolio-summary', snapTrade.selectedAccountId],
     queryFn: async () => {
+      // Use SnapTrade data if connected and account selected
+      if (snapTrade.isConnected && snapTrade.selectedAccountId) {
+        const summary = snapTrade.portfolioSummary;
+
+        return {
+          total_value: summary.totalValue,
+          cash_buffer: summary.totalCash,
+          total_positions_value: summary.totalValue - summary.totalCash,
+          total_cash: summary.totalCash,
+          daily_pnl: summary.dailyPnL,
+          daily_pnl_percent: summary.dailyPnLPercent,
+          weekly_pnl: summary.dailyPnL * 5, // Mock weekly as 5x daily
+          weekly_pnl_percent: summary.dailyPnLPercent * 5,
+          positions: snapTrade.positions.map(pos => ({
+            broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
+            symbol: pos.symbol,
+            name: pos.symbol,
+            quantity: pos.quantity,
+            cost_basis: pos.average_purchase_price * pos.quantity,
+            current_price: pos.last_ask_price || pos.average_purchase_price,
+            market_value: (pos.last_ask_price || pos.average_purchase_price) * pos.quantity,
+            unrealized_pnl:
+              ((pos.last_ask_price || pos.average_purchase_price) - pos.average_purchase_price) *
+              pos.quantity,
+            unrealized_pnl_percent: pos.last_ask_price
+              ? ((pos.last_ask_price - pos.average_purchase_price) / pos.average_purchase_price) *
+                100
+              : 0,
+            position_type: pos.quantity > 0 ? 'long' : 'short',
+            updated_at: new Date().toISOString(),
+          })),
+          balances: snapTrade.balances
+            ? [
+                {
+                  broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
+                  cash: snapTrade.balances.cash,
+                  margin: 0, // SnapTrade doesn't provide margin data
+                  crypto: 0, // SnapTrade doesn't provide crypto data
+                  total_value: snapTrade.balances.total_value,
+                  buying_power: snapTrade.balances.buying_power || snapTrade.balances.cash,
+                  updated_at: new Date().toISOString(),
+                },
+              ]
+            : [],
+          last_updated: snapTrade.lastSyncTime?.toISOString() || new Date().toISOString(),
+        } as PortfolioSummary;
+      }
+
+      // Fallback to original portfolio API
       const response = await api.portfolio.getSummary();
       return response.data as PortfolioSummary;
     },
@@ -68,9 +120,34 @@ export function usePortfolioSummary() {
 }
 
 export function usePositions(broker?: string) {
+  const snapTrade = useSnapTradeIntegration();
+
   return useQuery({
-    queryKey: ['positions', broker],
+    queryKey: ['positions', broker, snapTrade.selectedAccountId],
     queryFn: async () => {
+      // Use SnapTrade data if connected and account selected
+      if (snapTrade.isConnected && snapTrade.selectedAccountId && !broker) {
+        // Convert SnapTrade positions to Portfolio positions format
+        return snapTrade.positions.map(pos => ({
+          broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
+          symbol: pos.symbol,
+          name: pos.symbol, // SnapTrade doesn't provide name, use symbol
+          quantity: pos.quantity,
+          cost_basis: pos.average_purchase_price * pos.quantity,
+          current_price: pos.last_ask_price || pos.average_purchase_price,
+          market_value: (pos.last_ask_price || pos.average_purchase_price) * pos.quantity,
+          unrealized_pnl:
+            ((pos.last_ask_price || pos.average_purchase_price) - pos.average_purchase_price) *
+            pos.quantity,
+          unrealized_pnl_percent: pos.last_ask_price
+            ? ((pos.last_ask_price - pos.average_purchase_price) / pos.average_purchase_price) * 100
+            : 0,
+          position_type: pos.quantity > 0 ? 'long' : 'short',
+          updated_at: new Date().toISOString(),
+        })) as Position[];
+      }
+
+      // Fallback to original portfolio API
       const response = await api.portfolio.getPositions(broker);
       return response.data as Position[];
     },
@@ -79,9 +156,30 @@ export function usePositions(broker?: string) {
 }
 
 export function useBalances() {
+  const snapTrade = useSnapTradeIntegration();
+
   return useQuery({
-    queryKey: ['balances'],
+    queryKey: ['balances', snapTrade.selectedAccountId],
     queryFn: async () => {
+      // Use SnapTrade data if connected and account selected
+      if (snapTrade.isConnected && snapTrade.selectedAccountId) {
+        // Convert SnapTrade balances to Portfolio balances format
+        return snapTrade.balances
+          ? ([
+              {
+                broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
+                cash: snapTrade.balances.cash,
+                margin: 0, // SnapTrade doesn't provide margin data
+                crypto: 0, // SnapTrade doesn't provide crypto data
+                total_value: snapTrade.balances.total_value,
+                buying_power: snapTrade.balances.buying_power || snapTrade.balances.cash,
+                updated_at: new Date().toISOString(),
+              },
+            ] as Balance[])
+          : [];
+      }
+
+      // Fallback to original portfolio API
       const response = await api.portfolio.getBalances();
       return response.data as Balance[];
     },
@@ -90,9 +188,33 @@ export function useBalances() {
 }
 
 export function useTransactions(days = 7, broker?: string) {
+  const snapTrade = useSnapTradeIntegration();
+
   return useQuery({
-    queryKey: ['transactions', days, broker],
+    queryKey: ['transactions', days, broker, snapTrade.selectedAccountId],
     queryFn: async () => {
+      // Use SnapTrade data if connected and account selected
+      if (snapTrade.isConnected && snapTrade.selectedAccountId && !broker) {
+        // Filter SnapTrade transactions by date range
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+
+        return snapTrade.transactions
+          .filter(tx => new Date(tx.trade_date) >= cutoffDate)
+          .map(tx => ({
+            broker: snapTrade.selectedAccount?.institution_name || 'Unknown',
+            type: tx.type,
+            symbol: tx.symbol || undefined,
+            quantity: tx.quantity || undefined,
+            price: tx.price || undefined,
+            amount: tx.amount,
+            fees: tx.fees,
+            timestamp: tx.trade_date,
+            description: tx.description || undefined,
+          })) as Transaction[];
+      }
+
+      // Fallback to original portfolio API
       const response = await api.portfolio.getTransactions(days, broker);
       return response.data as Transaction[];
     },
