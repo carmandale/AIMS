@@ -19,6 +19,8 @@ import {
   PerformanceMetrics,
   RiskMetrics,
 } from '../hooks/use-portfolio';
+import { useSnapTradeIntegration } from '../hooks/useSnapTradeIntegration';
+import { AccountSelector } from './snaptrade/AccountSelector';
 
 interface PerformanceChartProps {
   userId: string;
@@ -47,6 +49,8 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ userId, clas
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeOption>('ytd');
   const [selectedBenchmark, setSelectedBenchmark] = useState<BenchmarkOption>('SPY');
   const [showRiskMetrics, setShowRiskMetrics] = useState(false);
+  
+  const snapTrade = useSnapTradeIntegration();
 
   const {
     data: performance,
@@ -175,6 +179,37 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ userId, clas
     );
   }
 
+  // Empty state when no accounts are connected
+  if (!snapTrade.isConnected) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 ${className}`}
+      >
+        <div className="p-6 border-b border-slate-700/50">
+          <h2 className="text-xl font-semibold text-white flex items-center space-x-2">
+            <BarChart3 className="w-6 h-6" />
+            <span>Performance Analysis</span>
+          </h2>
+        </div>
+        <div className="text-center py-12">
+          <Activity className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">No Performance Data</h3>
+          <p className="text-slate-400 mb-6 max-w-md mx-auto">
+            Connect your brokerage account to view performance metrics and track your portfolio over time.
+          </p>
+          <button
+            onClick={snapTrade.connectAccount}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Connect Account
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
   if (!performance || !riskMetrics) {
     return null;
   }
@@ -191,10 +226,18 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({ userId, clas
       {/* Header */}
       <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white flex items-center space-x-2">
-            <BarChart3 className="w-6 h-6" />
-            <span>Performance Analysis</span>
-          </h2>
+          <div className="flex items-center space-x-4">
+            <h2 className="text-xl font-semibold text-white flex items-center space-x-2">
+              <BarChart3 className="w-6 h-6" />
+              <span>Performance Analysis</span>
+            </h2>
+            {snapTrade.isConnected && snapTrade.accounts.length > 1 && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-slate-400">Account:</span>
+                <AccountSelector />
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowRiskMetrics(!showRiskMetrics)}

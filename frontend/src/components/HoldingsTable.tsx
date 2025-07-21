@@ -14,6 +14,8 @@ import {
   Eye,
 } from 'lucide-react';
 import { usePositions, usePositionRiskContributions, Position } from '../hooks/use-portfolio';
+import { useSnapTradeIntegration } from '../hooks/useSnapTradeIntegration';
+import { AccountSelector } from './snaptrade/AccountSelector';
 
 interface HoldingsTableProps {
   userId: string;
@@ -50,6 +52,7 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
 
   const { data: positions, isLoading, error } = usePositions();
   const { data: riskContributions } = usePositionRiskContributions(userId);
+  const snapTrade = useSnapTradeIntegration();
 
   const filteredAndSortedPositions = useMemo(() => {
     if (!positions) return [];
@@ -170,6 +173,34 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
     );
   }
 
+  // Empty state when no accounts are connected
+  if (!snapTrade.isConnected) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 ${className}`}
+      >
+        <div className="p-6 border-b border-slate-700/50">
+          <h2 className="text-xl font-semibold text-white">Holdings</h2>
+        </div>
+        <div className="text-center py-12">
+          <PieChart className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">No Accounts Connected</h3>
+          <p className="text-slate-400 mb-6 max-w-md mx-auto">
+            Connect your brokerage account to view your holdings and track your portfolio performance.
+          </p>
+          <button
+            onClick={snapTrade.connectAccount}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Connect Account
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -179,7 +210,15 @@ export const HoldingsTable: React.FC<HoldingsTableProps> = ({
       {/* Header */}
       <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white">Holdings</h2>
+          <div className="flex items-center space-x-4">
+            <h2 className="text-xl font-semibold text-white">Holdings</h2>
+            {snapTrade.accounts.length > 1 && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-slate-400">Account:</span>
+                <AccountSelector />
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowFilters(!showFilters)}

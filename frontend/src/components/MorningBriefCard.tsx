@@ -14,13 +14,16 @@ import {
   AlertTriangle,
   DollarSign,
   Activity,
+  RefreshCw,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useMorningBrief, useMarketIndices } from '../hooks';
+import { useSnapTradeIntegration } from '../hooks/useSnapTradeIntegration';
 
 export function MorningBriefCard() {
   const { data: morningBrief, isLoading: briefLoading } = useMorningBrief();
   const { data: indices, isLoading: indicesLoading } = useMarketIndices();
+  const snapTrade = useSnapTradeIntegration();
 
   const currentDate = new Date();
   const timeString = currentDate.toLocaleTimeString('en-US', {
@@ -286,6 +289,106 @@ export function MorningBriefCard() {
                   </div>
                 ))}
             </div>
+          </motion.section>
+
+          {/* Portfolio Connections */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
+          >
+            <h2 className="text-xl font-medium text-white mb-6 flex items-center">
+              <Briefcase className="w-5 h-5 mr-2 text-blue-400" />
+              Portfolio Connections
+            </h2>
+            
+            {!snapTrade.isConnected ? (
+              <div className="text-center py-6">
+                <div className="w-12 h-12 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-6 h-6 text-yellow-400" />
+                </div>
+                <h3 className="text-white font-medium mb-2">No Accounts Connected</h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Connect your brokerage accounts to see real-time portfolio data
+                </p>
+                <button
+                  onClick={snapTrade.connectAccount}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Connect Account
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Connection Status */}
+                <div className="flex items-center justify-between p-3 bg-slate-700/40 rounded-xl border border-slate-600/30">
+                  <div className="flex items-center space-x-3">
+                    <div className={cn(
+                      'w-3 h-3 rounded-full',
+                      snapTrade.connectionStatus === 'connected' && 'bg-green-400',
+                      snapTrade.connectionStatus === 'partial' && 'bg-yellow-400',
+                      snapTrade.connectionStatus === 'error' && 'bg-red-400'
+                    )} />
+                    <div>
+                      <span className="text-white font-medium">
+                        {snapTrade.accounts.length} Account{snapTrade.accounts.length !== 1 ? 's' : ''} Connected
+                      </span>
+                      <p className="text-xs text-slate-400">
+                        Last sync: {snapTrade.lastSyncTime ? 
+                          snapTrade.lastSyncTime.toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          }) : 'Never'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={snapTrade.syncData}
+                    disabled={snapTrade.isLoading}
+                    className="p-2 text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw className={cn('w-4 h-4', snapTrade.isLoading && 'animate-spin')} />
+                  </button>
+                </div>
+
+                {/* Portfolio Summary */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-slate-700/40 rounded-xl border border-slate-600/30">
+                    <div className="text-sm text-slate-400 mb-1">Total Value</div>
+                    <div className="text-lg font-medium text-white">
+                      {formatCurrency(snapTrade.portfolioSummary.totalValue)}
+                    </div>
+                  </div>
+                  <div className="p-3 bg-slate-700/40 rounded-xl border border-slate-600/30">
+                    <div className="text-sm text-slate-400 mb-1">Daily P&L</div>
+                    <div className={cn(
+                      'text-lg font-medium',
+                      snapTrade.portfolioSummary.dailyPnL >= 0 ? 'text-green-400' : 'text-red-400'
+                    )}>
+                      {formatCurrency(snapTrade.portfolioSummary.dailyPnL)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={snapTrade.connectAccount}
+                    className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Add Account
+                  </button>
+                  <button
+                    onClick={() => window.location.hash = '#holdings'}
+                    className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    View Holdings
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.section>
         </div>
       </motion.div>

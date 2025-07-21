@@ -12,6 +12,7 @@ import {
 import { cn } from '../lib/utils';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
+import { useSnapTradeIntegration } from '../hooks/useSnapTradeIntegration';
 
 interface TaskInstance {
   id: number;
@@ -43,6 +44,8 @@ export const NextActionsWidget: React.FC = () => {
   const [completing, setCompleting] = useState<number | null>(null);
   const [showSkipDialog, setShowSkipDialog] = useState<number | null>(null);
   const [skipReason, setSkipReason] = useState('');
+  
+  const snapTrade = useSnapTradeIntegration();
 
   const fetchTasks = async () => {
     try {
@@ -148,8 +151,57 @@ export const NextActionsWidget: React.FC = () => {
     }
   };
 
+  // Generate SnapTrade-specific actions based on connection status
+  const getSnapTradeActions = () => {
+    const actions = [];
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+
+    // No accounts connected
+    if (!snapTrade.isConnected) {
+      actions.push({
+        id: 'connect-first-account',
+        name: 'Connect your first brokerage account',
+        description: 'Link your investment account to start tracking your portfolio',
+        priority: 1,
+        action: snapTrade.connectAccount,
+        icon: '🔗',
+        color: 'blue',
+      });
+    } else {
+      // Data is stale (last sync > 1 hour ago)
+      if (snapTrade.lastSyncTime && snapTrade.lastSyncTime < oneHourAgo) {
+        actions.push({
+          id: 'sync-account-data',
+          name: 'Sync account data',
+          description: 'Update your portfolio with the latest information',
+          priority: 2,
+          action: snapTrade.syncData,
+          icon: '🔄',
+          color: 'yellow',
+        });
+      }
+
+      // Only one account connected
+      if (snapTrade.accounts.length === 1) {
+        actions.push({
+          id: 'add-another-account',
+          name: 'Add another account',
+          description: 'Connect additional brokerage accounts for complete portfolio tracking',
+          priority: 3,
+          action: snapTrade.connectAccount,
+          icon: '➕',
+          color: 'green',
+        });
+      }
+    }
+
+    return actions;
+  };
+
   const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in_progress');
   const completedTasks = tasks.filter(t => t.status === 'completed');
+  const snapTradeActions = getSnapTradeActions();
   const progressPercentage = tasks.length > 0 ? (completedTasks.length / tasks.length) * 100 : 0;
 
   if (loading) {
@@ -216,6 +268,64 @@ export const NextActionsWidget: React.FC = () => {
       {/* Task List */}
       <ul className="space-y-3">
         <AnimatePresence>
+          {/* SnapTrade Actions */}
+          {snapTradeActions.map(action => (
+            <motion.li
+              key={action.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={cn(
+                'group relative p-4 rounded-xl border transition-all duration-200',
+                'bg-slate-800/50 border-slate-700',
+                action.color === 'blue' && 'border-blue-900/50 bg-blue-900/10',
+                action.color === 'yellow' && 'border-yellow-900/50 bg-yellow-900/10',
+                action.color === 'green' && 'border-green-900/50 bg-green-900/10'
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">{action.icon}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium text-white">{action.name}</h3>
+                        <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
+                          Portfolio
+                        </span>
+                        <span
+                          className={cn(
+                            'px-2 py-0.5 text-xs rounded-full',
+                            action.priority === 1 && 'bg-purple-500/20 text-purple-400',
+                            action.priority === 2 && 'bg-blue-500/20 text-blue-400',
+                            action.priority === 3 && 'bg-gray-700 text-gray-400'
+                          )}
+                        >
+                          {getPriorityLabel(action.priority)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-400 mb-2">{action.description}</p>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="flex items-center gap-2 mt-3">
+                    <button
+                      onClick={action.action}
+                      className={cn(
+                        'px-3 py-1.5 text-sm rounded-lg transition-all duration-200',
+                        'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                      )}
+                    >
+                      Take Action
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.li>
+          ))}
+          
+          {/* Regular Tasks */}
           {pendingTasks.map(task => (
             <motion.li
               key={task.id}
