@@ -37,6 +37,16 @@ interface BlockingTasksStatus {
   completed_blocking: number;
 }
 
+interface SnapTradeAction {
+  id: string;
+  name: string;
+  description: string;
+  priority: number;
+  action: () => void | Promise<void>;
+  icon: string;
+  color: string;
+}
+
 export const NextActionsWidget: React.FC = () => {
   const [tasks, setTasks] = useState<TaskInstance[]>([]);
   const [blockingStatus, setBlockingStatus] = useState<BlockingTasksStatus | null>(null);
@@ -152,8 +162,8 @@ export const NextActionsWidget: React.FC = () => {
   };
 
   // Generate SnapTrade-specific actions based on connection status
-  const getSnapTradeActions = () => {
-    const actions = [];
+  const getSnapTradeActions = (): SnapTradeAction[] => {
+    const actions: SnapTradeAction[] = [];
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
