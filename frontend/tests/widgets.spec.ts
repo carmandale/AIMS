@@ -73,18 +73,20 @@ test.describe('Phase 2 Widget Integration', () => {
   test('should check for SnapTrade integration elements', async ({ page }) => {
     await page.goto('/');
 
-    // Look for SnapTrade-related elements
-    const snapTradeElements = page.locator(
-      '[data-testid*="snaptrade"], [class*="snaptrade"], [class*="SnapTrade"], text="SnapTrade"'
-    );
+    // Look for SnapTrade-related elements using separate locators
+    const snapTradeByTestId = page.locator('[data-testid*="snaptrade"]');
+    const snapTradeByClass = page.locator('[class*="snaptrade"]');
+    const snapTradeByText = page.locator('text=SnapTrade');
 
-    const count = await snapTradeElements.count();
-    console.log(`Found ${count} SnapTrade-related elements`);
+    const testIdCount = await snapTradeByTestId.count();
+    const classCount = await snapTradeByClass.count();
+    const textCount = await snapTradeByText.count();
+    
+    const totalCount = testIdCount + classCount + textCount;
+    console.log(`Found ${totalCount} SnapTrade-related elements (testid: ${testIdCount}, class: ${classCount}, text: ${textCount})`);
 
     // Look for account selector elements
-    const accountElements = page.locator(
-      '[data-testid*="account"], [class*="account"], [class*="Account"]'
-    );
+    const accountElements = page.locator('[data-testid*="account"], [class*="account"]');
     const accountCount = await accountElements.count();
     console.log(`Found ${accountCount} account-related elements`);
 
