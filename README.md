@@ -60,42 +60,45 @@ This will automatically:
 cp .env.example .env
 ```
 
-5. Run the application:
+5. Initialize the database:
+```bash
+uv run python scripts/init_db.py
+```
+
+6. Run the full stack development environment:
+```bash
+./scripts/start_dev.sh
+```
+
+This will:
+- Start the backend API server on `http://localhost:8000`
+- Start the frontend development server on `http://localhost:5173`
+- Run setup verification checks
+- Display logs for both servers
+
+You can access:
+- Frontend UI: `http://localhost:5173`
+- API Documentation: `http://localhost:8000/docs`
+- Alternative API docs: `http://localhost:8000/redoc`
+- Health check: `http://localhost:8000/api/health`
+
+To stop all servers, press `Ctrl+C`.
+
+### Alternative: Manual Server Startup
+
+If you prefer to run the servers separately:
+
+**Backend:**
 ```bash
 uv run uvicorn src.api.main:app --reload
 ```
 
-Or activate the virtual environment first:
-```bash
-source .venv/bin/activate  # uv creates .venv by default
-uvicorn src.api.main:app --reload
-```
-
-The API will be available at `http://localhost:8000`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
+**Frontend (in a new terminal):**
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
-yarn install
-```
-
-3. Copy environment configuration (if needed):
-```bash
-cp .env.example .env.local
-```
-
-4. Run the development server:
-```bash
+yarn install  # if not already done
 yarn dev
 ```
-
-The dashboard will be available at `http://localhost:5173`
 
 ### Development Setup
 

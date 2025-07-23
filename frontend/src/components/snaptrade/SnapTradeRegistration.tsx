@@ -39,7 +39,7 @@ export function SnapTradeRegistration({
     try {
       const response = await api.snaptrade.register();
 
-      if (response.data.status === 'success') {
+      if (response.data.status === 'registered' || response.data.status === 'already_registered') {
         setRegistrationStatus('success');
         toast.success('Successfully registered with SnapTrade!');
         onRegistrationComplete?.();
@@ -53,11 +53,21 @@ export function SnapTradeRegistration({
       }
     } catch (err: unknown) {
       console.error('SnapTrade registration error:', err);
-      const errorMessage =
-        (err as { response?: { data?: { detail?: string } }; message?: string })?.response?.data
-          ?.detail ||
-        (err as { message?: string })?.message ||
-        'Registration failed';
+      const error = err as any;
+      console.log('Error response:', error.response?.data);
+      let errorMessage = 'Registration failed';
+      if (error.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || e.message || 'Unknown error').join(', ');
+        } else if (detail && typeof detail === 'object') {
+          errorMessage = JSON.stringify(detail);
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
       setError(errorMessage);
       setRegistrationStatus('error');
       toast.error(`Registration failed: ${errorMessage}`);

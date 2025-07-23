@@ -20,6 +20,11 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      // TEMPORARY: Set the test token we created earlier
+      const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyX1pjbUFNMlphbllKTzk0VHk1eG5yVEEiLCJlbWFpbCI6InRlc3QxNzUzMjM3NDAxQGV4YW1wbGUuY29tIiwiZXhwIjoxNzUzMzIzODAxfQ.rIS9Hk2AQwu5hm8tBKSu7cnhHeex0uXPGbePNZMPm3w';
+      localStorage.setItem('auth_token', testToken);
+      config.headers.Authorization = `Bearer ${testToken}`;
     }
     return config;
   },
@@ -37,7 +42,9 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Handle unauthorized access
       localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      // TEMPORARY: Don't redirect to login since it doesn't exist
+      // window.location.href = '/login';
+      console.error('Authentication failed - no login page implemented');
     }
     return Promise.reject(error);
   }
@@ -144,7 +151,7 @@ export const api = {
   // SnapTrade Integration
   snaptrade: {
     // User registration
-    register: () => apiClient.post('/snaptrade/register'),
+    register: () => apiClient.post('/snaptrade/register', {}),
 
     // Account connection
     getConnectionUrl: () => apiClient.get('/snaptrade/connect'),

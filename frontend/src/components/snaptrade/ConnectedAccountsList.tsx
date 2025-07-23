@@ -254,18 +254,31 @@ export function ConnectedAccountsList({
                   <div className="bg-slate-700/50 p-4 rounded-full w-16 h-16 mx-auto mb-6">
                     <Wifi className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-4">No Accounts Connected</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">No Accounts Connected Yet</h3>
                   <p className="text-slate-300 mb-6">
-                    Connect your first brokerage account to start tracking your portfolio with
-                    real-time data
+                    {isLoading ? 
+                      'Checking for connected accounts...' : 
+                      'Your brokerage accounts will appear here once confirmed. In sandbox mode, this may take a few moments.'
+                    }
                   </p>
-                  <button
-                    onClick={onAddAccount}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Connect Your First Account</span>
-                  </button>
+                  {!isLoading && (
+                    <>
+                      <button
+                        onClick={onAddAccount}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 mb-3"
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span>Connect Another Account</span>
+                      </button>
+                      <button
+                        onClick={() => refetch()}
+                        className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        <span>Refresh</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </motion.div>
             ) : (

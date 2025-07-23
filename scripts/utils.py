@@ -424,6 +424,43 @@ def kill_process_on_port(port: int) -> bool:
     return False
 
 
+def setup_logging(name: str) -> "logging.Logger":
+    """Setup logging configuration for scripts."""
+    import logging
+    
+    # Create logger
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    
+    # Format
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(formatter)
+    
+    # Add handler
+    logger.addHandler(console_handler)
+    
+    return logger
+
+
+def confirm_action(prompt: str) -> bool:
+    """Ask user to confirm an action."""
+    while True:
+        response = input(f"{prompt} [y/N]: ").lower().strip()
+        if response in ['y', 'yes']:
+            return True
+        elif response in ['n', 'no', '']:
+            return False
+        else:
+            print("Please answer 'y' or 'n'.")
+
+
 if __name__ == '__main__':
     # Quick test of utilities
     print_header("AIMS Setup Utilities Test")
