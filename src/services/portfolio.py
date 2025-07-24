@@ -350,10 +350,14 @@ class PortfolioService:
 
         # Calculate P&L (mock for now)
         # In production, this would compare against historical data
-        daily_pnl = (total_value * Decimal("0.012")).quantize(Decimal("0.01"))  # Mock 1.2% daily gain
+        daily_pnl = (total_value * Decimal("0.012")).quantize(
+            Decimal("0.01")
+        )  # Mock 1.2% daily gain
         daily_pnl_percent = 1.2
 
-        weekly_pnl = (total_value * Decimal("0.025")).quantize(Decimal("0.01"))  # Mock 2.5% weekly gain
+        weekly_pnl = (total_value * Decimal("0.025")).quantize(
+            Decimal("0.01")
+        )  # Mock 2.5% weekly gain
         weekly_pnl_percent = 2.5
 
         summary = PortfolioSummary(
@@ -466,7 +470,9 @@ class PortfolioService:
         positions = summary["positions"]
 
         # Calculate overnight changes (mock for now)
-        overnight_pnl = (summary["total_value"] * Decimal("0.003")).quantize(Decimal("0.01"))  # 0.3% overnight
+        overnight_pnl = (summary["total_value"] * Decimal("0.003")).quantize(
+            Decimal("0.01")
+        )  # 0.3% overnight
         overnight_pnl_percent = 0.3
 
         # Find volatility alerts (positions with >2% movement)

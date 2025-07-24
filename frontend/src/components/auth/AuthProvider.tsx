@@ -29,7 +29,7 @@ interface AuthProviderProps {
   autoRefresh?: boolean;
   refreshInterval?: number;
 }
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   }, []);
 
   // API call helper with error handling
-  const apiCall = async <T = any,>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
+  const apiCall = async <T = unknown,>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
     try {
       const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         headers: {
@@ -151,17 +151,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   };
 
   // Real API calls using the api client
-  const makeApiCall = async <T = any,>(apiCall: () => Promise<any>): Promise<ApiResponse<T>> => {
+  const makeApiCall = async <T = unknown,>(apiCall: () => Promise<unknown>): Promise<ApiResponse<T>> => {
     try {
       const response = await apiCall();
       return {
         success: true,
-        data: response.data as T
+        data: response as T
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      const apiError = error as { response?: { data?: { detail?: string } } };
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || 'An error occurred'
+        error: apiError.response?.data?.detail || errorMessage
       };
     }
   };

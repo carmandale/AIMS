@@ -76,9 +76,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         // Redirect to dashboard on successful signup
         window.location.href = '/';
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrors({
-        general: error.message || 'Authentication failed. Please try again.'
+        general: error instanceof Error ? error.message : 'Authentication failed. Please try again.'
       });
     } finally {
       setIsLoading(false);
