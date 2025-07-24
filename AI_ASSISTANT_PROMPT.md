@@ -15,20 +15,27 @@ Implement a complete authentication system to replace the temporary hardcoded to
 
 ## Immediate Tasks (in order)
 
-### 1. Create Login/Signup UI Components
-- **Location**: `frontend/src/components/auth/`
-- **Create**: `Login.tsx`, `Signup.tsx`, `AuthLayout.tsx`
-- **Requirements**:
-  - Email/password fields with validation
-  - Error handling for API responses
-  - Success redirects to home page
-  - Use existing Tailwind dark theme styling
-  - Match existing UI patterns (see `frontend/src/components/Home.tsx`)
+### 1. Integrate Auth UI Components
+- **Auth UI Available**: Complete UI components exist in `magic-path/auth-forms/src/components/generated/`
+  - `LoginForm.tsx`: Full login form with email/password validation, remember me, forgot password, social login buttons
+  - `SignupForm.tsx`: Complete signup with name/email/password, confirm password, strength indicator, terms checkbox, social signup
+  - `AuthLayout.tsx`: Combined login/signup view with toggle animation (currently uses mock auth)
+- **Task**: Copy these components to `frontend/src/components/auth/` and integrate with backend
+- **Key Integration Points**:
+  - Components accept `onSubmit` callbacks - connect to your API calls
+  - Remove mock token storage from AuthLayout (lines 71-72)
+  - Social login buttons are UI-only - implement or hide them
+  - Forms already match dark theme and have proper validation
 
-### 2. Add Authentication Routing
+### 2. Add Authentication State Management
+- **Create**: Authentication infrastructure (not provided in UI components)
+  - `AuthProvider.tsx`: Context for auth state management
+  - `ProtectedRoute.tsx`: Route wrapper for authenticated pages
+  - `useAuth.tsx`: Hook for accessing auth state
 - **Update**: `frontend/src/App.tsx`
-- **Add**: Login/Signup to the component routing system
-- **Create**: Protected route wrapper for authenticated pages
+  - Add Login/Signup to the component routing system
+  - Wrap app with AuthProvider
+  - Use ProtectedRoute for authenticated pages
 - **Default**: Redirect unauthenticated users to login
 
 ### 3. Connect to Backend Auth Endpoints
@@ -51,6 +58,7 @@ Implement a complete authentication system to replace the temporary hardcoded to
 3. `frontend/src/components/Home.tsx` - UI style reference
 4. `src/api/routes/auth.py` - Backend auth endpoints
 5. `src/api/schemas/portfolio.py` - Auth schemas
+6. `magic-path/auth-forms/src/components/generated/` - Pre-built auth UI components
 
 ## Testing Your Work
 ```bash
@@ -100,10 +108,37 @@ git commit -m "feat: Add authentication system
 Co-Authored-By: AI Assistant <ai@assistant.com>"
 ```
 
+## Available Auth UI Components Summary
+The `magic-path/auth-forms/` directory contains production-ready auth UI components:
+
+- **LoginForm.tsx**: 
+  - Email/password fields with validation
+  - Show/hide password toggle
+  - Remember me checkbox
+  - Forgot password link (UI only)
+  - Google/GitHub social login buttons (UI only)
+  - Loading states and error display
+  - Accepts `onSubmit(email, password)` callback
+
+- **SignupForm.tsx**:
+  - Full name, email, password, confirm password fields
+  - Real-time password strength indicator
+  - Terms and conditions checkbox
+  - Form validation with error messages
+  - Social signup buttons (UI only)
+  - Accepts `onSubmit(email, password, name)` callback
+
+- **AuthLayout.tsx**:
+  - Combined login/signup with animated toggle
+  - Self-contained but uses mock auth (lines 71-72)
+  - Beautiful dark theme design
+  - Can be used as reference or adapted
+
 ## Questions to Answer Before Starting
 1. Have you run the app locally to understand the current flow?
 2. Have you identified where the hardcoded token is used?
 3. Do you understand the existing routing pattern in App.tsx?
 4. Have you reviewed the backend auth endpoints?
+5. Have you examined the provided auth UI components?
 
-Start with the Login component, test it works, then proceed to Signup. Good luck!
+Start by copying the auth components, then focus on the integration layer (AuthProvider, API calls). Good luck!
