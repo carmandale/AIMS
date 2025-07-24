@@ -61,7 +61,9 @@ export function SnapTradeRegistration({
         if (typeof detail === 'string') {
           errorMessage = detail;
         } else if (Array.isArray(detail)) {
-          errorMessage = detail.map((e: { msg?: string; message?: string }) => e.msg || e.message || 'Unknown error').join(', ');
+          errorMessage = detail
+            .map((e: { msg?: string; message?: string }) => e.msg || e.message || 'Unknown error')
+            .join(', ');
         } else if (detail && typeof detail === 'object') {
           errorMessage = JSON.stringify(detail);
         }

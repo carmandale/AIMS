@@ -57,64 +57,70 @@ interface NotificationProps {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Notification component for auth feedback
-const AuthNotification: React.FC<NotificationProps> = ({
-  type,
-  message,
-  onClose
-}) => {
+const AuthNotification: React.FC<NotificationProps> = ({ type, message, onClose }) => {
   const icons = {
     success: CheckCircle,
     error: AlertCircle,
-    info: Shield
+    info: Shield,
   };
   const colors = {
     success: 'bg-green-50 border-green-200 text-green-800',
     error: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800'
+    info: 'bg-blue-50 border-blue-200 text-blue-800',
   };
   const Icon = icons[type];
   useEffect(() => {
     const timer = setTimeout(onClose, 5000);
     return () => clearTimeout(timer);
   }, [onClose]);
-  return <motion.div initial={{
-    opacity: 0,
-    y: -50,
-    scale: 0.95
-  }} animate={{
-    opacity: 1,
-    y: 0,
-    scale: 1
-  }} exit={{
-    opacity: 0,
-    y: -50,
-    scale: 0.95
-  }} className="fixed top-4 right-4 z-50 max-w-sm w-full">
+  return (
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: -50,
+        scale: 0.95,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      }}
+      exit={{
+        opacity: 0,
+        y: -50,
+        scale: 0.95,
+      }}
+      className="fixed top-4 right-4 z-50 max-w-sm w-full"
+    >
       <div className={`p-4 rounded-xl border shadow-lg backdrop-blur-sm ${colors[type]}`}>
         <div className="flex items-start space-x-3">
           <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium">{message}</p>
           </div>
-          <button onClick={onClose} className="flex-shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity">
+          <button
+            onClick={onClose}
+            className="flex-shrink-0 text-current opacity-70 hover:opacity-100 transition-opacity"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
-    </motion.div>;
+    </motion.div>
+  );
 };
 export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
   apiBaseUrl = '/api',
   tokenStorageKey = 'auth_token',
   autoRefresh = true,
-  refreshInterval = 15 * 60 * 1000 // 15 minutes
+  refreshInterval = 15 * 60 * 1000, // 15 minutes
 }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     token: null,
     isAuthenticated: false,
-    isLoading: true
+    isLoading: true,
   });
   const [notification, setNotification] = useState<{
     type: 'success' | 'error' | 'info';
@@ -125,22 +131,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const showNotification = useCallback((type: 'success' | 'error' | 'info', message: string) => {
     setNotification({
       type,
-      message
+      message,
     });
   }, []);
 
   // API call helper with error handling
-  const apiCall = async <T = unknown,>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
+  const apiCall = async <T = unknown,>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> => {
     try {
       const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
           ...(authState.token && {
-            Authorization: `Bearer ${authState.token}`
+            Authorization: `Bearer ${authState.token}`,
           }),
-          ...options.headers
+          ...options.headers,
         },
-        ...options
+        ...options,
       });
       const data = await response.json();
       if (!response.ok) {
@@ -148,31 +157,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       }
       return {
         success: true,
-        data
+        data,
       };
     } catch (error) {
       console.error('API call failed:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       };
     }
   };
 
   // Real API calls using the api client
-  const makeApiCall = async <T = unknown,>(apiCall: () => Promise<unknown>): Promise<ApiResponse<T>> => {
+  const makeApiCall = async <T = unknown,>(
+    apiCall: () => Promise<unknown>
+  ): Promise<ApiResponse<T>> => {
     try {
       const response = await apiCall();
       return {
         success: true,
-        data: response as T
+        data: response as T,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       const apiError = error as { response?: { data?: { detail?: string } } };
       return {
         success: false,
-        error: apiError.response?.data?.detail || errorMessage
+        error: apiError.response?.data?.detail || errorMessage,
       };
     }
   };
@@ -185,7 +196,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         if (!storedToken) {
           setAuthState(prev => ({
             ...prev,
-            isLoading: false
+            isLoading: false,
           }));
           return;
         }
@@ -202,7 +213,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             },
             token: storedToken,
             isAuthenticated: true,
-            isLoading: false
+            isLoading: false,
           });
         } else {
           // Invalid token, remove it
@@ -211,7 +222,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             user: null,
             token: null,
             isAuthenticated: false,
-            isLoading: false
+            isLoading: false,
           });
         }
       } catch (error) {
@@ -221,7 +232,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           user: null,
           token: null,
           isAuthenticated: false,
-          isLoading: false
+          isLoading: false,
         });
       }
     };
@@ -244,14 +255,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       setAuthState(prev => ({
         ...prev,
-        isLoading: true
+        isLoading: true,
       }));
       const response = await makeApiCall<LoginResponse>(() => api.auth.login(email, password));
       if (response.success && response.data) {
-        const {
-          access_token,
-          user_id
-        } = response.data as LoginResponse;
+        const { access_token, user_id } = response.data as LoginResponse;
 
         // Store token
         localStorage.setItem(tokenStorageKey, access_token);
@@ -265,7 +273,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           },
           token: access_token,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
         });
         showNotification('success', `Welcome back, ${email}!`);
       } else {
@@ -274,7 +282,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     } catch (error) {
       setAuthState(prev => ({
         ...prev,
-        isLoading: false
+        isLoading: false,
       }));
       const message = error instanceof Error ? error.message : 'Login failed';
       showNotification('error', message);
@@ -285,14 +293,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       setAuthState(prev => ({
         ...prev,
-        isLoading: true
+        isLoading: true,
       }));
       const response = await makeApiCall<LoginResponse>(() => api.auth.register(email, password));
       if (response.success && response.data) {
-        const {
-          access_token,
-          user_id
-        } = response.data as LoginResponse;
+        const { access_token, user_id } = response.data as LoginResponse;
 
         // Store token
         localStorage.setItem(tokenStorageKey, access_token);
@@ -306,7 +311,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           },
           token: access_token,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
         });
         showNotification('success', `Account created successfully! Welcome, ${email}!`);
       } else {
@@ -315,7 +320,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     } catch (error) {
       setAuthState(prev => ({
         ...prev,
-        isLoading: false
+        isLoading: false,
       }));
       const message = error instanceof Error ? error.message : 'Signup failed';
       showNotification('error', message);
@@ -331,7 +336,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       user: null,
       token: null,
       isAuthenticated: false,
-      isLoading: false
+      isLoading: false,
     });
     showNotification('info', 'You have been signed out successfully');
   }, [tokenStorageKey]);
@@ -352,10 +357,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const updateUser = useCallback((userData: Partial<User>) => {
     setAuthState(prev => ({
       ...prev,
-      user: prev.user ? {
-        ...prev.user,
-        ...userData
-      } : null
+      user: prev.user
+        ? {
+            ...prev.user,
+            ...userData,
+          }
+        : null,
     }));
   }, []);
   const contextValue: AuthContextType = {
@@ -364,16 +371,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     signup,
     logout,
     refreshToken,
-    updateUser
+    updateUser,
   };
-  return <AuthContext.Provider value={contextValue}>
+  return (
+    <AuthContext.Provider value={contextValue}>
       {children}
-      
+
       {/* Notification Portal */}
       <AnimatePresence>
-        {notification && <AuthNotification type={notification.type} message={notification.message} onClose={() => setNotification(null)} />}
+        {notification && (
+          <AuthNotification
+            type={notification.type}
+            message={notification.message}
+            onClose={() => setNotification(null)}
+          />
+        )}
       </AnimatePresence>
-    </AuthContext.Provider>;
+    </AuthContext.Provider>
+  );
 };
 
 // Custom hook to use auth context
@@ -386,39 +401,40 @@ export const useAuth = (): AuthContextType => {
 };
 
 // HOC for components that require authentication
-export const withAuth = <P extends object,>(Component: React.ComponentType<P>) => {
+export const withAuth = <P extends object>(Component: React.ComponentType<P>) => {
   return (props: P) => {
-    const {
-      isAuthenticated,
-      isLoading
-    } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
     if (isLoading) {
-      return <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
-          <motion.div initial={{
-          opacity: 0,
-          scale: 0.9
-        }} animate={{
-          opacity: 1,
-          scale: 1
-        }} className="text-center">
+      return (
+        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+            }}
+            className="text-center"
+          >
             <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-2xl mb-4">
               <Shield className="w-8 h-8 text-white animate-pulse" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">
-              Loading...
-            </h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Loading...</h2>
           </motion.div>
-        </div>;
+        </div>
+      );
     }
     if (!isAuthenticated) {
-      return <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      return (
+        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-slate-900 mb-4">
-              Authentication Required
-            </h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Authentication Required</h2>
             <p className="text-slate-600">Please sign in to access this page.</p>
           </div>
-        </div>;
+        </div>
+      );
     }
     return <Component {...props} />;
   };

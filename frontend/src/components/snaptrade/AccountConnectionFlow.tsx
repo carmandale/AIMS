@@ -539,13 +539,15 @@ export function AccountConnectionFlow({
                       <p className="text-slate-300 mb-4">
                         Opening {selectedBrokerInfo.name} connection portal
                       </p>
-                      
+
                       <div className="bg-slate-700/50 border border-slate-600/50 rounded-lg p-4 mb-6">
                         <p className="text-sm text-slate-300 mb-3">
-                          A new window has opened for you to connect your {selectedBrokerInfo.name} account.
+                          A new window has opened for you to connect your {selectedBrokerInfo.name}{' '}
+                          account.
                         </p>
                         <p className="text-sm text-slate-400">
-                          If you see "Connection Complete" in the popup, you can close it and click the button below.
+                          If you see "Connection Complete" in the popup, you can close it and click
+                          the button below.
                         </p>
                       </div>
 
@@ -576,7 +578,8 @@ export function AccountConnectionFlow({
                       </div>
                       <h3 className="text-xl font-semibold text-white mb-4">Popup Blocked</h3>
                       <p className="text-slate-300 mb-6">
-                        Your browser blocked the popup window. Click the button below to open the connection page manually.
+                        Your browser blocked the popup window. Click the button below to open the
+                        connection page manually.
                       </p>
                       <a
                         href={connectionUrl}
