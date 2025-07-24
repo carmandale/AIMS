@@ -36,9 +36,18 @@ interface ApiResponse<T = unknown> {
   error?: string;
 }
 interface LoginResponse {
-  token: string;
-  user: User;
-  expiresIn?: number;
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  user_id: string;
+}
+interface UserInfoResponse {
+  user_id: string;
+  email: string;
+  is_active: boolean;
+  is_verified: boolean;
+  created_at: string;
+  last_login?: string;
 }
 interface NotificationProps {
   type: 'success' | 'error' | 'info';
@@ -184,7 +193,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         // Validate token with API
         const response = await makeApiCall(() => api.auth.getCurrentUser());
         if (response.success && response.data) {
-          const userData = response.data;
+          const userData = response.data as UserInfoResponse;
           setAuthState({
             user: {
               id: userData.user_id,
@@ -242,7 +251,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         const {
           access_token,
           user_id
-        } = response.data;
+        } = response.data as LoginResponse;
 
         // Store token
         localStorage.setItem(tokenStorageKey, access_token);
@@ -283,7 +292,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         const {
           access_token,
           user_id
-        } = response.data;
+        } = response.data as LoginResponse;
 
         // Store token
         localStorage.setItem(tokenStorageKey, access_token);
