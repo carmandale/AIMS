@@ -176,9 +176,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       const response = await apiCall();
       // Extract data from axios response
       const responseData = response as { data?: T } | T;
-      const data = (responseData && typeof responseData === 'object' && 'data' in responseData && responseData.data !== undefined)
-        ? responseData.data 
-        : responseData as T;
+      const data =
+        responseData &&
+        typeof responseData === 'object' &&
+        'data' in responseData &&
+        responseData.data !== undefined
+          ? responseData.data
+          : (responseData as T);
       return {
         success: true,
         data,

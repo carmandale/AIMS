@@ -76,12 +76,16 @@ function App() {
   const generatedComponent = useMemo(() => {
     switch (currentComponent) {
       case 'login':
-        return <AuthLayout onAuthSuccess={() => {
-          console.log('onAuthSuccess called, navigating to home');
-          setCurrentComponent('home');
-          // Also update the URL to reflect the navigation
-          window.history.pushState({}, '', '/');
-        }} />;
+        return (
+          <AuthLayout
+            onAuthSuccess={() => {
+              console.log('onAuthSuccess called, navigating to home');
+              setCurrentComponent('home');
+              // Also update the URL to reflect the navigation
+              window.history.pushState({}, '', '/');
+            }}
+          />
+        );
       case 'home':
         return (
           <ProtectedRoute>
