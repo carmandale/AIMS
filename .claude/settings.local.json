@@ -72,7 +72,15 @@
       "Bash(git pull:*)",
       "Bash(gh issue close:*)",
       "Bash(gh issue comment:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(yarn lint)",
+      "Bash(yarn build)",
+      "Bash(yarn format:check)",
+      "Bash(yarn format)",
+      "Bash(gh pr comment:*)"
     ],
     "deny": []
   }
