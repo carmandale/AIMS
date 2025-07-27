@@ -445,5 +445,4 @@ export const withAuth = <P extends object>(Component: React.ComponentType<P>) =>
     return <Component {...props} />;
   };
 };
-export { AuthProvider };
 export default AuthProvider;
