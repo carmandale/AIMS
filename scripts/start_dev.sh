@@ -94,6 +94,11 @@ if [ ! -f ".env" ]; then
     echo -e "${GREEN}✓ Created .env file${NC}"
 fi
 
+# Load backend .env file if it exists
+if [ -f "backend/.env" ]; then
+    export $(grep -v '^#' backend/.env | xargs)
+fi
+
 # Run setup verification
 echo ""
 echo -e "${BLUE}Running setup verification...${NC}"
