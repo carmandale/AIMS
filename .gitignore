@@ -182,3 +182,14 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Playwright test artifacts
+e2e-tests/test-results/
+e2e-tests/playwright-report/
+test-results/
+
+# Backend directory (if it contains sensitive config)
+backend/
+
+# Temporary test files
+/tmp/aims_token.txt
