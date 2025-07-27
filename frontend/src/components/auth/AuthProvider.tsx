@@ -176,7 +176,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       const response = await apiCall();
       // Extract data from axios response
       const responseData = response as { data?: T } | T;
-      const data = 'data' in responseData && responseData.data !== undefined 
+      const data = (responseData && typeof responseData === 'object' && 'data' in responseData && responseData.data !== undefined)
         ? responseData.data 
         : responseData as T;
       return {
@@ -255,6 +255,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       }
     }, refreshInterval);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh, authState.isAuthenticated, refreshInterval]);
   const login = async (email: string, password: string): Promise<void> => {
     try {
@@ -344,7 +345,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       isLoading: false,
     });
     showNotification('info', 'You have been signed out successfully');
-  }, [tokenStorageKey]);
+  }, [tokenStorageKey, showNotification]);
   const refreshToken = async (): Promise<void> => {
     try {
       // Since backend doesn't have refresh endpoint, validate current token
@@ -444,5 +445,5 @@ export const withAuth = <P extends object>(Component: React.ComponentType<P>) =>
     return <Component {...props} />;
   };
 };
-export default AuthProvider;
 export { AuthProvider };
+export default AuthProvider;
