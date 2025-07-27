@@ -254,12 +254,13 @@ export function ConnectedAccountsList({
                   <div className="bg-slate-700/50 p-4 rounded-full w-16 h-16 mx-auto mb-6">
                     <Wifi className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-4">No Accounts Connected Yet</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">
+                    No Accounts Connected Yet
+                  </h3>
                   <p className="text-slate-300 mb-6">
-                    {isLoading ? 
-                      'Checking for connected accounts...' : 
-                      'Your brokerage accounts will appear here once confirmed. In sandbox mode, this may take a few moments.'
-                    }
+                    {isLoading
+                      ? 'Checking for connected accounts...'
+                      : 'Your brokerage accounts will appear here once confirmed. In sandbox mode, this may take a few moments.'}
                   </p>
                   {!isLoading && (
                     <>

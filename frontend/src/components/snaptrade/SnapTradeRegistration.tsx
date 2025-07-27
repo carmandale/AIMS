@@ -53,7 +53,7 @@ export function SnapTradeRegistration({
       }
     } catch (err: unknown) {
       console.error('SnapTrade registration error:', err);
-      const error = err as any;
+      const error = err as { response?: { data?: { detail?: unknown } }; message?: string };
       console.log('Error response:', error.response?.data);
       let errorMessage = 'Registration failed';
       if (error.response?.data?.detail) {
@@ -61,7 +61,9 @@ export function SnapTradeRegistration({
         if (typeof detail === 'string') {
           errorMessage = detail;
         } else if (Array.isArray(detail)) {
-          errorMessage = detail.map((e: any) => e.msg || e.message || 'Unknown error').join(', ');
+          errorMessage = detail
+            .map((e: { msg?: string; message?: string }) => e.msg || e.message || 'Unknown error')
+            .join(', ');
         } else if (detail && typeof detail === 'object') {
           errorMessage = JSON.stringify(detail);
         }

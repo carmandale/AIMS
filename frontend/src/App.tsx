@@ -14,6 +14,9 @@ import {
   ConnectedAccountsList,
 } from './components/snaptrade';
 import { Toaster } from 'sonner';
+import { AuthProvider } from './components/auth/AuthProvider';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import AuthLayout from './components/auth/AuthLayout';
 
 const theme: Theme = 'dark';
 const container: Container = 'none';
@@ -40,10 +43,18 @@ type ComponentType =
   | 'trade-ticket'
   | 'snaptrade-register'
   | 'snaptrade-connect'
-  | 'snaptrade-accounts';
+  | 'snaptrade-accounts'
+  | 'login';
 
 function App() {
-  const [currentComponent, setCurrentComponent] = useState<ComponentType>('home');
+  // Check URL for routing
+  const getInitialComponent = (): ComponentType => {
+    const path = window.location.pathname;
+    if (path === '/login') return 'login';
+    return 'home';
+  };
+
+  const [currentComponent, setCurrentComponent] = useState<ComponentType>(getInitialComponent());
 
   function setTheme(theme: Theme) {
     if (theme === 'dark') {
@@ -57,45 +68,81 @@ function App() {
 
   const generatedComponent = useMemo(() => {
     switch (currentComponent) {
+      case 'login':
+        return <AuthLayout />;
       case 'home':
-        return <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />;
+        return (
+          <ProtectedRoute>
+            <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />
+          </ProtectedRoute>
+        );
       case 'dashboard':
-        return <AIMSDashboard />;
+        return (
+          <ProtectedRoute>
+            <AIMSDashboard />
+          </ProtectedRoute>
+        );
       case 'morning-brief':
-        return <MorningBriefCard />;
+        return (
+          <ProtectedRoute>
+            <MorningBriefCard />
+          </ProtectedRoute>
+        );
       case 'income-tracker':
-        return <IncomeGoalTracker />;
+        return (
+          <ProtectedRoute>
+            <IncomeGoalTracker />
+          </ProtectedRoute>
+        );
       case 'tasks':
-        return <TasksPage />;
+        return (
+          <ProtectedRoute>
+            <TasksPage />
+          </ProtectedRoute>
+        );
       case 'trade-ticket':
-        return <TradeTicketForm />;
+        return (
+          <ProtectedRoute>
+            <TradeTicketForm />
+          </ProtectedRoute>
+        );
       case 'snaptrade-register':
         return (
-          <SnapTradeRegistration
-            onRegistrationComplete={() => {
-              console.log('SnapTrade registration completed');
-            }}
-            onNavigateToConnection={() => setCurrentComponent('snaptrade-connect')}
-          />
+          <ProtectedRoute>
+            <SnapTradeRegistration
+              onRegistrationComplete={() => {
+                console.log('SnapTrade registration completed');
+              }}
+              onNavigateToConnection={() => setCurrentComponent('snaptrade-connect')}
+            />
+          </ProtectedRoute>
         );
       case 'snaptrade-connect':
         return (
-          <AccountConnectionFlow
-            onBack={() => setCurrentComponent('snaptrade-register')}
-            onConnectionComplete={() => setCurrentComponent('snaptrade-accounts')}
-          />
+          <ProtectedRoute>
+            <AccountConnectionFlow
+              onBack={() => setCurrentComponent('snaptrade-register')}
+              onConnectionComplete={() => setCurrentComponent('snaptrade-accounts')}
+            />
+          </ProtectedRoute>
         );
       case 'snaptrade-accounts':
         return (
-          <ConnectedAccountsList
-            onAddAccount={() => setCurrentComponent('snaptrade-connect')}
-            onAccountDisconnect={accountId => {
-              console.log('Account disconnected:', accountId);
-            }}
-          />
+          <ProtectedRoute>
+            <ConnectedAccountsList
+              onAddAccount={() => setCurrentComponent('snaptrade-connect')}
+              onAccountDisconnect={accountId => {
+                console.log('Account disconnected:', accountId);
+              }}
+            />
+          </ProtectedRoute>
         );
       default:
-        return <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />;
+        return (
+          <ProtectedRoute>
+            <Home onNavigate={component => setCurrentComponent(component as ComponentType)} />
+          </ProtectedRoute>
+        );
     }
   }, [currentComponent]);
 
@@ -113,22 +160,24 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen">
-        {/* Add Home button if not on home screen */}
-        {currentComponent !== 'home' && (
-          <button
-            onClick={() => setCurrentComponent('home')}
-            className="fixed top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/80 transition-colors"
-          >
-            ← Home
-          </button>
-        )}
+      <AuthProvider>
+        <div className="min-h-screen">
+          {/* Add Home button if not on home screen and not on login */}
+          {currentComponent !== 'home' && currentComponent !== 'login' && (
+            <button
+              onClick={() => setCurrentComponent('home')}
+              className="fixed top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700/80 transition-colors"
+            >
+              ← Home
+            </button>
+          )}
 
-        {/* Content */}
-        {renderContent()}
-      </div>
-      <Toaster richColors position="top-right" />
-      <ReactQueryDevtools initialIsOpen={false} />
+          {/* Content */}
+          {renderContent()}
+        </div>
+        <Toaster richColors position="top-right" />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
