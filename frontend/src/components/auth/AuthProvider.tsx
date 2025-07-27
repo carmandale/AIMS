@@ -175,10 +175,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       const response = await apiCall();
       // Extract data from axios response
-      const data = (response as any)?.data || response;
+      const responseData = response as { data?: T } | T;
+      const data = 'data' in responseData && responseData.data !== undefined 
+        ? responseData.data 
+        : responseData as T;
       return {
         success: true,
-        data: data as T,
+        data,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
@@ -442,3 +445,4 @@ export const withAuth = <P extends object>(Component: React.ComponentType<P>) =>
   };
 };
 export default AuthProvider;
+export { AuthProvider };
