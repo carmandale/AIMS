@@ -70,7 +70,7 @@ class FidelityFetcher(BaseFetcher):
             # Add some random price movement
             base_price = pos_data["current_price"]
             price_change = base_price * Decimal(str(round(random.uniform(-0.02, 0.02), 4)))
-            current_price = round(base_price + price_change, 2)
+            current_price = (base_price + price_change).quantize(Decimal("0.01"))
 
             position = Position(
                 broker=self.broker_type,

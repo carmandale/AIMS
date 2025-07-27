@@ -5,10 +5,19 @@ import hashlib
 from datetime import datetime, timedelta
 from typing import Any, Optional, Dict, Union, List
 from functools import wraps
+from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
 from src.db.models import CachedData
+
+
+class DecimalEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle Decimal types"""
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 class CacheManager:
@@ -20,7 +29,7 @@ class CacheManager:
     def _generate_key(self, prefix: str, params: Dict[str, Any]) -> str:
         """Generate cache key from prefix and parameters"""
         # Sort params for consistent key generation
-        sorted_params = json.dumps(params, sort_keys=True)
+        sorted_params = json.dumps(params, sort_keys=True, cls=DecimalEncoder)
         hash_object = hashlib.md5(sorted_params.encode())
         return f"{prefix}:{hash_object.hexdigest()}"
 
@@ -36,6 +45,20 @@ class CacheManager:
             return cached.data  # type: ignore[return-value]
         return None
 
+    def _convert_decimals(self, obj: Any) -> Any:
+        """Recursively convert Decimal objects to float and datetime to ISO string"""
+        if isinstance(obj, Decimal):
+            return float(obj)
+        elif isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, dict):
+            return {k: self._convert_decimals(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._convert_decimals(item) for item in obj]
+        elif isinstance(obj, tuple):
+            return tuple(self._convert_decimals(item) for item in obj)
+        return obj
+
     def set(
         self, db: Session, key: str, data: Dict[str, Any], ttl_hours: Optional[int] = None
     ) -> None:
@@ -43,14 +66,17 @@ class CacheManager:
         ttl = ttl_hours or self.default_ttl_hours
         expires_at = datetime.utcnow() + timedelta(hours=ttl)
 
+        # Convert any Decimal objects to float for JSON serialization
+        converted_data = self._convert_decimals(data)
+
         # Check if key exists
         cached = db.query(CachedData).filter(CachedData.cache_key == key).first()
 
         if cached:
-            cached.data = data  # type: ignore[assignment]
+            cached.data = converted_data  # type: ignore[assignment]
             cached.expires_at = expires_at  # type: ignore[assignment]
         else:
-            cached = CachedData(cache_key=key, data=data, expires_at=expires_at)
+            cached = CachedData(cache_key=key, data=converted_data, expires_at=expires_at)
             db.add(cached)
 
         db.commit()

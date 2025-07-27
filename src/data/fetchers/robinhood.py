@@ -68,7 +68,8 @@ class RobinhoodFetcher(BaseFetcher):
             else:
                 price_change = base_price * Decimal(str(round(random.uniform(-0.03, 0.03), 4)))
 
-            current_price = round(max(base_price + price_change, Decimal("0.01")), 2)
+            current_price = (base_price + price_change).quantize(Decimal("0.01"))
+            current_price = max(current_price, Decimal("0.01"))
 
             position = Position(
                 broker=self.broker_type,
