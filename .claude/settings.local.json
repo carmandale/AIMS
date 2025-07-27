@@ -67,7 +67,12 @@
       "Bash(npx playwright test:*)",
       "Bash(grep:*)",
       "Bash(gh issue list:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git pull:*)",
+      "Bash(gh issue close:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(git stash:*)"
     ],
     "deny": []
   }

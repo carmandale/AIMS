@@ -174,9 +174,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await apiCall();
+      // Extract data from axios response
+      const data = (response as any)?.data || response;
       return {
         success: true,
-        data: response as T,
+        data: data as T,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';

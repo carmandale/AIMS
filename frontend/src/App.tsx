@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Container, Theme } from './settings/types';
@@ -51,6 +51,13 @@ function App() {
   const getInitialComponent = (): ComponentType => {
     const path = window.location.pathname;
     if (path === '/login') return 'login';
+    // Check if user has auth token to determine initial route
+    const hasToken = localStorage.getItem('auth_token');
+    if (!hasToken && path !== '/login') {
+      // If no token and not already on login, start with login
+      window.history.replaceState({}, '', '/login');
+      return 'login';
+    }
     return 'home';
   };
 
@@ -69,7 +76,12 @@ function App() {
   const generatedComponent = useMemo(() => {
     switch (currentComponent) {
       case 'login':
-        return <AuthLayout />;
+        return <AuthLayout onAuthSuccess={() => {
+          console.log('onAuthSuccess called, navigating to home');
+          setCurrentComponent('home');
+          // Also update the URL to reflect the navigation
+          window.history.pushState({}, '', '/');
+        }} />;
       case 'home':
         return (
           <ProtectedRoute>

@@ -1,0 +1,193 @@
+# Page snapshot
+
+```yaml
+- button "← Home"
+- banner:
+  - text: A
+  - heading "AIMS Dashboard" [level=1]
+  - button:
+    - img
+  - img
+- complementary:
+  - navigation:
+    - list:
+      - listitem:
+        - link "Dashboard":
+          - /url: "#"
+          - img
+          - text: Dashboard
+      - listitem:
+        - link "Portfolio":
+          - /url: "#"
+          - img
+          - text: Portfolio
+      - listitem:
+        - link "Analytics":
+          - /url: "#"
+          - img
+          - text: Analytics
+      - listitem:
+        - link "Trades":
+          - /url: "#"
+          - img
+          - text: Trades
+      - listitem:
+        - link "Settings":
+          - /url: "#"
+          - img
+          - text: Settings
+- main:
+  - heading "Total Portfolio Value" [level=2]
+  - img
+  - heading "$2,847,650.32" [level=3]
+  - img
+  - text: $12,847.65 (+0.45%) today
+  - heading "Daily" [level=4]
+  - img
+  - paragraph: $12,847.65
+  - img
+  - text: +0.45%
+  - heading "Weekly" [level=4]
+  - img
+  - paragraph: $45,230.12
+  - img
+  - text: +1.62%
+  - heading "Monthly" [level=4]
+  - img
+  - paragraph: $8,945.23
+  - img
+  - text: "-0.31%"
+  - heading "YTD" [level=4]
+  - img
+  - paragraph: $234,567.89
+  - img
+  - text: +8.97%
+  - img
+  - heading "Portfolio Performance" [level=3]
+  - button "1D"
+  - button "1W"
+  - button "1M"
+  - button "3M"
+  - button "1Y"
+  - button "ALL"
+  - img: Jan 1 Jan 8 Jan 15 Jan 22 Jan 29 Feb 5 Feb 12 Feb 19 Feb 26 Mar 5 Mar 12 Mar 19 $0.0M $0.8M $1.5M $2.3M $3.0M
+  - paragraph: Highest
+  - paragraph: $2.82M
+  - paragraph: Lowest
+  - paragraph: $2.58M
+  - paragraph: Average
+  - paragraph: $2.71M
+  - img
+  - heading "Recent Trades" [level=3]
+  - text: 5 trades
+  - table:
+    - rowgroup:
+      - row "Asset Type Quantity Price Total Status":
+        - cell "Asset":
+          - button "Asset":
+            - text: Asset
+            - img
+        - cell "Type":
+          - button "Type":
+            - text: Type
+            - img
+        - cell "Quantity":
+          - button "Quantity":
+            - text: Quantity
+            - img
+        - cell "Price":
+          - button "Price":
+            - text: Price
+            - img
+        - cell "Total":
+          - button "Total":
+            - text: Total
+            - img
+        - cell "Status"
+    - rowgroup:
+      - row "AAPL Apple Inc. BUY 150 $182.52 $27,378.00 COMPLETED":
+        - cell "AAPL Apple Inc.":
+          - paragraph: AAPL
+          - paragraph: Apple Inc.
+        - cell "BUY":
+          - img
+          - text: BUY
+        - cell "150"
+        - cell "$182.52"
+        - cell "$27,378.00"
+        - cell "COMPLETED"
+      - row "TSLA Tesla Inc. SELL 75 $201.29 $15,096.75 COMPLETED":
+        - cell "TSLA Tesla Inc.":
+          - paragraph: TSLA
+          - paragraph: Tesla Inc.
+        - cell "SELL":
+          - img
+          - text: SELL
+        - cell "75"
+        - cell "$201.29"
+        - cell "$15,096.75"
+        - cell "COMPLETED"
+      - row "MSFT Microsoft Corp. BUY 100 $424.89 $42,489.00 COMPLETED":
+        - cell "MSFT Microsoft Corp.":
+          - paragraph: MSFT
+          - paragraph: Microsoft Corp.
+        - cell "BUY":
+          - img
+          - text: BUY
+        - cell "100"
+        - cell "$424.89"
+        - cell "$42,489.00"
+        - cell "COMPLETED"
+      - row "GOOGL Alphabet Inc. BUY 50 $138.21 $6,910.50 PENDING":
+        - cell "GOOGL Alphabet Inc.":
+          - paragraph: GOOGL
+          - paragraph: Alphabet Inc.
+        - cell "BUY":
+          - img
+          - text: BUY
+        - cell "50"
+        - cell "$138.21"
+        - cell "$6,910.50"
+        - cell "PENDING"
+      - row "AMZN Amazon.com Inc. SELL 25 $155.85 $3,896.25 COMPLETED":
+        - cell "AMZN Amazon.com Inc.":
+          - paragraph: AMZN
+          - paragraph: Amazon.com Inc.
+        - cell "SELL":
+          - img
+          - text: SELL
+        - cell "25"
+        - cell "$155.85"
+        - cell "$3,896.25"
+        - cell "COMPLETED"
+  - img
+  - heading "Top Holdings" [level=3]
+  - heading "AAPL" [level=4]
+  - text: $82,134.00
+  - paragraph: 450 shares
+  - text: $1,247.50 (+1.54%)
+  - heading "MSFT" [level=4]
+  - text: $84,978.00
+  - paragraph: 200 shares
+  - text: $892.30 (-1.04%)
+  - heading "GOOGL" [level=4]
+  - text: $20,731.50
+  - paragraph: 150 shares
+  - text: $456.75 (+2.25%)
+  - heading "TSLA" [level=4]
+  - text: $25,161.25
+  - paragraph: 125 shares
+  - text: $1,234.80 (-4.68%)
+  - img
+  - heading "Asset Allocation" [level=3]
+  - img:
+    - img
+    - img
+    - img
+    - img
+    - img
+  - text: Technology 65% Healthcare 15% Finance 12% Energy 5% Other 3%
+- region "Notifications alt+T"
+- button "Open Tanstack query devtools":
+  - img
+```

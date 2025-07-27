@@ -5,8 +5,9 @@ import { cn } from '../../lib/utils';
 import { useAuth } from './AuthProvider';
 interface AuthLayoutProps {
   className?: string;
+  onAuthSuccess?: () => void;
 }
-const AuthLayout: React.FC<AuthLayoutProps> = ({ className }) => {
+const AuthLayout: React.FC<AuthLayoutProps> = ({ className, onAuthSuccess }) => {
   const { login, signup } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +19,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ className }) => {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -56,6 +58,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ className }) => {
     } else if (!isLogin && formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
+    if (!isLogin && !acceptTerms) {
+      newErrors.terms = 'You must accept the terms and conditions';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -67,12 +72,21 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ className }) => {
     try {
       if (isLogin) {
         await login(formData.email, formData.password);
-        // Redirect to dashboard on successful login
-        window.location.href = '/';
+        // Navigate to home on successful login
+        console.log('Login successful, calling onAuthSuccess:', !!onAuthSuccess);
+        if (onAuthSuccess) {
+          onAuthSuccess();
+        } else {
+          window.location.href = '/';
+        }
       } else {
         await signup(formData.email, formData.password);
-        // Redirect to dashboard on successful signup
-        window.location.href = '/';
+        // Navigate to home on successful signup
+        if (onAuthSuccess) {
+          onAuthSuccess();
+        } else {
+          window.location.href = '/';
+        }
       }
     } catch (error: unknown) {
       setErrors({
@@ -93,6 +107,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ className }) => {
     setErrors({});
     setShowPassword(false);
     setShowConfirmPassword(false);
+    setAcceptTerms(false);
   };
   return (
     <div
@@ -316,6 +331,57 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ className }) => {
                       className="text-red-400 text-xs"
                     >
                       {errors.confirmPassword}
+                    </motion.p>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Terms and Conditions (Signup only) */}
+            <AnimatePresence>
+              {!isLogin && (
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    height: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    height: 'auto',
+                  }}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                  }}
+                  className="space-y-2"
+                >
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={acceptTerms}
+                      onChange={e => setAcceptTerms(e.target.checked)}
+                      className="mt-1 w-4 h-4 border-gray-600 rounded bg-gray-700/50 text-blue-500 focus:ring-2 focus:ring-blue-500/50"
+                    />
+                    <span className="text-sm text-gray-300">
+                      I accept the{' '}
+                      <a href="#" className="text-blue-400 hover:text-blue-300 underline">
+                        Terms and Conditions
+                      </a>
+                    </span>
+                  </label>
+                  {errors.terms && (
+                    <motion.p
+                      initial={{
+                        opacity: 0,
+                        y: -5,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
+                      className="text-red-400 text-xs"
+                    >
+                      {errors.terms}
                     </motion.p>
                   )}
                 </motion.div>
