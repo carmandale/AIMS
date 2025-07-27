@@ -175,10 +175,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       const response = await apiCall();
       // Extract data from axios response
-      const data = (response as any)?.data || response;
+      const responseData = response as { data?: T } | T;
+      const data =
+        responseData &&
+        typeof responseData === 'object' &&
+        'data' in responseData &&
+        responseData.data !== undefined
+          ? responseData.data
+          : (responseData as T);
       return {
         success: true,
-        data: data as T,
+        data,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
@@ -252,6 +259,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       }
     }, refreshInterval);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh, authState.isAuthenticated, refreshInterval]);
   const login = async (email: string, password: string): Promise<void> => {
     try {
@@ -341,7 +349,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       isLoading: false,
     });
     showNotification('info', 'You have been signed out successfully');
-  }, [tokenStorageKey]);
+  }, [tokenStorageKey, showNotification]);
   const refreshToken = async (): Promise<void> => {
     try {
       // Since backend doesn't have refresh endpoint, validate current token

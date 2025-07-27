@@ -1,7 +1,33 @@
 import { test, expect } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const BASE_URL = 'http://localhost:5173';
-const API_URL = 'http://localhost:8000';
+// Load environment configuration
+function loadEnvFile(filePath: string): Record<string, string> {
+  try {
+    const envContent = fs.readFileSync(filePath, 'utf8');
+    const env: Record<string, string> = {};
+    envContent.split('\n').forEach(line => {
+      const [key, value] = line.split('=');
+      if (key && value) {
+        env[key.trim()] = value.trim();
+      }
+    });
+    return env;
+  } catch (error) {
+    console.warn(`Warning: Could not load ${filePath}`);
+    return {};
+  }
+}
+
+// Load configuration from .env files
+const backendEnv = loadEnvFile(path.join(__dirname, '../../backend/.env'));
+const frontendEnv = loadEnvFile(path.join(__dirname, '../../frontend/.env.local'));
+
+const FRONTEND_PORT = frontendEnv.PORT || '3002';
+const API_PORT = backendEnv.API_PORT || '8002';
+const BASE_URL = `http://localhost:${FRONTEND_PORT}`;
+const API_URL = `http://localhost:${API_PORT}`;
 
 test.describe('Basic Application Tests', () => {
   test('frontend should be accessible', async ({ page }) => {
