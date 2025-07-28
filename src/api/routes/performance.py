@@ -21,7 +21,7 @@ router = APIRouter(prefix="/performance", tags=["performance"])
 def parse_period_to_dates(period: str) -> tuple[date, date]:
     """Convert period string to start and end dates"""
     end_date = date.today()
-    
+
     period_mapping = {
         "1D": timedelta(days=1),
         "7D": timedelta(days=7),
@@ -30,7 +30,7 @@ def parse_period_to_dates(period: str) -> tuple[date, date]:
         "6M": timedelta(days=180),
         "1Y": timedelta(days=365),
     }
-    
+
     if period in period_mapping:
         start_date = end_date - period_mapping[period]
     elif period == "YTD":
@@ -40,7 +40,7 @@ def parse_period_to_dates(period: str) -> tuple[date, date]:
         start_date = date(2020, 1, 1)  # Reasonable earliest date
     else:
         raise ValueError(f"Invalid period: {period}")
-    
+
     return start_date, end_date
 
 
@@ -53,23 +53,23 @@ async def get_performance_metrics(
 ):
     """
     Retrieve comprehensive performance metrics for the authenticated user's portfolio
-    
+
     Returns portfolio metrics, benchmark comparison, and time series data for the specified period.
     """
     try:
         # Rate limiting
         portfolio_rate_limiter.check_rate_limit(current_user.user_id)
-        
+
         # Validate period
         try:
             start_date, end_date = parse_period_to_dates(period)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=f"Invalid period: {period}")
-        
+
         # Initialize services
         performance_service = PerformanceAnalyticsService(db)
         benchmark_service = BenchmarkService(db)
-        
+
         # Get performance metrics
         if period == "ALL":
             metrics = performance_service.get_period_performance(current_user.user_id, "all")
@@ -77,22 +77,26 @@ async def get_performance_metrics(
             metrics = performance_service.calculate_returns_metrics(
                 current_user.user_id, start_date, end_date, period.lower()
             )
-        
+
         if not metrics:
             raise HTTPException(
-                status_code=404, 
-                detail="No performance data available for the specified period"
+                status_code=404, detail="No performance data available for the specified period"
             )
-        
+
         # Get time series data for chart
-        snapshots = db.query(PerformanceSnapshot).filter(
-            and_(
-                PerformanceSnapshot.user_id == current_user.user_id,
-                PerformanceSnapshot.snapshot_date >= start_date,
-                PerformanceSnapshot.snapshot_date <= end_date,
+        snapshots = (
+            db.query(PerformanceSnapshot)
+            .filter(
+                and_(
+                    PerformanceSnapshot.user_id == current_user.user_id,
+                    PerformanceSnapshot.snapshot_date >= start_date,
+                    PerformanceSnapshot.snapshot_date <= end_date,
+                )
             )
-        ).order_by(PerformanceSnapshot.snapshot_date).all()
-        
+            .order_by(PerformanceSnapshot.snapshot_date)
+            .all()
+        )
+
         # Format time series data
         time_series = []
         if snapshots:
@@ -101,14 +105,16 @@ async def get_performance_metrics(
                 portfolio_return = 0.0
                 if first_value > 0:
                     portfolio_return = (float(snapshot.total_value) - first_value) / first_value
-                
-                time_series.append({
-                    "date": snapshot.snapshot_date.isoformat(),
-                    "portfolio_value": float(snapshot.total_value),
-                    "portfolio_return": portfolio_return,
-                    "benchmark_return": 0.0,  # Will be populated by benchmark service
-                })
-        
+
+                time_series.append(
+                    {
+                        "date": snapshot.snapshot_date.isoformat(),
+                        "portfolio_value": float(snapshot.total_value),
+                        "portfolio_return": portfolio_return,
+                        "benchmark_return": 0.0,  # Will be populated by benchmark service
+                    }
+                )
+
         # Get benchmark data if requested
         benchmark_metrics = {}
         if benchmark != "NONE":
@@ -116,7 +122,7 @@ async def get_performance_metrics(
                 benchmark_data = benchmark_service.get_benchmark_data(
                     benchmark, start_date, end_date
                 )
-                
+
                 if benchmark_data:
                     # Calculate benchmark metrics
                     benchmark_metrics = {
@@ -124,25 +130,29 @@ async def get_performance_metrics(
                         "volatility": benchmark_data.get("volatility", 0.0),
                         "sharpe_ratio": benchmark_data.get("sharpe_ratio", 0.0),
                     }
-                    
+
                     # Update time series with benchmark returns
                     benchmark_returns = benchmark_data.get("returns", {})
                     for item in time_series:
                         date_str = item["date"]
                         if date_str in benchmark_returns:
                             item["benchmark_return"] = benchmark_returns[date_str]
-                            
+
             except Exception as e:
                 logger.warning(f"Failed to fetch benchmark data: {e}")
                 # Continue without benchmark data
-        
+
         # Format response
         response = {
             "portfolio_metrics": {
-                "total_return": float(metrics.percent_change / 100) if metrics.percent_change else 0.0,
+                "total_return": (
+                    float(metrics.percent_change / 100) if metrics.percent_change else 0.0
+                ),
                 "daily_return": float(metrics.periodic_returns.get("last_1_day", 0) / 100),
                 "monthly_return": float(metrics.periodic_returns.get("last_30_days", 0) / 100),
-                "yearly_return": float(metrics.annualized_return / 100) if metrics.annualized_return else 0.0,
+                "yearly_return": (
+                    float(metrics.annualized_return / 100) if metrics.annualized_return else 0.0
+                ),
                 "sharpe_ratio": metrics.sharpe_ratio or 0.0,
                 "volatility": float(metrics.volatility / 100) if metrics.volatility else 0.0,
                 "max_drawdown": float(metrics.max_drawdown / 100) if metrics.max_drawdown else 0.0,
@@ -153,16 +163,15 @@ async def get_performance_metrics(
             "time_series": time_series,
             "last_updated": datetime.utcnow().isoformat() + "Z",
         }
-        
+
         return response
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error calculating performance metrics: {e}")
         raise HTTPException(
-            status_code=500, 
-            detail=f"Calculation error or external data unavailable: {str(e)}"
+            status_code=500, detail=f"Calculation error or external data unavailable: {str(e)}"
         )
 
 
@@ -176,42 +185,50 @@ async def get_historical_performance(
 ):
     """
     Retrieve historical performance data for extended time periods
-    
+
     Returns time series data at the specified frequency with summary statistics.
     """
     try:
         # Rate limiting
         portfolio_rate_limiter.check_rate_limit(current_user.user_id)
-        
+
         # Validate date range
         if start_date > end_date:
-            raise HTTPException(status_code=400, detail="Invalid date range: start_date must be before end_date")
-        
+            raise HTTPException(
+                status_code=400, detail="Invalid date range: start_date must be before end_date"
+            )
+
         if end_date > date.today():
-            raise HTTPException(status_code=400, detail="Invalid date range: end_date cannot be in the future")
-        
+            raise HTTPException(
+                status_code=400, detail="Invalid date range: end_date cannot be in the future"
+            )
+
         # Validate frequency
         if frequency not in ["daily", "weekly", "monthly"]:
             raise HTTPException(status_code=400, detail=f"Invalid frequency: {frequency}")
-        
+
         # Initialize service
         performance_service = PerformanceAnalyticsService(db)
-        
+
         # Get all snapshots for the period
-        snapshots = db.query(PerformanceSnapshot).filter(
-            and_(
-                PerformanceSnapshot.user_id == current_user.user_id,
-                PerformanceSnapshot.snapshot_date >= start_date,
-                PerformanceSnapshot.snapshot_date <= end_date,
+        snapshots = (
+            db.query(PerformanceSnapshot)
+            .filter(
+                and_(
+                    PerformanceSnapshot.user_id == current_user.user_id,
+                    PerformanceSnapshot.snapshot_date >= start_date,
+                    PerformanceSnapshot.snapshot_date <= end_date,
+                )
             )
-        ).order_by(PerformanceSnapshot.snapshot_date).all()
-        
+            .order_by(PerformanceSnapshot.snapshot_date)
+            .all()
+        )
+
         if not snapshots:
             raise HTTPException(
-                status_code=404, 
-                detail="No performance data available for the specified period"
+                status_code=404, detail="No performance data available for the specified period"
             )
-        
+
         # Filter snapshots based on frequency
         filtered_snapshots = []
         if frequency == "daily":
@@ -246,53 +263,59 @@ async def get_historical_performance(
             # Add the last snapshot
             if filtered_snapshots and last_snapshot != filtered_snapshots[-1]:
                 filtered_snapshots[-1] = last_snapshot
-        
+
         # Calculate returns for filtered data
         data_points = []
         if filtered_snapshots:
             first_value = float(filtered_snapshots[0].total_value)
             prev_value = first_value
-            
+
             for snapshot in filtered_snapshots:
                 current_value = float(snapshot.total_value)
                 cumulative_return = 0.0
                 period_return = 0.0
-                
+
                 if first_value > 0:
                     cumulative_return = (current_value - first_value) / first_value
-                
+
                 if prev_value > 0 and snapshot != filtered_snapshots[0]:
                     period_return = (current_value - prev_value) / prev_value
-                
-                data_points.append({
-                    "date": snapshot.snapshot_date.isoformat(),
-                    "portfolio_value": current_value,
-                    "cumulative_return": cumulative_return,
-                    "period_return": period_return,
-                })
-                
+
+                data_points.append(
+                    {
+                        "date": snapshot.snapshot_date.isoformat(),
+                        "portfolio_value": current_value,
+                        "cumulative_return": cumulative_return,
+                        "period_return": period_return,
+                    }
+                )
+
                 prev_value = current_value
-        
+
         # Calculate summary metrics
         metrics = performance_service.calculate_returns_metrics(
             current_user.user_id, start_date, end_date, "custom"
         )
-        
+
         summary = {}
         if metrics:
             summary = {
-                "total_return": float(metrics.percent_change / 100) if metrics.percent_change else 0.0,
-                "annualized_return": float(metrics.annualized_return / 100) if metrics.annualized_return else 0.0,
+                "total_return": (
+                    float(metrics.percent_change / 100) if metrics.percent_change else 0.0
+                ),
+                "annualized_return": (
+                    float(metrics.annualized_return / 100) if metrics.annualized_return else 0.0
+                ),
                 "max_drawdown": float(metrics.max_drawdown / 100) if metrics.max_drawdown else 0.0,
                 "volatility": float(metrics.volatility / 100) if metrics.volatility else 0.0,
                 "sharpe_ratio": metrics.sharpe_ratio or 0.0,
             }
-        
+
         return {
             "data": data_points,
             "summary": summary,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -308,28 +331,28 @@ async def update_benchmark_config(
 ):
     """
     Update or configure custom benchmark for performance comparison
-    
+
     Allows users to set a custom benchmark symbol for portfolio comparison.
     """
     try:
         # Rate limiting
         portfolio_rate_limiter.check_rate_limit(current_user.user_id)
-        
+
         # Validate request data
         benchmark_type = benchmark_data.get("benchmark_type", "custom")
         symbol = benchmark_data.get("symbol")
         name = benchmark_data.get("name", "")
         allocation = benchmark_data.get("allocation", 1.0)
-        
+
         if not symbol:
             raise HTTPException(status_code=400, detail="Benchmark symbol is required")
-        
+
         if allocation < 0 or allocation > 1:
             raise HTTPException(status_code=400, detail="Allocation must be between 0 and 1")
-        
+
         # Initialize benchmark service
         benchmark_service = BenchmarkService(db)
-        
+
         # Validate benchmark symbol
         try:
             is_valid = benchmark_service.validate_symbol(symbol)
@@ -338,12 +361,12 @@ async def update_benchmark_config(
         except Exception as e:
             logger.warning(f"Failed to validate benchmark symbol: {e}")
             # Continue anyway - symbol validation is not critical
-        
+
         # Update user's benchmark configuration
         user = db.query(User).filter(User.user_id == current_user.user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        
+
         # Store benchmark config in user preferences (or a separate table)
         # For now, we'll store it in a simple format
         # In production, this would be a separate BenchmarkConfig table
@@ -354,18 +377,18 @@ async def update_benchmark_config(
             "allocation": allocation,
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
-        
+
         # Here you would typically save to database
         # db.add(BenchmarkConfig(...))
         # db.commit()
-        
+
         logger.info(f"Updated benchmark config for user {current_user.user_id}: {symbol}")
-        
+
         return {
             "message": "Benchmark updated successfully",
             "benchmark": benchmark_config,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:

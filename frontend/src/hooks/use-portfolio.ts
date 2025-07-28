@@ -496,7 +496,11 @@ export function usePerformanceDashboardMetrics(timeframe = 'ytd', benchmark?: st
   });
 }
 
-export function useHistoricalPerformanceData(startDate?: string, endDate?: string, interval = 'daily') {
+export function useHistoricalPerformanceData(
+  startDate?: string,
+  endDate?: string,
+  interval = 'daily'
+) {
   return useQuery({
     queryKey: ['historical-performance-data', startDate, endDate, interval],
     queryFn: async () => {

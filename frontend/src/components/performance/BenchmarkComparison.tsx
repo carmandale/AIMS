@@ -60,15 +60,24 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
 
   const getTimeframeLabel = (timeframe: string) => {
     switch (timeframe) {
-      case 'daily': return '1D';
-      case 'weekly': return '1W';
-      case 'monthly': return '1M';
-      case 'ytd': return 'YTD';
-      case '1y': return '1Y';
-      case '3y': return '3Y';
-      case '5y': return '5Y';
-      case 'all': return 'All Time';
-      default: return timeframe.toUpperCase();
+      case 'daily':
+        return '1D';
+      case 'weekly':
+        return '1W';
+      case 'monthly':
+        return '1M';
+      case 'ytd':
+        return 'YTD';
+      case '1y':
+        return '1Y';
+      case '3y':
+        return '3Y';
+      case '5y':
+        return '5Y';
+      case 'all':
+        return 'All Time';
+      default:
+        return timeframe.toUpperCase();
     }
   };
 
@@ -86,18 +95,24 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
 
   const getBenchmarkName = (symbol: string) => {
     switch (symbol) {
-      case 'SPY': return 'S&P 500';
-      case 'QQQ': return 'NASDAQ-100';
-      case 'VTI': return 'Total Stock Market';
-      case 'IWM': return 'Russell 2000';
-      case 'BTC': return 'Bitcoin';
-      default: return symbol;
+      case 'SPY':
+        return 'S&P 500';
+      case 'QQQ':
+        return 'NASDAQ-100';
+      case 'VTI':
+        return 'Total Stock Market';
+      case 'IWM':
+        return 'Russell 2000';
+      case 'BTC':
+        return 'Bitcoin';
+      default:
+        return symbol;
     }
   };
 
   const getPerformanceInsight = () => {
     const absRelativePerf = Math.abs(relative_performance);
-    
+
     if (absRelativePerf < 0.5) {
       return {
         type: 'neutral',
@@ -158,9 +173,7 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
               <Target className="w-6 h-6 text-purple-400" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-white">
-                Benchmark Comparison
-              </h3>
+              <h3 className="text-xl font-semibold text-white">Benchmark Comparison</h3>
               <p className="text-slate-400">
                 vs {getBenchmarkName(benchmark_symbol)} • {getTimeframeLabel(timeframe)}
               </p>
@@ -168,8 +181,12 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            <RelativeIcon className={`w-6 h-6 ${outperformed ? 'text-emerald-400' : 'text-red-400'}`} />
-            <span className={`text-lg font-bold ${outperformed ? 'text-emerald-400' : 'text-red-400'}`}>
+            <RelativeIcon
+              className={`w-6 h-6 ${outperformed ? 'text-emerald-400' : 'text-red-400'}`}
+            />
+            <span
+              className={`text-lg font-bold ${outperformed ? 'text-emerald-400' : 'text-red-400'}`}
+            >
               {formatValue(relative_performance, 'percent')}
             </span>
           </div>
@@ -199,9 +216,7 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
               <p className={`text-2xl font-bold ${getPerformanceColor(portfolioReturn)}`}>
                 {formatValue(portfolioReturn, 'percent')}
               </p>
-              <p className="text-xs text-slate-400">
-                {getTimeframeLabel(timeframe)} Return
-              </p>
+              <p className="text-xs text-slate-400">{getTimeframeLabel(timeframe)} Return</p>
             </div>
           </motion.div>
 
@@ -225,9 +240,7 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
               <p className={`text-2xl font-bold ${getPerformanceColor(benchmark_return)}`}>
                 {formatValue(benchmark_return, 'percent')}
               </p>
-              <p className="text-xs text-slate-400">
-                Benchmark Return
-              </p>
+              <p className="text-xs text-slate-400">Benchmark Return</p>
             </div>
           </motion.div>
 
@@ -237,19 +250,21 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
             className={`rounded-xl p-4 border ${
-              outperformed 
-                ? 'bg-emerald-500/10 border-emerald-500/30' 
+              outperformed
+                ? 'bg-emerald-500/10 border-emerald-500/30'
                 : 'bg-red-500/10 border-red-500/30'
             }`}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
-                <div className={`p-2 rounded-lg ${
-                  outperformed ? 'bg-emerald-500/20' : 'bg-red-500/20'
-                }`}>
-                  <RelativeIcon className={`w-4 h-4 ${
-                    outperformed ? 'text-emerald-400' : 'text-red-400'
-                  }`} />
+                <div
+                  className={`p-2 rounded-lg ${
+                    outperformed ? 'bg-emerald-500/20' : 'bg-red-500/20'
+                  }`}
+                >
+                  <RelativeIcon
+                    className={`w-4 h-4 ${outperformed ? 'text-emerald-400' : 'text-red-400'}`}
+                  />
                 </div>
                 <span className="text-sm font-medium text-slate-300">
                   {outperformed ? 'Outperformance' : 'Underperformance'}
@@ -257,14 +272,15 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
               </div>
             </div>
             <div className="space-y-1">
-              <p className={`text-2xl font-bold ${
-                outperformed ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-                {outperformed ? '+' : ''}{formatValue(relative_performance, 'percent')}
+              <p
+                className={`text-2xl font-bold ${
+                  outperformed ? 'text-emerald-400' : 'text-red-400'
+                }`}
+              >
+                {outperformed ? '+' : ''}
+                {formatValue(relative_performance, 'percent')}
               </p>
-              <p className="text-xs text-slate-400">
-                Relative to {benchmark_symbol}
-              </p>
+              <p className="text-xs text-slate-400">Relative to {benchmark_symbol}</p>
             </div>
           </motion.div>
         </div>
@@ -277,22 +293,24 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
           className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30"
         >
           <div className="flex items-start space-x-3">
-            <div className={`p-2 rounded-lg ${
-              insight.type === 'excellent' ? 'bg-emerald-500/10' :
-              insight.type === 'good' ? 'bg-emerald-500/10' :
-              insight.type === 'neutral' ? 'bg-blue-500/10' :
-              insight.type === 'caution' ? 'bg-yellow-500/10' :
-              'bg-red-500/10'
-            }`}>
+            <div
+              className={`p-2 rounded-lg ${
+                insight.type === 'excellent'
+                  ? 'bg-emerald-500/10'
+                  : insight.type === 'good'
+                    ? 'bg-emerald-500/10'
+                    : insight.type === 'neutral'
+                      ? 'bg-blue-500/10'
+                      : insight.type === 'caution'
+                        ? 'bg-yellow-500/10'
+                        : 'bg-red-500/10'
+              }`}
+            >
               <InsightIcon className={`w-5 h-5 ${insight.color}`} />
             </div>
             <div className="flex-1">
-              <h4 className="text-sm font-medium text-white mb-1">
-                Performance Insight
-              </h4>
-              <p className="text-sm text-slate-300">
-                {insight.message}
-              </p>
+              <h4 className="text-sm font-medium text-white mb-1">Performance Insight</h4>
+              <p className="text-sm text-slate-300">{insight.message}</p>
             </div>
           </div>
         </motion.div>
@@ -317,9 +335,11 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
               <div className="border-t border-slate-600/50 pt-2">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-400">Alpha</span>
-                  <span className={`text-sm font-semibold ${
-                    outperformed ? 'text-emerald-400' : 'text-red-400'
-                  }`}>
+                  <span
+                    className={`text-sm font-semibold ${
+                      outperformed ? 'text-emerald-400' : 'text-red-400'
+                    }`}
+                  >
                     {formatValue(relative_performance, 'percent')}
                   </span>
                 </div>
@@ -344,9 +364,11 @@ export const BenchmarkComparison: React.FC<BenchmarkComparisonProps> = ({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-400">Status</span>
-                <span className={`text-sm font-medium ${
-                  outperformed ? 'text-emerald-400' : 'text-red-400'
-                }`}>
+                <span
+                  className={`text-sm font-medium ${
+                    outperformed ? 'text-emerald-400' : 'text-red-400'
+                  }`}
+                >
                   {outperformed ? 'Outperforming' : 'Underperforming'}
                 </span>
               </div>

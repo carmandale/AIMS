@@ -88,31 +88,26 @@ const MetricCard: React.FC<MetricCardProps> = ({
         <div className={`p-3 ${iconBg} rounded-xl`}>
           <Icon className={`w-6 h-6 ${color}`} />
         </div>
-        {TrendIcon && (
-          <TrendIcon className={`w-6 h-6 ${getTrendColor()}`} />
-        )}
+        {TrendIcon && <TrendIcon className={`w-6 h-6 ${getTrendColor()}`} />}
       </div>
 
       <div className="space-y-2">
         <p className="text-sm font-medium text-slate-400">{title}</p>
         <p className={`text-2xl font-bold ${color}`}>{value}</p>
-        
+
         {change && (
           <div className="flex items-center space-x-2">
-            <span className={`text-sm font-medium ${getTrendColor()}`}>
-              {change}
-            </span>
+            <span className={`text-sm font-medium ${getTrendColor()}`}>{change}</span>
             {changePercent !== undefined && (
               <span className={`text-xs ${getTrendColor()}`}>
-                ({changePercent >= 0 ? '+' : ''}{changePercent.toFixed(2)}%)
+                ({changePercent >= 0 ? '+' : ''}
+                {changePercent.toFixed(2)}%)
               </span>
             )}
           </div>
         )}
 
-        {subtitle && (
-          <p className="text-xs text-slate-500">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
       </div>
     </motion.div>
   );
@@ -139,15 +134,24 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({
 
   const getTimeframeLabel = (timeframe: string) => {
     switch (timeframe) {
-      case 'daily': return '1D';
-      case 'weekly': return '1W';
-      case 'monthly': return '1M';
-      case 'ytd': return 'YTD';
-      case '1y': return '1Y';
-      case '3y': return '3Y';
-      case '5y': return '5Y';
-      case 'all': return 'All Time';
-      default: return timeframe.toUpperCase();
+      case 'daily':
+        return '1D';
+      case 'weekly':
+        return '1W';
+      case 'monthly':
+        return '1M';
+      case 'ytd':
+        return 'YTD';
+      case '1y':
+        return '1Y';
+      case '3y':
+        return '3Y';
+      case '5y':
+        return '5Y';
+      case 'all':
+        return 'All Time';
+      default:
+        return timeframe.toUpperCase();
     }
   };
 
@@ -171,23 +175,17 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className={`${className}`}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`${className}`}>
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <BarChart3 className="w-6 h-6 text-blue-400" />
-          <h2 className="text-xl font-semibold text-white">
-            Performance Metrics
-          </h2>
+          <h2 className="text-xl font-semibold text-white">Performance Metrics</h2>
           <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-sm font-medium rounded-full">
             {getTimeframeLabel(timeframe)}
           </span>
         </div>
-        
+
         {metrics.last_updated && (
           <div className="flex items-center space-x-2 text-slate-400 text-sm">
             <Calendar className="w-4 h-4" />
@@ -263,7 +261,11 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({
           color="text-red-400"
           iconBg="bg-red-500/10"
           isLoading={isLoading}
-          subtitle={metrics.max_drawdown_date ? new Date(metrics.max_drawdown_date).toLocaleDateString() : undefined}
+          subtitle={
+            metrics.max_drawdown_date
+              ? new Date(metrics.max_drawdown_date).toLocaleDateString()
+              : undefined
+          }
         />
 
         <MetricCard
@@ -282,7 +284,11 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({
           value={formatPercent(getTimeframeReturn(metrics, timeframe))}
           change={formatCurrency(getTimeframeChange(metrics, timeframe))}
           icon={BarChart3}
-          color={getTrend(getTimeframeReturn(metrics, timeframe)) === 'up' ? 'text-emerald-400' : 'text-red-400'}
+          color={
+            getTrend(getTimeframeReturn(metrics, timeframe)) === 'up'
+              ? 'text-emerald-400'
+              : 'text-red-400'
+          }
           iconBg="bg-orange-500/10"
           isLoading={isLoading}
           trend={getTrend(getTimeframeReturn(metrics, timeframe))}
@@ -297,16 +303,23 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({
           className="mt-6 p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl"
         >
           <div className="flex items-center space-x-3">
-            <Target className={`w-5 h-5 ${
-              metrics.benchmark_comparison.outperformed ? 'text-emerald-400' : 'text-red-400'
-            }`} />
+            <Target
+              className={`w-5 h-5 ${
+                metrics.benchmark_comparison.outperformed ? 'text-emerald-400' : 'text-red-400'
+              }`}
+            />
             <div className="flex-1">
               <p className="text-sm font-medium text-slate-300">
-                {metrics.benchmark_comparison.outperformed ? 'Outperformed' : 'Underperformed'} {metrics.benchmark_comparison.benchmark_symbol}
+                {metrics.benchmark_comparison.outperformed ? 'Outperformed' : 'Underperformed'}{' '}
+                {metrics.benchmark_comparison.benchmark_symbol}
               </p>
               <p className="text-xs text-slate-400">
-                Portfolio: {formatPercent(metrics.benchmark_comparison.benchmark_return + metrics.benchmark_comparison.relative_performance)} | 
-                Benchmark: {formatPercent(metrics.benchmark_comparison.benchmark_return)} | 
+                Portfolio:{' '}
+                {formatPercent(
+                  metrics.benchmark_comparison.benchmark_return +
+                    metrics.benchmark_comparison.relative_performance
+                )}{' '}
+                | Benchmark: {formatPercent(metrics.benchmark_comparison.benchmark_return)} |
                 Difference: {formatPercent(metrics.benchmark_comparison.relative_performance)}
               </p>
             </div>
@@ -320,20 +333,30 @@ export const MetricsOverview: React.FC<MetricsOverviewProps> = ({
 // Helper functions to get timeframe-specific returns
 function getTimeframeReturn(metrics: PerformanceDashboardMetrics, timeframe: string): number {
   switch (timeframe) {
-    case 'daily': return metrics.daily_change_percent;
-    case 'weekly': return metrics.weekly_change_percent;
-    case 'monthly': return metrics.monthly_change_percent;
-    case 'ytd': return metrics.ytd_change_percent;
-    default: return metrics.percent_change;
+    case 'daily':
+      return metrics.daily_change_percent;
+    case 'weekly':
+      return metrics.weekly_change_percent;
+    case 'monthly':
+      return metrics.monthly_change_percent;
+    case 'ytd':
+      return metrics.ytd_change_percent;
+    default:
+      return metrics.percent_change;
   }
 }
 
 function getTimeframeChange(metrics: PerformanceDashboardMetrics, timeframe: string): number {
   switch (timeframe) {
-    case 'daily': return metrics.daily_change;
-    case 'weekly': return metrics.weekly_change;
-    case 'monthly': return metrics.monthly_change;
-    case 'ytd': return metrics.ytd_change;
-    default: return metrics.absolute_change;
+    case 'daily':
+      return metrics.daily_change;
+    case 'weekly':
+      return metrics.weekly_change;
+    case 'monthly':
+      return metrics.monthly_change;
+    case 'ytd':
+      return metrics.ytd_change;
+    default:
+      return metrics.absolute_change;
   }
 }

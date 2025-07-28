@@ -1,6 +1,6 @@
 /**
  * @fileoverview Test specifications for PerformanceDashboard component
- * 
+ *
  * This file contains comprehensive test cases for the PerformanceDashboard component.
  * When a testing framework (Jest, Vitest, etc.) is configured, these specifications
  * should be implemented as actual test cases.
@@ -11,7 +11,7 @@ import { PerformanceDashboard } from '../PerformanceDashboard';
 
 /**
  * Test Suite: PerformanceDashboard Component
- * 
+ *
  * This component serves as the main dashboard for portfolio performance analytics,
  * integrating metrics overview, performance charts, and benchmark comparisons.
  */

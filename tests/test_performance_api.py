@@ -3,6 +3,7 @@
 import json
 from datetime import datetime, date, timedelta
 from decimal import Decimal
+
 # Removed unused mock imports
 
 import pytest
@@ -22,7 +23,7 @@ class TestPerformanceAPI:
         """Create test client with database override"""
         from src.api.main import app
         from src.db.session import get_db
-        
+
         app.dependency_overrides[get_db] = override_get_db
         client = TestClient(app)
         yield client
@@ -46,9 +47,7 @@ class TestPerformanceAPI:
         """Get authentication headers for test user"""
         from src.api.auth import create_access_token
 
-        token = create_access_token(
-            data={"sub": test_user.user_id, "email": test_user.email}
-        )
+        token = create_access_token(data={"sub": test_user.user_id, "email": test_user.email})
         return {"Authorization": f"Bearer {token}"}
 
     @pytest.fixture
@@ -66,7 +65,7 @@ class TestPerformanceAPI:
             # Calculate daily P&L (mock values)
             daily_pnl = value * daily_change if i > 0 else 0
             daily_pnl_percent = daily_change * 100 if i > 0 else 0
-            
+
             snapshot = PerformanceSnapshot(
                 user_id=test_user.user_id,
                 snapshot_date=snapshot_date,
@@ -86,10 +85,7 @@ class TestPerformanceAPI:
         self, client: TestClient, auth_headers: dict, performance_snapshots: list
     ):
         """Test successful retrieval of performance metrics"""
-        response = client.get(
-            "/api/performance/metrics?period=1M",
-            headers=auth_headers
-        )
+        response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -124,8 +120,7 @@ class TestPerformanceAPI:
     ):
         """Test performance metrics with benchmark comparison"""
         response = client.get(
-            "/api/performance/metrics?period=1M&benchmark=SPY",
-            headers=auth_headers
+            "/api/performance/metrics?period=1M&benchmark=SPY", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -138,14 +133,9 @@ class TestPerformanceAPI:
         assert "volatility" in benchmark
         assert "sharpe_ratio" in benchmark
 
-    def test_get_performance_metrics_invalid_period(
-        self, client: TestClient, auth_headers: dict
-    ):
+    def test_get_performance_metrics_invalid_period(self, client: TestClient, auth_headers: dict):
         """Test performance metrics with invalid period"""
-        response = client.get(
-            "/api/performance/metrics?period=INVALID",
-            headers=auth_headers
-        )
+        response = client.get("/api/performance/metrics?period=INVALID", headers=auth_headers)
 
         assert response.status_code == 400
         assert "Invalid period" in response.json()["detail"]
@@ -165,7 +155,7 @@ class TestPerformanceAPI:
 
         response = client.get(
             f"/api/performance/historical?start_date={start_date}&end_date={end_date}",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -200,23 +190,21 @@ class TestPerformanceAPI:
         # Test weekly frequency
         response = client.get(
             f"/api/performance/historical?start_date={start_date}&end_date={end_date}&frequency=weekly",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
         data = response.json()
-        
+
         # Weekly data should have fewer points than daily
         assert len(data["data"]) < 30
 
-    def test_get_historical_performance_invalid_dates(
-        self, client: TestClient, auth_headers: dict
-    ):
+    def test_get_historical_performance_invalid_dates(self, client: TestClient, auth_headers: dict):
         """Test historical performance with invalid date range"""
         # End date before start date
         response = client.get(
             "/api/performance/historical?start_date=2025-01-01&end_date=2024-01-01",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 400
@@ -230,13 +218,11 @@ class TestPerformanceAPI:
             "benchmark_type": "custom",
             "symbol": "VTI",
             "name": "Total Stock Market Index",
-            "allocation": 1.0
+            "allocation": 1.0,
         }
 
         response = client.post(
-            "/api/performance/benchmark",
-            headers=auth_headers,
-            json=benchmark_data
+            "/api/performance/benchmark", headers=auth_headers, json=benchmark_data
         )
 
         assert response.status_code == 200
@@ -244,27 +230,23 @@ class TestPerformanceAPI:
 
         assert data["message"] == "Benchmark updated successfully"
         assert "benchmark" in data
-        
+
         benchmark = data["benchmark"]
         assert benchmark["symbol"] == "VTI"
         assert benchmark["name"] == "Total Stock Market Index"
         assert benchmark["allocation"] == 1.0
 
-    def test_update_benchmark_config_invalid_symbol(
-        self, client: TestClient, auth_headers: dict
-    ):
+    def test_update_benchmark_config_invalid_symbol(self, client: TestClient, auth_headers: dict):
         """Test benchmark update with invalid symbol"""
         benchmark_data = {
             "benchmark_type": "custom",
             "symbol": "INVALID_SYMBOL_123",
             "name": "Invalid Benchmark",
-            "allocation": 1.0
+            "allocation": 1.0,
         }
 
         response = client.post(
-            "/api/performance/benchmark",
-            headers=auth_headers,
-            json=benchmark_data
+            "/api/performance/benchmark", headers=auth_headers, json=benchmark_data
         )
 
         # The endpoint currently allows invalid symbols with a warning
@@ -280,41 +262,29 @@ class TestPerformanceAPI:
             "benchmark_type": "custom",
             "symbol": "SPY",
             "name": "S&P 500",
-            "allocation": 1.5  # Invalid: > 1.0
+            "allocation": 1.5,  # Invalid: > 1.0
         }
 
         response = client.post(
-            "/api/performance/benchmark",
-            headers=auth_headers,
-            json=benchmark_data
+            "/api/performance/benchmark", headers=auth_headers, json=benchmark_data
         )
 
         assert response.status_code == 400
         assert "Allocation must be between 0 and 1" in response.json()["detail"]
 
-    def test_performance_calculation_error(
-        self, client: TestClient, auth_headers: dict
-    ):
+    def test_performance_calculation_error(self, client: TestClient, auth_headers: dict):
         """Test handling of performance calculation errors"""
         # Test with a period that will cause no data to be found
-        response = client.get(
-            "/api/performance/metrics?period=1M",
-            headers=auth_headers
-        )
+        response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
 
         # Without snapshots, it should return 404
         assert response.status_code == 404
         assert "No performance data available" in response.json()["detail"]
 
-    def test_performance_metrics_no_data(
-        self, client: TestClient, auth_headers: dict
-    ):
+    def test_performance_metrics_no_data(self, client: TestClient, auth_headers: dict):
         """Test performance metrics when no data is available"""
         # Don't create any snapshots
-        response = client.get(
-            "/api/performance/metrics?period=1M",
-            headers=auth_headers
-        )
+        response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
 
         assert response.status_code == 404
         assert "No performance data available" in response.json()["detail"]
@@ -326,10 +296,7 @@ class TestPerformanceAPI:
         periods = ["1D", "7D", "1M", "3M", "6M", "1Y", "YTD", "ALL"]
 
         for period in periods:
-            response = client.get(
-                f"/api/performance/metrics?period={period}",
-                headers=auth_headers
-            )
+            response = client.get(f"/api/performance/metrics?period={period}", headers=auth_headers)
 
             assert response.status_code == 200, f"Failed for period: {period}"
             data = response.json()
@@ -341,10 +308,7 @@ class TestPerformanceAPI:
         """Test rate limiting on performance endpoints"""
         # Make many requests quickly
         for _ in range(35):  # Exceed the 30 requests per minute limit
-            response = client.get(
-                "/api/performance/metrics?period=1M",
-                headers=auth_headers
-            )
+            response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
 
         # The last request should be rate limited
         assert response.status_code == 429

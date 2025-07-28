@@ -1,6 +1,6 @@
 /**
  * @fileoverview Test specifications for PerformanceChart component
- * 
+ *
  * This file contains comprehensive test cases for the PerformanceChart component.
  * When a testing framework (Jest, Vitest, etc.) is configured, these specifications
  * should be implemented as actual test cases.
@@ -12,7 +12,7 @@ import { HistoricalPerformanceData } from '../../../hooks/use-portfolio';
 
 /**
  * Test Suite: PerformanceChart Component
- * 
+ *
  * This component renders interactive charts showing portfolio performance over time,
  * with options for different chart types, view modes, and benchmark comparisons.
  */
@@ -327,7 +327,7 @@ export const mockHistoricalData: HistoricalPerformanceData[] = [
   {
     date: '2024-01-03',
     portfolio_value: 605000,
-    daily_return: 0.50,
+    daily_return: 0.5,
     cumulative_return: 0.83,
     benchmark_value: 4825,
     benchmark_return: 0.52,
@@ -336,7 +336,7 @@ export const mockHistoricalData: HistoricalPerformanceData[] = [
     date: '2024-01-04',
     portfolio_value: 603000,
     daily_return: -0.33,
-    cumulative_return: 0.50,
+    cumulative_return: 0.5,
     benchmark_value: 4815,
     benchmark_return: 0.31,
   },
@@ -379,26 +379,25 @@ export const mockVolatileData: HistoricalPerformanceData[] = [
     date: '2024-01-05',
     portfolio_value: 570000,
     daily_return: -6.56,
-    cumulative_return: -5.00,
+    cumulative_return: -5.0,
   },
 ];
 
-export const mockLongTermData: HistoricalPerformanceData[] = 
-  Array.from({ length: 365 }, (_, i) => {
-    const date = new Date('2024-01-01');
-    date.setDate(date.getDate() + i);
-    const randomReturn = (Math.random() - 0.5) * 4; // Random daily return between -2% and +2%
-    const cumulativeReturn = i === 0 ? 0 : randomReturn * 0.1; // Simplified cumulative calculation
-    
-    return {
-      date: date.toISOString().split('T')[0],
-      portfolio_value: 600000 * (1 + cumulativeReturn / 100),
-      daily_return: randomReturn,
-      cumulative_return: cumulativeReturn,
-      benchmark_value: 4800 * (1 + (cumulativeReturn * 0.8) / 100),
-      benchmark_return: randomReturn * 0.8,
-    };
-  });
+export const mockLongTermData: HistoricalPerformanceData[] = Array.from({ length: 365 }, (_, i) => {
+  const date = new Date('2024-01-01');
+  date.setDate(date.getDate() + i);
+  const randomReturn = (Math.random() - 0.5) * 4; // Random daily return between -2% and +2%
+  const cumulativeReturn = i === 0 ? 0 : randomReturn * 0.1; // Simplified cumulative calculation
+
+  return {
+    date: date.toISOString().split('T')[0],
+    portfolio_value: 600000 * (1 + cumulativeReturn / 100),
+    daily_return: randomReturn,
+    cumulative_return: cumulativeReturn,
+    benchmark_value: 4800 * (1 + (cumulativeReturn * 0.8) / 100),
+    benchmark_return: randomReturn * 0.8,
+  };
+});
 
 /**
  * Test Utilities
@@ -411,16 +410,16 @@ export const createMockChartData = (
 ): HistoricalPerformanceData[] => {
   const startValue = 600000;
   const startDate = new Date('2024-01-01');
-  
+
   return Array.from({ length: dataPoints }, (_, i) => {
     const date = new Date(startDate);
     date.setDate(date.getDate() + i);
-    
+
     const randomChange = (Math.random() - 0.5) * volatility * 2;
     const trendChange = trend * (i / dataPoints);
     const dailyReturn = randomChange + trendChange;
-    const cumulativeReturn = i === 0 ? 0 : dailyReturn + (i * 0.05); // Simplified
-    
+    const cumulativeReturn = i === 0 ? 0 : dailyReturn + i * 0.05; // Simplified
+
     return {
       date: date.toISOString().split('T')[0],
       portfolio_value: startValue * (1 + cumulativeReturn / 100),
@@ -434,19 +433,22 @@ export const createMockChartData = (
 
 export const calculateExpectedStats = (data: HistoricalPerformanceData[]) => {
   if (data.length === 0) return null;
-  
+
   const returns = data.map(d => d.daily_return).filter(r => r !== 0);
-  const totalReturn = ((data[data.length - 1].portfolio_value - data[0].portfolio_value) / data[0].portfolio_value) * 100;
+  const totalReturn =
+    ((data[data.length - 1].portfolio_value - data[0].portfolio_value) / data[0].portfolio_value) *
+    100;
   const positiveReturns = returns.filter(r => r > 0).length;
   const winRate = (positiveReturns / returns.length) * 100;
   const bestDay = Math.max(...returns);
   const worstDay = Math.min(...returns);
-  
+
   // Simplified volatility calculation
   const mean = returns.reduce((sum, r) => sum + r, 0) / returns.length;
-  const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
+  const variance =
+    returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
   const volatility = Math.sqrt(variance) * Math.sqrt(252); // Annualized
-  
+
   return {
     totalReturn,
     volatility,

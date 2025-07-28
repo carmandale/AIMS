@@ -1,6 +1,6 @@
 /**
  * @fileoverview Test index for Performance Dashboard components
- * 
+ *
  * This file exports all test specifications and utilities for the performance
  * dashboard components. When a testing framework is configured, this provides
  * a central entry point for all performance-related tests.
@@ -14,7 +14,7 @@ export * from './BenchmarkComparison.test';
 
 /**
  * Comprehensive Test Suite Runner
- * 
+ *
  * This would be used to run all performance dashboard tests when
  * a testing framework is implemented.
  */
@@ -49,21 +49,21 @@ export const runAllPerformanceTests = () => {
 
 /**
  * Test Configuration Recommendations
- * 
+ *
  * When setting up testing framework, consider these configurations:
  */
 export const testingRecommendations = {
   framework: 'Vitest', // Recommended for Vite projects
   testingLibrary: '@testing-library/react',
   mockingLibrary: 'vi', // or 'jest'
-  
+
   additionalPackages: [
     '@testing-library/jest-dom', // Custom matchers
     '@testing-library/user-event', // User interaction simulation
     'msw', // API mocking
     '@testing-library/react-hooks', // Hook testing
   ],
-  
+
   configuration: {
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
@@ -85,7 +85,7 @@ export const testingRecommendations = {
 
 /**
  * Test Data Management
- * 
+ *
  * Centralized location for managing test data across all performance tests
  */
 export const testDataManager = {
@@ -148,7 +148,7 @@ export const testDataManager = {
 
 /**
  * Component Test Checklist
- * 
+ *
  * Use this checklist to ensure comprehensive test coverage
  */
 export const testChecklist = {
@@ -164,7 +164,7 @@ export const testChecklist = {
     '□ Supports keyboard navigation',
     '□ Meets accessibility guidelines',
   ],
-  
+
   MetricsOverview: [
     '□ Renders all primary metric cards',
     '□ Renders all secondary metric cards',
@@ -177,7 +177,7 @@ export const testChecklist = {
     '□ Handles missing or null metric values',
     '□ Meets color contrast requirements',
   ],
-  
+
   PerformanceChart: [
     '□ Renders line chart as default type',
     '□ Switches between different view modes',
@@ -190,7 +190,7 @@ export const testChecklist = {
     '□ Provides screen reader accessible descriptions',
     '□ Supports keyboard navigation of controls',
   ],
-  
+
   BenchmarkComparison: [
     '□ Renders header with benchmark info',
     '□ Renders all three main comparison cards',
@@ -207,7 +207,7 @@ export const testChecklist = {
 
 /**
  * Manual Testing Scenarios
- * 
+ *
  * These scenarios should be tested manually in addition to automated tests
  */
 export const manualTestingScenarios = [

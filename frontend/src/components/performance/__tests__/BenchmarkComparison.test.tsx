@@ -1,6 +1,6 @@
 /**
  * @fileoverview Test specifications for BenchmarkComparison component
- * 
+ *
  * This file contains comprehensive test cases for the BenchmarkComparison component.
  * When a testing framework (Jest, Vitest, etc.) is configured, these specifications
  * should be implemented as actual test cases.
@@ -11,7 +11,7 @@ import { BenchmarkComparison } from '../BenchmarkComparison';
 
 /**
  * Test Suite: BenchmarkComparison Component
- * 
+ *
  * This component displays detailed comparison between portfolio performance
  * and selected benchmark, including relative performance analysis and insights.
  */

@@ -64,10 +64,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
         {payload.map((entry, index: number) => (
           <div key={index} className="flex items-center justify-between space-x-4">
             <div className="flex items-center space-x-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-slate-400 text-sm">{entry.name}</span>
             </div>
             <span className="text-white font-medium">
@@ -101,7 +98,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
 
   // Process and format data for charts
   const chartData = useMemo(() => {
-    return historicalData.map((item) => ({
+    return historicalData.map(item => ({
       ...item,
       formattedDate: formatDateForTimeframe(item.date, timeframe),
       cumulative_return: item.cumulative_return * 100, // Convert to percentage
@@ -117,10 +114,10 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
     const startValue = chartData[0].portfolio_value;
     const endValue = chartData[chartData.length - 1].portfolio_value;
     const totalReturn = ((endValue - startValue) / startValue) * 100;
-    
+
     const dailyReturns = chartData.map(d => d.daily_return).filter(r => r !== 0);
     const volatility = calculateVolatility(dailyReturns);
-    
+
     const positiveReturns = dailyReturns.filter(r => r > 0).length;
     const winRate = (positiveReturns / dailyReturns.length) * 100;
 
@@ -135,10 +132,14 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
 
   const getChartTypeIcon = (type: ChartType) => {
     switch (type) {
-      case 'line': return BarChart3;
-      case 'area': return TrendingUp;
-      case 'cumulative': return Calendar;
-      default: return BarChart3;
+      case 'line':
+        return BarChart3;
+      case 'area':
+        return TrendingUp;
+      case 'cumulative':
+        return Calendar;
+      default:
+        return BarChart3;
     }
   };
 
@@ -159,16 +160,8 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="formattedDate" 
-              stroke="#9CA3AF"
-              fontSize={12}
-            />
-            <YAxis 
-              stroke="#9CA3AF"
-              fontSize={12}
-              tickFormatter={(value) => `${value}%`}
-            />
+            <XAxis dataKey="formattedDate" stroke="#9CA3AF" fontSize={12} />
+            <YAxis stroke="#9CA3AF" fontSize={12} tickFormatter={value => `${value}%`} />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
@@ -190,27 +183,23 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="formattedDate" 
-              stroke="#9CA3AF"
-              fontSize={12}
-            />
-            <YAxis 
+            <XAxis dataKey="formattedDate" stroke="#9CA3AF" fontSize={12} />
+            <YAxis
               yAxisId="value"
               orientation="left"
               stroke="#9CA3AF"
               fontSize={12}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              tickFormatter={value => `$${(value / 1000).toFixed(0)}k`}
             />
-            <YAxis 
+            <YAxis
               yAxisId="percent"
               orientation="right"
               stroke="#9CA3AF"
               fontSize={12}
-              tickFormatter={(value) => `${value}%`}
+              tickFormatter={value => `${value}%`}
             />
             <Tooltip content={<CustomTooltip />} />
-            
+
             <Line
               yAxisId="value"
               type="monotone"
@@ -230,7 +219,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
               strokeDasharray="5 5"
               name="Cumulative Return %"
             />
-            
+
             {showBenchmark && benchmark && (
               <Line
                 yAxisId="percent"
@@ -254,15 +243,11 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
         <ResponsiveContainer width="100%" height={400}>
           <AreaChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="formattedDate" 
+            <XAxis dataKey="formattedDate" stroke="#9CA3AF" fontSize={12} />
+            <YAxis
               stroke="#9CA3AF"
               fontSize={12}
-            />
-            <YAxis 
-              stroke="#9CA3AF"
-              fontSize={12}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              tickFormatter={value => `$${(value / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
@@ -293,15 +278,11 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
       <ResponsiveContainer width="100%" height={400}>
         <LineChart {...commonProps}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-          <XAxis 
-            dataKey="formattedDate" 
+          <XAxis dataKey="formattedDate" stroke="#9CA3AF" fontSize={12} />
+          <YAxis
             stroke="#9CA3AF"
             fontSize={12}
-          />
-          <YAxis 
-            stroke="#9CA3AF"
-            fontSize={12}
-            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+            tickFormatter={value => `$${(value / 1000).toFixed(0)}k`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Line
@@ -330,7 +311,9 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 ${className}`}>
+      <div
+        className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 ${className}`}
+      >
         <div className="animate-pulse">
           <div className="h-6 bg-slate-700 rounded mb-4 w-1/3"></div>
           <div className="h-96 bg-slate-700 rounded"></div>
@@ -341,7 +324,9 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
 
   if (!chartData.length) {
     return (
-      <div className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 ${className}`}>
+      <div
+        className={`bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 ${className}`}
+      >
         <div className="text-center py-12">
           <BarChart3 className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400">No performance data available for the selected timeframe</p>
@@ -371,7 +356,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
                 { value: 'value', label: 'Value' },
                 { value: 'returns', label: 'Returns' },
                 { value: 'both', label: 'Both' },
-              ].map((mode) => (
+              ].map(mode => (
                 <button
                   key={mode.value}
                   onClick={() => setViewMode(mode.value as ViewMode)}
@@ -392,7 +377,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
                 {[
                   { value: 'line', label: 'Line' },
                   { value: 'area', label: 'Area' },
-                ].map((type) => {
+                ].map(type => {
                   const Icon = getChartTypeIcon(type.value as ChartType);
                   return (
                     <button
@@ -434,44 +419,37 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="text-center">
               <p className="text-xs text-slate-400">Total Return</p>
-              <p className={`text-sm font-semibold ${
-                stats.totalReturn >= 0 ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-                {stats.totalReturn >= 0 ? '+' : ''}{stats.totalReturn.toFixed(2)}%
+              <p
+                className={`text-sm font-semibold ${
+                  stats.totalReturn >= 0 ? 'text-emerald-400' : 'text-red-400'
+                }`}
+              >
+                {stats.totalReturn >= 0 ? '+' : ''}
+                {stats.totalReturn.toFixed(2)}%
               </p>
             </div>
             <div className="text-center">
               <p className="text-xs text-slate-400">Volatility</p>
-              <p className="text-sm font-semibold text-slate-300">
-                {stats.volatility.toFixed(1)}%
-              </p>
+              <p className="text-sm font-semibold text-slate-300">{stats.volatility.toFixed(1)}%</p>
             </div>
             <div className="text-center">
               <p className="text-xs text-slate-400">Win Rate</p>
-              <p className="text-sm font-semibold text-slate-300">
-                {stats.winRate.toFixed(1)}%
-              </p>
+              <p className="text-sm font-semibold text-slate-300">{stats.winRate.toFixed(1)}%</p>
             </div>
             <div className="text-center">
               <p className="text-xs text-slate-400">Best Day</p>
-              <p className="text-sm font-semibold text-emerald-400">
-                +{stats.bestDay.toFixed(2)}%
-              </p>
+              <p className="text-sm font-semibold text-emerald-400">+{stats.bestDay.toFixed(2)}%</p>
             </div>
             <div className="text-center">
               <p className="text-xs text-slate-400">Worst Day</p>
-              <p className="text-sm font-semibold text-red-400">
-                {stats.worstDay.toFixed(2)}%
-              </p>
+              <p className="text-sm font-semibold text-red-400">{stats.worstDay.toFixed(2)}%</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Chart */}
-      <div className="p-6">
-        {renderChart()}
-      </div>
+      <div className="p-6">{renderChart()}</div>
 
       {/* Chart Info */}
       <div className="px-6 py-4 border-t border-slate-700/50">
@@ -490,7 +468,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
 // Helper functions
 function formatDateForTimeframe(dateString: string, timeframe: string): string {
   const date = new Date(dateString);
-  
+
   switch (timeframe) {
     case 'daily':
       return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -511,11 +489,12 @@ function formatDateForTimeframe(dateString: string, timeframe: string): string {
 
 function calculateVolatility(returns: number[]): number {
   if (returns.length < 2) return 0;
-  
+
   const mean = returns.reduce((sum, r) => sum + r, 0) / returns.length;
-  const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
+  const variance =
+    returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
   const dailyVolatility = Math.sqrt(variance);
-  
+
   // Annualize volatility (assuming 252 trading days)
   return dailyVolatility * Math.sqrt(252);
 }

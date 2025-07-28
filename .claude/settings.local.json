@@ -95,7 +95,8 @@
       "Bash(git push:*)",
       "Bash(uv pip compile:*)",
       "Bash(npm run lint)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(black:*)"
     ],
     "deny": []
   }

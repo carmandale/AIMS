@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  BarChart3, 
-  Calendar, 
-  RefreshCw, 
-  Settings, 
+import {
+  BarChart3,
+  Calendar,
+  RefreshCw,
+  Settings,
   Download,
   TrendingUp,
   AlertTriangle,
   ChevronDown,
-  Menu
+  Menu,
 } from 'lucide-react';
 import { MetricsOverview } from './MetricsOverview';
 import { PerformanceChart } from './PerformanceChart';
 import { BenchmarkComparison } from './BenchmarkComparison';
-import { 
-  usePerformanceDashboardMetrics, 
+import {
+  usePerformanceDashboardMetrics,
   useHistoricalPerformanceData,
-  useConfigureBenchmark 
+  useConfigureBenchmark,
 } from '../../hooks/use-portfolio';
 import { useIsMobile } from '../../hooks/use-mobile';
 
@@ -53,7 +53,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
   const [selectedBenchmark, setSelectedBenchmark] = useState<BenchmarkOption>('SPY');
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileControls, setShowMobileControls] = useState(false);
-  
+
   const isMobile = useIsMobile();
 
   // Data hooks
@@ -103,9 +103,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
         <div className="container mx-auto px-6 py-8">
           <div className="text-center py-12">
             <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Performance Data Unavailable
-            </h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Performance Data Unavailable</h2>
             <p className="text-slate-400 mb-6">
               Unable to load performance metrics. Please check your connection and try again.
             </p>
@@ -165,7 +163,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-5 h-5 text-slate-400" />
                   <div className="flex bg-slate-800 rounded-lg p-1">
-                    {timeframeOptions.map((option) => (
+                    {timeframeOptions.map(option => (
                       <button
                         key={option.value}
                         onClick={() => handleTimeframeChange(option.value as TimeframeOption)}
@@ -184,10 +182,10 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
                 {/* Benchmark Selector */}
                 <select
                   value={selectedBenchmark}
-                  onChange={(e) => handleBenchmarkChange(e.target.value as BenchmarkOption)}
+                  onChange={e => handleBenchmarkChange(e.target.value as BenchmarkOption)}
                   className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 min-w-[160px]"
                 >
-                  {benchmarkOptions.map((option) => (
+                  {benchmarkOptions.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -237,7 +235,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
                     Time Period
                   </label>
                   <div className="grid grid-cols-4 gap-2">
-                    {timeframeOptions.map((option) => (
+                    {timeframeOptions.map(option => (
                       <button
                         key={option.value}
                         onClick={() => handleTimeframeChange(option.value as TimeframeOption)}
@@ -255,15 +253,13 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
 
                 {/* Mobile Benchmark Selector */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Benchmark
-                  </label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Benchmark</label>
                   <select
                     value={selectedBenchmark}
-                    onChange={(e) => handleBenchmarkChange(e.target.value as BenchmarkOption)}
+                    onChange={e => handleBenchmarkChange(e.target.value as BenchmarkOption)}
                     className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500"
                   >
-                    {benchmarkOptions.map((option) => (
+                    {benchmarkOptions.map(option => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
@@ -282,9 +278,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
                     <span className="text-sm">Refresh</span>
                   </button>
 
-                  <button
-                    className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
-                  >
+                  <button className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors">
                     <Download className="w-4 h-4" />
                     <span className="text-sm">Export</span>
                   </button>
@@ -336,9 +330,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
         {!isLoading && !performanceMetrics && !error && (
           <div className="text-center py-12">
             <TrendingUp className="w-16 h-16 text-slate-600 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-4">
-              No Performance Data
-            </h2>
+            <h2 className="text-2xl font-bold text-white mb-4">No Performance Data</h2>
             <p className="text-slate-400 mb-6">
               Performance metrics will appear once you have portfolio data.
             </p>

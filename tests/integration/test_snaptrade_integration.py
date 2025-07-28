@@ -188,7 +188,7 @@ class TestAccountConnectionFlow:
         try:
             # Clean up user if exists from previous test runs
             await self.snaptrade_service.delete_user(self.test_user_id)
-            
+
             # Step 1: Register user with SnapTrade
             registration_result = await self.snaptrade_service.register_user(self.test_user_id)
             assert registration_result is not None
@@ -210,7 +210,7 @@ class TestAccountConnectionFlow:
             print(f"   - User registered: {bool(registration_result)}")
             print(f"   - Connection URL generated: {bool(connection_url)}")
             print(f"   - Accounts retrieved: {len(accounts)} accounts")
-            
+
             # Clean up after test
             await self.snaptrade_service.delete_user(self.test_user_id)
 
@@ -360,14 +360,14 @@ class TestBackendIntegration:
     def setup_method(self):
         """Setup for each test method"""
         self.test_user_id = "test_backend_integration_001"
-        
+
         # Create test database session and user
         from src.db.models import User
         from src.db.session import SessionLocal
         from src.api.auth import hash_password
-        
+
         self.db = SessionLocal()
-        
+
         # Create user in database if doesn't exist
         existing_user = self.db.query(User).filter(User.user_id == self.test_user_id).first()
         if not existing_user:
@@ -380,17 +380,18 @@ class TestBackendIntegration:
                     user_id=self.test_user_id,
                     email=test_email,
                     password_hash=hash_password("testpassword"),
-                    is_active=True
+                    is_active=True,
                 )
                 self.db.add(test_user)
                 self.db.commit()
-        
+
         # Create mock user for authentication
         from src.api.auth import CurrentUser, get_current_user
+
         self.mock_user = CurrentUser(user_id=self.test_user_id, email="test@example.com")
         # Override authentication for all tests in this class
         app.dependency_overrides[get_current_user] = lambda: self.mock_user
-    
+
     def teardown_method(self):
         """Clean up after each test"""
         # Clear dependency overrides
@@ -403,7 +404,7 @@ class TestBackendIntegration:
         # Clean up user if exists from previous runs
         snaptrade_service = SnapTradeService()
         asyncio.run(snaptrade_service.delete_user(self.test_user_id))
-        
+
         response = client.post("/api/snaptrade/register", json={"user_id": self.test_user_id})
 
         # Should succeed or return various status codes
@@ -417,7 +418,7 @@ class TestBackendIntegration:
         else:
             # 500 can occur if user exists in SnapTrade but not in our DB
             print("✅ Register endpoint returned error (likely user exists in SnapTrade)")
-            
+
         # Clean up after test
         asyncio.run(snaptrade_service.delete_user(self.test_user_id))
 

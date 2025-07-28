@@ -1,6 +1,6 @@
 /**
  * @fileoverview Test specifications for MetricsOverview component
- * 
+ *
  * This file contains comprehensive test cases for the MetricsOverview component.
  * When a testing framework (Jest, Vitest, etc.) is configured, these specifications
  * should be implemented as actual test cases.
@@ -12,7 +12,7 @@ import { PerformanceDashboardMetrics } from '../../../hooks/use-portfolio';
 
 /**
  * Test Suite: MetricsOverview Component
- * 
+ *
  * This component displays key performance metrics in a card-based layout,
  * providing users with quick insights into their portfolio performance.
  */
@@ -152,7 +152,7 @@ describe.skip('MetricsOverview - Responsive Design', () => {
   /**
    * Test: Should adapt grid layout for different screen sizes
    * - Single column on mobile devices
-   * - Two columns on tablet devices  
+   * - Two columns on tablet devices
    * - Four columns on desktop devices
    */
   it('should use responsive grid layout across screen sizes', () => {
