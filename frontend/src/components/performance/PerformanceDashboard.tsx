@@ -10,15 +10,21 @@ import {
   AlertTriangle,
   ChevronDown,
   Menu,
+  Activity,
 } from 'lucide-react';
 import { MetricsOverview } from './MetricsOverview';
 import { PerformanceChart } from './PerformanceChart';
 import { BenchmarkComparison } from './BenchmarkComparison';
+import { DrawdownMetrics, DrawdownChart, DrawdownTable } from '../drawdown';
 import {
   usePerformanceDashboardMetrics,
   useHistoricalPerformanceData,
   useConfigureBenchmark,
 } from '../../hooks/use-portfolio';
+import {
+  useCurrentDrawdownMetrics,
+  useHistoricalDrawdownData,
+} from '../../hooks/use-drawdown';
 import { useIsMobile } from '../../hooks/use-mobile';
 
 export interface PerformanceDashboardProps {
@@ -77,10 +83,29 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
     'daily'
   );
 
+  // Drawdown data hooks
+  const {
+    data: currentDrawdownMetrics,
+    isLoading: drawdownCurrentLoading,
+    error: drawdownCurrentError,
+  } = useCurrentDrawdownMetrics(selectedBenchmark !== 'none' ? selectedBenchmark : undefined);
+
+  const {
+    data: historicalDrawdownData,
+    isLoading: drawdownHistoricalLoading,
+    error: drawdownHistoricalError,
+  } = useHistoricalDrawdownData(
+    getStartDateForTimeframe(selectedTimeframe),
+    new Date().toISOString().split('T')[0],
+    1.0
+  );
+
   const configureBenchmark = useConfigureBenchmark();
 
   const isLoading = metricsLoading || historicalLoading;
   const error = metricsError || historicalError;
+  
+  // Drawdown loading and error states are handled separately since they're not critical for the main dashboard
 
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
     setSelectedTimeframe(timeframe);
@@ -322,6 +347,67 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
                 comparison={performanceMetrics.benchmark_comparison}
                 timeframe={selectedTimeframe}
               />
+            )}
+
+            {/* Drawdown Analysis Section */}
+            {currentDrawdownMetrics && historicalDrawdownData && (
+              <>
+                {/* Drawdown Metrics */}
+                <DrawdownMetrics
+                  currentDrawdown={currentDrawdownMetrics.current_drawdown}
+                  maxDrawdown={currentDrawdownMetrics.max_drawdown}
+                  benchmarkDrawdown={currentDrawdownMetrics.benchmark_drawdown}
+                  statistics={historicalDrawdownData.statistics}
+                  isLoading={drawdownCurrentLoading}
+                />
+
+                {/* Drawdown Chart */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <BarChart3 className="w-6 h-6 text-red-400" />
+                      <h2 className="text-xl font-semibold text-white">Drawdown History</h2>
+                    </div>
+                    {selectedBenchmark !== 'none' && currentDrawdownMetrics.benchmark_drawdown && (
+                      <span className="text-sm text-slate-400">
+                        vs {currentDrawdownMetrics.benchmark_drawdown.symbol}: {currentDrawdownMetrics.benchmark_drawdown.percentage.toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+
+                  <DrawdownChart
+                    data={historicalDrawdownData.chart_data}
+                    events={historicalDrawdownData.drawdown_events}
+                    isLoading={drawdownHistoricalLoading}
+                  />
+                </motion.div>
+
+                {/* Historical Drawdown Events Table */}
+                {historicalDrawdownData.drawdown_events.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+                  >
+                    <div className="flex items-center space-x-3 mb-6">
+                      <Activity className="w-6 h-6 text-purple-400" />
+                      <h2 className="text-xl font-semibold text-white">Drawdown Events</h2>
+                      <span className="px-3 py-1 bg-purple-500/10 text-purple-400 text-sm font-medium rounded-full">
+                        {historicalDrawdownData.statistics.total_events} events
+                      </span>
+                    </div>
+
+                    <DrawdownTable
+                      events={historicalDrawdownData.drawdown_events}
+                      isLoading={drawdownHistoricalLoading}
+                    />
+                  </motion.div>
+                )}
+              </>
             )}
           </div>
         )}
