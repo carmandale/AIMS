@@ -236,32 +236,34 @@ async def get_historical_performance(
         elif frequency == "weekly":
             # Get last snapshot of each week
             current_week = None
+            last_snapshot = None
             for snapshot in snapshots:
                 week = snapshot.snapshot_date.isocalendar()[1]
                 if week != current_week:
-                    if current_week is not None and filtered_snapshots:
+                    if current_week is not None and filtered_snapshots and last_snapshot:
                         # Replace with last snapshot of the week
                         filtered_snapshots[-1] = last_snapshot
                     filtered_snapshots.append(snapshot)
                     current_week = week
                 last_snapshot = snapshot
             # Add the last snapshot
-            if filtered_snapshots and last_snapshot != filtered_snapshots[-1]:
+            if filtered_snapshots and last_snapshot and last_snapshot != filtered_snapshots[-1]:
                 filtered_snapshots[-1] = last_snapshot
         elif frequency == "monthly":
             # Get last snapshot of each month
             current_month = None
+            last_snapshot = None
             for snapshot in snapshots:
                 month = (snapshot.snapshot_date.year, snapshot.snapshot_date.month)
                 if month != current_month:
-                    if current_month is not None and filtered_snapshots:
+                    if current_month is not None and filtered_snapshots and last_snapshot:
                         # Replace with last snapshot of the month
                         filtered_snapshots[-1] = last_snapshot
                     filtered_snapshots.append(snapshot)
                     current_month = month
                 last_snapshot = snapshot
             # Add the last snapshot
-            if filtered_snapshots and last_snapshot != filtered_snapshots[-1]:
+            if filtered_snapshots and last_snapshot and last_snapshot != filtered_snapshots[-1]:
                 filtered_snapshots[-1] = last_snapshot
 
         # Calculate returns for filtered data
