@@ -92,7 +92,8 @@
       "Bash(gh pr view:*)",
       "Bash(uv pip install:*)",
       "Bash(uv add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(uv pip compile:*)"
     ],
     "deny": []
   }
