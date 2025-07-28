@@ -445,3 +445,85 @@ export function useReports(userId: string, reportType?: string) {
     enabled: !!userId,
   });
 }
+
+// New Performance Dashboard hooks
+
+export interface PerformanceDashboardMetrics {
+  current_value: number;
+  starting_value: number;
+  absolute_change: number;
+  percent_change: number;
+  daily_change: number;
+  daily_change_percent: number;
+  weekly_change: number;
+  weekly_change_percent: number;
+  monthly_change: number;
+  monthly_change_percent: number;
+  ytd_change: number;
+  ytd_change_percent: number;
+  annualized_return: number;
+  volatility: number;
+  sharpe_ratio: number;
+  max_drawdown: number;
+  max_drawdown_date: string;
+  benchmark_comparison?: {
+    benchmark_symbol: string;
+    benchmark_return: number;
+    relative_performance: number;
+    outperformed: boolean;
+  };
+  last_updated: string;
+}
+
+export interface HistoricalPerformanceData {
+  date: string;
+  portfolio_value: number;
+  daily_return: number;
+  cumulative_return: number;
+  benchmark_value?: number;
+  benchmark_return?: number;
+}
+
+export function usePerformanceDashboardMetrics(timeframe = 'ytd', benchmark?: string) {
+  return useQuery({
+    queryKey: ['performance-dashboard-metrics', timeframe, benchmark],
+    queryFn: async () => {
+      const response = await api.performance.getMetrics(timeframe, benchmark);
+      return response.data as PerformanceDashboardMetrics;
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+}
+
+export function useHistoricalPerformanceData(
+  startDate?: string,
+  endDate?: string,
+  interval = 'daily'
+) {
+  return useQuery({
+    queryKey: ['historical-performance-data', startDate, endDate, interval],
+    queryFn: async () => {
+      const response = await api.performance.getHistorical(startDate, endDate, interval);
+      return response.data as HistoricalPerformanceData[];
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !!startDate && !!endDate,
+  });
+}
+
+export function useConfigureBenchmark() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ benchmark, custom_data }: { benchmark: string; custom_data?: any }) => {
+      const response = await api.performance.configureBenchmark(benchmark, custom_data);
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate performance queries to refresh with new benchmark
+      queryClient.invalidateQueries({ queryKey: ['performance-dashboard-metrics'] });
+      queryClient.invalidateQueries({ queryKey: ['historical-performance-data'] });
+    },
+  });
+}

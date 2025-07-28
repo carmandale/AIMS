@@ -151,6 +151,18 @@ export const api = {
       apiClient.get(`/reports/${reportId}/download`, { responseType: 'blob' }),
   },
 
+  // Performance Analytics
+  performance: {
+    getMetrics: (timeframe = 'ytd', benchmark?: string) =>
+      apiClient.get('/performance/metrics', { params: { timeframe, benchmark } }),
+    getHistorical: (startDate?: string, endDate?: string, interval = 'daily') =>
+      apiClient.get('/performance/historical', {
+        params: { start_date: startDate, end_date: endDate, interval },
+      }),
+    configureBenchmark: (benchmark: string, custom_data?: any) =>
+      apiClient.post('/performance/benchmark', { benchmark, custom_data }),
+  },
+
   // SnapTrade Integration
   snaptrade: {
     // User registration

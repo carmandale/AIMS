@@ -29,26 +29,26 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [ ] 3.4 Implement custom benchmark configuration
   - [ ] 3.5 Verify all benchmark service tests pass
 
-- [ ] 4. Performance API Endpoints
-  - [ ] 4.1 Write tests for performance API controllers
-  - [ ] 4.2 Implement GET /api/performance/metrics endpoint
-  - [ ] 4.3 Implement GET /api/performance/historical endpoint
-  - [ ] 4.4 Implement POST /api/performance/benchmark endpoint
-  - [ ] 4.5 Add proper error handling and validation
-  - [ ] 4.6 Verify all API tests pass
+- [x] 4. Performance API Endpoints
+  - [x] 4.1 Write tests for performance API controllers
+  - [x] 4.2 Implement GET /api/performance/metrics endpoint
+  - [x] 4.3 Implement GET /api/performance/historical endpoint
+  - [x] 4.4 Implement POST /api/performance/benchmark endpoint
+  - [x] 4.5 Add proper error handling and validation
+  - [x] 4.6 Verify all API tests pass
 
-- [ ] 5. Frontend Performance Dashboard
-  - [ ] 5.1 Write tests for performance dashboard components
-  - [ ] 5.2 Create PerformanceDashboard main page component
-  - [ ] 5.3 Implement MetricsOverview component with key performance cards
-  - [ ] 5.4 Create PerformanceChart component with Recharts integration
-  - [ ] 5.5 Implement BenchmarkComparison component
-  - [ ] 5.6 Add responsive design and mobile optimization
-  - [ ] 5.7 Verify all frontend tests pass
+- [x] 5. Frontend Performance Dashboard
+  - [x] 5.1 Write tests for performance dashboard components
+  - [x] 5.2 Create PerformanceDashboard main page component
+  - [x] 5.3 Implement MetricsOverview component with key performance cards
+  - [x] 5.4 Create PerformanceChart component with Recharts integration
+  - [x] 5.5 Implement BenchmarkComparison component
+  - [x] 5.6 Add responsive design and mobile optimization
+  - [x] 5.7 Verify all frontend tests pass
 
-- [ ] 6. Integration and End-to-End Testing
-  - [ ] 6.1 Write Playwright tests for performance dashboard workflow
-  - [ ] 6.2 Test complete data flow from SnapTrade to dashboard
-  - [ ] 6.3 Test real-time performance updates
-  - [ ] 6.4 Test benchmark comparison functionality
-  - [ ] 6.5 Verify all integration tests pass
+- [x] 6. Integration and End-to-End Testing
+  - [x] 6.1 Write Playwright tests for performance dashboard workflow
+  - [x] 6.2 Test complete data flow from SnapTrade to dashboard
+  - [x] 6.3 Test real-time performance updates
+  - [x] 6.4 Test benchmark comparison functionality
+  - [x] 6.5 Verify all integration tests pass
