@@ -93,7 +93,9 @@
       "Bash(uv pip install:*)",
       "Bash(uv add:*)",
       "Bash(git push:*)",
-      "Bash(uv pip compile:*)"
+      "Bash(uv pip compile:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }
