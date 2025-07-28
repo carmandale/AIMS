@@ -162,7 +162,7 @@ class PortfolioService:
         for broker_name, fetcher in self.fetchers.items():
             try:
                 positions = await fetcher.fetch_positions()
-                
+
                 # For mock data, we don't save to database to avoid account_id constraint issues
                 # Just add to the results
                 all_positions.extend(positions)
@@ -317,7 +317,7 @@ class PortfolioService:
 
         # For Coinbase, crypto is already in USD
         total_value = total_positions_value + total_cash + total_margin
-        
+
         # Round to 2 decimal places for consistency
         total_value = total_value.quantize(Decimal("0.01"))
         total_positions_value = total_positions_value.quantize(Decimal("0.01"))
@@ -449,10 +449,8 @@ class PortfolioService:
         if not isinstance(total_value, Decimal):
             logger.error(f"total_value is not Decimal: {type(total_value)} = {total_value}")
             total_value = Decimal(str(total_value))
-        
-        overnight_pnl = (total_value * Decimal("0.003")).quantize(
-            Decimal("0.01")
-        )  # 0.3% overnight
+
+        overnight_pnl = (total_value * Decimal("0.003")).quantize(Decimal("0.01"))  # 0.3% overnight
         overnight_pnl_percent = 0.3
 
         # Find volatility alerts (positions with >2% movement)
@@ -482,7 +480,9 @@ class PortfolioService:
                 market_value=Decimal(str(pos["market_value"])),
                 unrealized_pnl=Decimal(str(pos["unrealized_pnl"])),
                 unrealized_pnl_percent=float(pos["unrealized_pnl_percent"]),
-                overnight_change=(Decimal(str(pos["market_value"])) * Decimal("0.003")).quantize(Decimal("0.01")),
+                overnight_change=(Decimal(str(pos["market_value"])) * Decimal("0.003")).quantize(
+                    Decimal("0.01")
+                ),
                 overnight_change_percent=0.3,
             )
             key_positions.append(key_pos)
@@ -530,14 +530,20 @@ class PortfolioService:
 
         if not db_brief:
             from src.data.cache import cache_manager
+
             db_brief = db_models.MorningBrief(
                 date=brief.date.date(),
                 portfolio_value=brief.portfolio_value,
                 overnight_pnl=brief.overnight_pnl,
                 overnight_pnl_percent=brief.overnight_pnl_percent,
                 cash_available=brief.cash_available,
-                volatility_alerts=[cache_manager._convert_decimals(alert.model_dump()) for alert in brief.volatility_alerts],
-                key_positions=[cache_manager._convert_decimals(pos.model_dump()) for pos in brief.key_positions],
+                volatility_alerts=[
+                    cache_manager._convert_decimals(alert.model_dump())
+                    for alert in brief.volatility_alerts
+                ],
+                key_positions=[
+                    cache_manager._convert_decimals(pos.model_dump()) for pos in brief.key_positions
+                ],
                 market_summary=brief.market_summary,
                 recommendations=brief.recommendations,
             )

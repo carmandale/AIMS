@@ -50,10 +50,20 @@ class Position(BaseModel):
     def calculate_metrics(self) -> None:
         """Calculate derived metrics"""
         # Ensure all values are Decimal (defensive programming)
-        quantity = Decimal(str(self.quantity)) if not isinstance(self.quantity, Decimal) else self.quantity
-        current_price = Decimal(str(self.current_price)) if not isinstance(self.current_price, Decimal) else self.current_price
-        cost_basis = Decimal(str(self.cost_basis)) if not isinstance(self.cost_basis, Decimal) else self.cost_basis
-        
+        quantity = (
+            Decimal(str(self.quantity)) if not isinstance(self.quantity, Decimal) else self.quantity
+        )
+        current_price = (
+            Decimal(str(self.current_price))
+            if not isinstance(self.current_price, Decimal)
+            else self.current_price
+        )
+        cost_basis = (
+            Decimal(str(self.cost_basis))
+            if not isinstance(self.cost_basis, Decimal)
+            else self.cost_basis
+        )
+
         self.market_value = quantity * current_price
         self.unrealized_pnl = self.market_value - (quantity * cost_basis)
         if cost_basis > 0:
