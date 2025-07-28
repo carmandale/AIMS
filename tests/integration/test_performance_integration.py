@@ -39,8 +39,9 @@ from src.api.auth import CurrentUser, get_current_user, hash_password
 from src.core.config import settings
 
 
-# Test Database Setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_performance_integration.db"
+# Test Database Setup - Use unique DB per test run
+import uuid
+SQLALCHEMY_DATABASE_URL = f"sqlite:///./test_performance_integration_{uuid.uuid4().hex[:8]}.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -58,6 +59,14 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
+
+
+def pytest_runtest_setup(item):
+    """Ensure clean state before each test"""
+    if "TestPerformance" in item.cls.__name__ if item.cls else "":
+        # Clear all app dependency overrides before each test
+        app.dependency_overrides.clear()
+        app.dependency_overrides[get_db] = override_get_db
 
 
 class TestPerformanceAPIEndpoints:
@@ -101,13 +110,17 @@ class TestPerformanceAPIEndpoints:
         if get_current_user in app.dependency_overrides:
             del app.dependency_overrides[get_current_user]
 
-        # Clean up test data
-        self.db.query(PerformanceSnapshot).filter(
-            PerformanceSnapshot.user_id == self.test_user_id
-        ).delete()
-        self.db.query(User).filter(User.user_id == self.test_user_id).delete()
-        self.db.commit()
-        self.db.close()
+        try:
+            # Clean up test data
+            self.db.query(PerformanceSnapshot).filter(
+                PerformanceSnapshot.user_id == self.test_user_id
+            ).delete()
+            self.db.query(User).filter(User.user_id == self.test_user_id).delete()
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+        finally:
+            self.db.close()
 
     def _create_sample_performance_data(self):
         """Create sample performance snapshots for testing"""
