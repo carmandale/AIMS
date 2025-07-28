@@ -101,7 +101,8 @@
       "Bash(alembic revision:*)",
       "Bash(alembic upgrade:*)",
       "Bash(alembic current:*)",
-      "Bash(alembic stamp:*)"
+      "Bash(alembic stamp:*)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIMS Login Test</title>
+</head>
+<body>
+    <h1>AIMS Login Test</h1>
+    <form id="loginForm">
+        <div>
+            <label>Email:</label>
+            <input type="email" id="email" value="test@example.com" required>
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type="password" id="password" value="testpassword" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.innerHTML = 'Logging in...';
+                
+                const response = await fetch('http://localhost:8002/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3>Login Successful!</h3>
+                        <p>Access Token: ${data.access_token.substring(0, 20)}...</p>
+                        <p>User ID: ${data.user_id}</p>
+                        <p>Expires in: ${data.expires_in} seconds</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<h3>Login Failed</h3><p>Error: ${data.detail}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<h3>Network Error</h3><p>${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

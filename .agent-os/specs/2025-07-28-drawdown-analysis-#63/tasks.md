@@ -21,13 +21,13 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 2.4 Update SQLAlchemy models with new fields
   - [x] 2.5 Verify all database tests pass
 
-- [ ] 3. Frontend Dashboard Implementation
-  - [ ] 3.1 Write tests for DrawdownDashboard component
-  - [ ] 3.2 Create DrawdownChart component with time series visualization
-  - [ ] 3.3 Implement DrawdownMetrics component for key statistics
-  - [ ] 3.4 Build DrawdownTable component for historical data
-  - [ ] 3.5 Add drawdown section to main analytics dashboard
-  - [ ] 3.6 Verify all frontend tests pass
+- [x] 3. Frontend Dashboard Implementation
+  - [x] 3.1 Write tests for DrawdownDashboard component
+  - [x] 3.2 Create DrawdownChart component with time series visualization
+  - [x] 3.3 Implement DrawdownMetrics component for key statistics
+  - [x] 3.4 Build DrawdownTable component for historical data
+  - [x] 3.5 Add drawdown section to main analytics dashboard
+  - [x] 3.6 Verify all frontend tests pass
 
 - [ ] 4. Integration and E2E Testing
   - [ ] 4.1 Write integration tests for complete drawdown workflow
