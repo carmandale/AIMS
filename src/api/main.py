@@ -22,6 +22,7 @@ from src.api.routes import (
     tasks,
     auth,
     snaptrade,
+    performance,
 )
 from src.db import init_db
 from src.services.scheduler import scheduler_service
@@ -115,6 +116,7 @@ app.include_router(snaptrade.router, prefix="/api")
 app.include_router(market.router, prefix="/api")
 app.include_router(morning_brief.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api")
+app.include_router(performance.router, prefix="/api")
 
 # Keep the old insecure portfolio routes for backward compatibility (marked as deprecated)
 app.include_router(portfolio.router, prefix="/api/legacy", deprecated=True)

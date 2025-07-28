@@ -29,13 +29,13 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [ ] 3.4 Implement custom benchmark configuration
   - [ ] 3.5 Verify all benchmark service tests pass
 
-- [ ] 4. Performance API Endpoints
-  - [ ] 4.1 Write tests for performance API controllers
-  - [ ] 4.2 Implement GET /api/performance/metrics endpoint
-  - [ ] 4.3 Implement GET /api/performance/historical endpoint
-  - [ ] 4.4 Implement POST /api/performance/benchmark endpoint
-  - [ ] 4.5 Add proper error handling and validation
-  - [ ] 4.6 Verify all API tests pass
+- [x] 4. Performance API Endpoints
+  - [x] 4.1 Write tests for performance API controllers
+  - [x] 4.2 Implement GET /api/performance/metrics endpoint
+  - [x] 4.3 Implement GET /api/performance/historical endpoint
+  - [x] 4.4 Implement POST /api/performance/benchmark endpoint
+  - [x] 4.5 Add proper error handling and validation
+  - [x] 4.6 Verify all API tests pass
 
 - [ ] 5. Frontend Performance Dashboard
   - [ ] 5.1 Write tests for performance dashboard components
