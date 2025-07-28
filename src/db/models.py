@@ -341,6 +341,11 @@ class PerformanceSnapshot(Base):  # type: ignore
     volatility = Column(Numeric(10, 4), nullable=True)
     sharpe_ratio = Column(Numeric(10, 4), nullable=True)
     max_drawdown = Column(Numeric(10, 4), nullable=True)
+    # New drawdown tracking fields
+    portfolio_high_water_mark = Column(Numeric(20, 2), nullable=True)
+    current_drawdown = Column(Numeric(20, 2), nullable=True)
+    current_drawdown_percent = Column(Numeric(10, 4), nullable=True)
+    days_in_drawdown = Column(Integer, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     # Indexes
@@ -393,3 +398,30 @@ class AssetAllocation(Base):  # type: ignore
 
     # Indexes
     __table_args__ = (Index("idx_allocation_user_date", "user_id", "snapshot_date"),)
+
+
+class DrawdownEvent(Base):  # type: ignore
+    """Drawdown event tracking for historical analysis"""
+
+    __tablename__ = "drawdown_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False, index=True)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=True)
+    peak_value = Column(Numeric(20, 2), nullable=False)
+    trough_value = Column(Numeric(20, 2), nullable=True)
+    recovery_value = Column(Numeric(20, 2), nullable=True)
+    max_drawdown_amount = Column(Numeric(20, 2), nullable=True)
+    max_drawdown_percent = Column(Numeric(10, 4), nullable=True)
+    duration_days = Column(Integer, nullable=True)
+    recovery_days = Column(Integer, nullable=True)
+    is_recovered = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    user = relationship("User")  # type: ignore
+
+    # Indexes
+    __table_args__ = (Index("idx_drawdown_events_user_date", "user_id", "start_date"),)

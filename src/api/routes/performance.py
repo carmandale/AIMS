@@ -2,6 +2,7 @@
 
 import logging
 from datetime import datetime, date, timedelta
+from decimal import Decimal
 from typing import Optional, Dict, Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -13,6 +14,7 @@ from src.db import get_db
 from src.db.models import User, PerformanceSnapshot
 from src.services.performance_analytics import PerformanceAnalyticsService
 from src.services.benchmark_service import BenchmarkService
+from src.services.drawdown_service import DrawdownService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/performance", tags=["performance"])
@@ -395,4 +397,260 @@ async def update_benchmark_config(
         raise
     except Exception as e:
         logger.error(f"Error updating benchmark config: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/drawdown/current", response_model=Dict[str, Any])
+async def get_current_drawdown(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Get current drawdown from peak"""
+    try:
+        # Rate limiting
+        portfolio_rate_limiter.check_rate_limit(current_user.user_id)
+        # Get all performance snapshots for the user
+        snapshots = (
+            db.query(PerformanceSnapshot)
+            .filter(PerformanceSnapshot.user_id == current_user.user_id)
+            .order_by(PerformanceSnapshot.snapshot_date)
+            .all()
+        )
+        
+        # Calculate current drawdown
+        drawdown_service = DrawdownService()
+        result = drawdown_service.calculate_current_drawdown(snapshots)
+        
+        # Convert Decimal to string for JSON serialization
+        return {
+            "current_drawdown_percent": str(result["current_drawdown_percent"]),
+            "current_drawdown_amount": str(result["current_drawdown_amount"]),
+            "peak_value": str(result["peak_value"]),
+            "peak_date": result["peak_date"].isoformat() if result["peak_date"] else None,
+            "current_value": str(result["current_value"]),
+            "current_date": result["current_date"].isoformat() if result["current_date"] else None,
+            "days_in_drawdown": result.get("days_in_drawdown", 0),
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating current drawdown: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/drawdown/historical", response_model=Dict[str, Any])
+async def get_historical_drawdowns(
+    start_date: Optional[date] = Query(None, description="Start date for analysis"),
+    end_date: Optional[date] = Query(None, description="End date for analysis"),
+    threshold: float = Query(5.0, description="Minimum drawdown percentage threshold"),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Get historical drawdown events"""
+    try:
+        # Rate limiting
+        portfolio_rate_limiter.check_rate_limit(current_user.user_id)
+        # Get performance snapshots
+        query = db.query(PerformanceSnapshot).filter(
+            PerformanceSnapshot.user_id == current_user.user_id
+        )
+        
+        if start_date:
+            query = query.filter(PerformanceSnapshot.snapshot_date >= start_date)
+        if end_date:
+            query = query.filter(PerformanceSnapshot.snapshot_date <= end_date)
+            
+        snapshots = query.order_by(PerformanceSnapshot.snapshot_date).all()
+        
+        # Calculate drawdown events
+        drawdown_service = DrawdownService()
+        events = drawdown_service.calculate_drawdown_events(
+            snapshots, 
+            threshold_percent=Decimal(str(threshold))
+        )
+        
+        # Format events for JSON
+        formatted_events = []
+        for event in events:
+            formatted_events.append({
+                "peak_value": str(event["peak_value"]),
+                "peak_date": event["peak_date"].isoformat(),
+                "trough_value": str(event["trough_value"]),
+                "trough_date": event["trough_date"].isoformat(),
+                "max_drawdown_percent": str(event["max_drawdown_percent"]),
+                "drawdown_amount": str(event["drawdown_amount"]),
+                "drawdown_days": event["drawdown_days"],
+                "recovery_days": event["recovery_days"],
+                "is_recovered": event["is_recovered"],
+                "total_days": event["total_days"],
+            })
+        
+        return {"events": formatted_events}
+        
+    except Exception as e:
+        logger.error(f"Error getting historical drawdowns: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/drawdown/analysis", response_model=Dict[str, Any])
+async def get_drawdown_analysis(
+    start_date: Optional[date] = Query(None, description="Start date for analysis"),
+    end_date: Optional[date] = Query(None, description="End date for analysis"),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Get comprehensive drawdown analysis with underwater curve"""
+    try:
+        # Rate limiting
+        portfolio_rate_limiter.check_rate_limit(current_user.user_id)
+        # Get performance snapshots
+        query = db.query(PerformanceSnapshot).filter(
+            PerformanceSnapshot.user_id == current_user.user_id
+        )
+        
+        if start_date:
+            query = query.filter(PerformanceSnapshot.snapshot_date >= start_date)
+        if end_date:
+            query = query.filter(PerformanceSnapshot.snapshot_date <= end_date)
+            
+        snapshots = query.order_by(PerformanceSnapshot.snapshot_date).all()
+        
+        # Get drawdown analysis
+        drawdown_service = DrawdownService()
+        analysis = drawdown_service.get_historical_analysis(
+            snapshots,
+            start_date=datetime.combine(start_date, datetime.min.time()) if start_date else None,
+            end_date=datetime.combine(end_date, datetime.max.time()) if end_date else None,
+        )
+        
+        # Get underwater curve
+        curve = drawdown_service.calculate_underwater_curve(snapshots)
+        
+        # Format curve for JSON
+        formatted_curve = []
+        for point in curve:
+            formatted_curve.append({
+                "date": point["date"].isoformat(),
+                "drawdown_percent": str(point["drawdown_percent"]),
+                "portfolio_value": str(point["portfolio_value"]),
+                "peak_value": str(point["peak_value"]),
+            })
+        
+        return {
+            "total_drawdown_events": analysis["total_drawdown_events"],
+            "max_drawdown_percent": str(analysis["max_drawdown_percent"]),
+            "max_drawdown_amount": str(analysis["max_drawdown_amount"]),
+            "average_drawdown_percent": str(analysis["average_drawdown_percent"]),
+            "average_recovery_days": analysis["average_recovery_days"],
+            "longest_drawdown_days": analysis["longest_drawdown_days"],
+            "current_drawdown_percent": str(analysis["current_drawdown_percent"]),
+            "underwater_curve": formatted_curve,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting drawdown analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/drawdown/alerts", response_model=Dict[str, Any])
+async def get_drawdown_alerts(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Check current drawdown against alert thresholds"""
+    try:
+        # Rate limiting
+        portfolio_rate_limiter.check_rate_limit(current_user.user_id)
+        # Get user's alert preferences (could be stored in user preferences table)
+        # For now, use default thresholds
+        warning_threshold = "15.0"  # Default 15%
+        critical_threshold = "20.0"  # Default 20%
+        
+        # TODO: Get from user preferences when implemented
+        # user_prefs = db.query(UserPreferences).filter_by(user_id=current_user.user_id).first()
+        # if user_prefs:
+        #     warning_threshold = str(user_prefs.drawdown_warning_threshold)
+        #     critical_threshold = str(user_prefs.drawdown_critical_threshold)
+        
+        # Get performance snapshots
+        snapshots = (
+            db.query(PerformanceSnapshot)
+            .filter(PerformanceSnapshot.user_id == current_user.user_id)
+            .order_by(PerformanceSnapshot.snapshot_date)
+            .all()
+        )
+        
+        # Check alerts
+        drawdown_service = DrawdownService()
+        alerts = drawdown_service.check_alert_thresholds(
+            snapshots,
+            warning_threshold=Decimal(warning_threshold),
+            critical_threshold=Decimal(critical_threshold),
+        )
+        
+        # Format alerts for JSON
+        formatted_alerts = []
+        for alert in alerts:
+            formatted_alerts.append({
+                "level": alert["level"],
+                "threshold": str(alert["threshold"]),
+                "current_drawdown": str(alert["current_drawdown"]),
+                "message": alert["message"],
+                "triggered_at": alert["triggered_at"].isoformat(),
+            })
+        
+        return {
+            "alerts": formatted_alerts,
+            "warning_threshold": warning_threshold,
+            "critical_threshold": critical_threshold,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking drawdown alerts: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/drawdown/alerts/config", response_model=Dict[str, Any])
+async def update_alert_config(
+    config: Dict[str, Any],
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """Update drawdown alert thresholds"""
+    try:
+        warning_threshold = float(config.get("warning_threshold", 15.0))
+        critical_threshold = float(config.get("critical_threshold", 20.0))
+        
+        # Validate thresholds
+        if warning_threshold < 0 or critical_threshold < 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Thresholds must be positive"
+            )
+        
+        if warning_threshold >= critical_threshold:
+            raise HTTPException(
+                status_code=400,
+                detail="Warning threshold must be less than critical threshold"
+            )
+        
+        # TODO: Save to user preferences when implemented
+        # user_prefs = db.query(UserPreferences).filter_by(user_id=current_user.user_id).first()
+        # if not user_prefs:
+        #     user_prefs = UserPreferences(user_id=current_user.user_id)
+        #     db.add(user_prefs)
+        # 
+        # user_prefs.drawdown_warning_threshold = warning_threshold
+        # user_prefs.drawdown_critical_threshold = critical_threshold
+        # db.commit()
+        
+        return {
+            "warning_threshold": str(warning_threshold),
+            "critical_threshold": str(critical_threshold),
+            "message": "Alert thresholds updated successfully",
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating alert config: {e}")
         raise HTTPException(status_code=500, detail=str(e))
