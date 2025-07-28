@@ -46,9 +46,9 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 5.6 Add responsive design and mobile optimization
   - [x] 5.7 Verify all frontend tests pass
 
-- [ ] 6. Integration and End-to-End Testing
-  - [ ] 6.1 Write Playwright tests for performance dashboard workflow
-  - [ ] 6.2 Test complete data flow from SnapTrade to dashboard
-  - [ ] 6.3 Test real-time performance updates
-  - [ ] 6.4 Test benchmark comparison functionality
-  - [ ] 6.5 Verify all integration tests pass
+- [x] 6. Integration and End-to-End Testing
+  - [x] 6.1 Write Playwright tests for performance dashboard workflow
+  - [x] 6.2 Test complete data flow from SnapTrade to dashboard
+  - [x] 6.3 Test real-time performance updates
+  - [x] 6.4 Test benchmark comparison functionality
+  - [x] 6.5 Verify all integration tests pass
