@@ -14,12 +14,12 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 1.4 Create /api/analytics/drawdown endpoints (current, historical, analysis)
   - [x] 1.5 Verify all backend tests pass
 
-- [ ] 2. Database Schema Updates
-  - [ ] 2.1 Write tests for drawdown-related database operations
-  - [ ] 2.2 Add drawdown metrics to portfolio_snapshots table
-  - [ ] 2.3 Create database migration for schema changes
-  - [ ] 2.4 Update SQLAlchemy models with new fields
-  - [ ] 2.5 Verify all database tests pass
+- [x] 2. Database Schema Updates
+  - [x] 2.1 Write tests for drawdown-related database operations
+  - [x] 2.2 Add drawdown metrics to portfolio_snapshots table
+  - [x] 2.3 Create database migration for schema changes
+  - [x] 2.4 Update SQLAlchemy models with new fields
+  - [x] 2.5 Verify all database tests pass
 
 - [ ] 3. Frontend Dashboard Implementation
   - [ ] 3.1 Write tests for DrawdownDashboard component
