@@ -688,7 +688,7 @@ class TestDataFlowIntegration:
                 daily_pnl=Decimal(str(portfolio_value * daily_return / 100)),
                 daily_pnl_percent=Decimal(str(daily_return)),
                 weekly_pnl=Decimal("0.0"),
-                weekly_pnl_percent=Decimal("0.0"), 
+                weekly_pnl_percent=Decimal("0.0"),
                 monthly_pnl=Decimal("0.0"),
                 monthly_pnl_percent=Decimal("0.0"),
                 ytd_pnl=Decimal(str(portfolio_value - base_value)),

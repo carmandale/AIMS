@@ -426,8 +426,10 @@ class TestBackendIntegration:
         """Test /api/snaptrade/connect endpoint"""
         try:
             # First register user
-            reg_response = client.post("/api/snaptrade/register", json={"user_id": self.test_user_id})
-            
+            reg_response = client.post(
+                "/api/snaptrade/register", json={"user_id": self.test_user_id}
+            )
+
             # Skip if registration fails due to missing credentials
             if reg_response.status_code == 500:
                 pytest.skip("SnapTrade registration failed - likely missing credentials")
@@ -451,8 +453,10 @@ class TestBackendIntegration:
         """Test /api/snaptrade/accounts endpoint"""
         try:
             # Register user first
-            reg_response = client.post("/api/snaptrade/register", json={"user_id": self.test_user_id})
-            
+            reg_response = client.post(
+                "/api/snaptrade/register", json={"user_id": self.test_user_id}
+            )
+
             # Skip if registration fails due to missing credentials
             if reg_response.status_code == 500:
                 pytest.skip("SnapTrade registration failed - likely missing credentials")
