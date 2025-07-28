@@ -3,31 +3,31 @@
 These are the tasks to be completed for the spec detailed in @.agent-os/specs/2025-07-28-performance-dashboard-#60/spec.md
 
 > Created: 2025-07-28
-> Status: Ready for Implementation
+> Status: ✅ COMPLETED - Merged in PR #62
 
 ## Tasks
 
-- [ ] 1. Database Schema and Models Implementation
-  - [ ] 1.1 Write tests for performance database models
-  - [ ] 1.2 Create database migration for performance tables
-  - [ ] 1.3 Implement SQLAlchemy models for performance_snapshots, benchmark_configs, benchmark_data
-  - [ ] 1.4 Add performance-related columns to users table
-  - [ ] 1.5 Verify all database tests pass
+- [x] 1. Database Schema and Models Implementation
+  - [x] 1.1 Write tests for performance database models
+  - [x] 1.2 Create database migration for performance tables
+  - [x] 1.3 Implement SQLAlchemy models for performance_snapshots, benchmark_configs, benchmark_data
+  - [x] 1.4 Add performance-related columns to users table  
+  - [x] 1.5 Verify all database tests pass
 
-- [ ] 2. Performance Calculation Engine
-  - [ ] 2.1 Write tests for PerformanceCalculator class
-  - [ ] 2.2 Implement time-weighted return calculations
-  - [ ] 2.3 Implement Sharpe ratio and volatility calculations
-  - [ ] 2.4 Implement max drawdown calculation
-  - [ ] 2.5 Add numpy dependency for numerical calculations
-  - [ ] 2.6 Verify all performance calculation tests pass
+- [x] 2. Performance Calculation Engine
+  - [x] 2.1 Write tests for PerformanceCalculator class
+  - [x] 2.2 Implement time-weighted return calculations
+  - [x] 2.3 Implement Sharpe ratio and volatility calculations
+  - [x] 2.4 Implement max drawdown calculation
+  - [x] 2.5 Add numpy dependency for numerical calculations
+  - [x] 2.6 Verify all performance calculation tests pass
 
-- [ ] 3. Benchmark Integration Service
-  - [ ] 3.1 Write tests for BenchmarkService class
-  - [ ] 3.2 Add yfinance dependency for benchmark data
-  - [ ] 3.3 Implement benchmark data fetching and caching
-  - [ ] 3.4 Implement custom benchmark configuration
-  - [ ] 3.5 Verify all benchmark service tests pass
+- [x] 3. Benchmark Integration Service
+  - [x] 3.1 Write tests for BenchmarkService class
+  - [x] 3.2 Add yfinance dependency for benchmark data
+  - [x] 3.3 Implement benchmark data fetching and caching
+  - [x] 3.4 Implement custom benchmark configuration
+  - [x] 3.5 Verify all benchmark service tests pass
 
 - [x] 4. Performance API Endpoints
   - [x] 4.1 Write tests for performance API controllers
