@@ -42,8 +42,8 @@ class PerformanceAnalyticsService:
         first_snapshot = snapshots[0]
         last_snapshot = snapshots[-1]
 
-        starting_value = first_snapshot.total_value
-        ending_value = last_snapshot.total_value
+        starting_value = Decimal(str(first_snapshot.total_value))
+        ending_value = Decimal(str(last_snapshot.total_value))
         absolute_change = ending_value - starting_value
 
         # Calculate percentage change
@@ -402,7 +402,7 @@ class PerformanceAnalyticsService:
                 drawdown = (current_value - running_max) / running_max
                 if drawdown < max_drawdown:
                     max_drawdown = drawdown
-                    max_dd_start = datetime.combine(peak_date, datetime.min.time())
-                    max_dd_end = datetime.combine(current_date, datetime.min.time())
+                    max_dd_start = datetime.combine(peak_date, datetime.min.time())  # type: ignore
+                    max_dd_end = datetime.combine(current_date, datetime.min.time())  # type: ignore
 
         return max_dd_start, max_dd_end
