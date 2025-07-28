@@ -86,7 +86,13 @@
       "Bash(--label \"enhancement,phase-2,analytics\")",
       "Bash(--title \"Implement Performance Dashboard with Returns, Sharpe Ratio, and Volatility Metrics\" )",
       "Bash(--body \"## Overview\nImplement a comprehensive Performance Dashboard as part of Phase 2 roadmap to provide advanced portfolio analytics including returns, risk metrics, and performance visualizations.\n\n## Requirements\n- Portfolio returns calculation (daily, monthly, yearly)\n- Risk metrics including Sharpe ratio and volatility\n- Performance visualizations and charts  \n- Benchmark comparison capabilities\n- Real-time updates from existing portfolio data\n\n## Acceptance Criteria\n- [ ] Display portfolio returns across multiple time periods\n- [ ] Calculate and display Sharpe ratio\n- [ ] Show volatility metrics\n- [ ] Include performance charts/visualizations\n- [ ] Compare performance against benchmarks\n- [ ] Integrate with existing SnapTrade portfolio data\n- [ ] Responsive design matching current UI\n\n## Technical Context\n- Part of Phase 2: Enhanced Analytics\n- Builds on existing portfolio tracking from Phase 1\n- Should leverage existing SQLAlchemy models and FastAPI endpoints\n- Frontend uses React + TypeScript with Recharts for visualizations\n\n## Priority\nHigh - Core feature for Phase 2 completion\n\nRelates to roadmap item: Performance Dashboard - Returns, Sharpe ratio, volatility metrics \\`M\\`\" )",
-      "Bash(--label \"enhancement\")"
+      "Bash(--label \"enhancement\")",
+      "Bash(gh pr create:*)",
+      "Bash(afplay:*)",
+      "Bash(gh pr view:*)",
+      "Bash(uv pip install:*)",
+      "Bash(uv add:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
