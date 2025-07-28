@@ -349,9 +349,17 @@ class TestPerformanceCalculationAccuracy:
                 total_value=Decimal("100000.00"),
                 cash_value=Decimal("10000.00"),
                 positions_value=Decimal("90000.00"),
-                total_return=Decimal("0.0"),
-                daily_return=Decimal("0.0"),
-                num_positions=10,
+                daily_pnl=Decimal("0.0"),
+                daily_pnl_percent=Decimal("0.0"),
+                weekly_pnl=Decimal("0.0"),
+                weekly_pnl_percent=Decimal("0.0"),
+                monthly_pnl=Decimal("0.0"),
+                monthly_pnl_percent=Decimal("0.0"),
+                ytd_pnl=Decimal("0.0"),
+                ytd_pnl_percent=Decimal("0.0"),
+                volatility=Decimal("15.0"),
+                sharpe_ratio=Decimal("1.2"),
+                max_drawdown=Decimal("5.0"),
             ),
             # Day 2: $105,000 (5% gain)
             PerformanceSnapshot(
@@ -360,9 +368,17 @@ class TestPerformanceCalculationAccuracy:
                 total_value=Decimal("105000.00"),
                 cash_value=Decimal("10000.00"),
                 positions_value=Decimal("95000.00"),
-                total_return=Decimal("5.0"),
-                daily_return=Decimal("5.0"),
-                num_positions=10,
+                daily_pnl=Decimal("5000.0"),
+                daily_pnl_percent=Decimal("5.0"),
+                weekly_pnl=Decimal("0.0"),
+                weekly_pnl_percent=Decimal("0.0"),
+                monthly_pnl=Decimal("0.0"),
+                monthly_pnl_percent=Decimal("0.0"),
+                ytd_pnl=Decimal("5000.0"),
+                ytd_pnl_percent=Decimal("5.0"),
+                volatility=Decimal("15.0"),
+                sharpe_ratio=Decimal("1.2"),
+                max_drawdown=Decimal("5.0"),
             ),
             # Day 3: $110,250 (5% gain from previous day)
             PerformanceSnapshot(
@@ -371,9 +387,17 @@ class TestPerformanceCalculationAccuracy:
                 total_value=Decimal("110250.00"),
                 cash_value=Decimal("10000.00"),
                 positions_value=Decimal("100250.00"),
-                total_return=Decimal("10.25"),
-                daily_return=Decimal("5.0"),
-                num_positions=10,
+                daily_pnl=Decimal("5250.0"),
+                daily_pnl_percent=Decimal("5.0"),
+                weekly_pnl=Decimal("0.0"),
+                weekly_pnl_percent=Decimal("0.0"),
+                monthly_pnl=Decimal("0.0"),
+                monthly_pnl_percent=Decimal("0.0"),
+                ytd_pnl=Decimal("10250.0"),
+                ytd_pnl_percent=Decimal("10.25"),
+                volatility=Decimal("15.0"),
+                sharpe_ratio=Decimal("1.2"),
+                max_drawdown=Decimal("5.0"),
             ),
         ]
 
@@ -424,9 +448,17 @@ class TestPerformanceCalculationAccuracy:
                 total_value=Decimal(str(current_value)),
                 cash_value=Decimal("10000.00"),
                 positions_value=Decimal(str(current_value - 10000)),
-                total_return=Decimal(str(total_return)),
-                daily_return=Decimal(str(daily_return * 100)),
-                num_positions=10,
+                daily_pnl=Decimal(str(current_value * daily_return)),
+                daily_pnl_percent=Decimal(str(daily_return * 100)),
+                weekly_pnl=Decimal("0.0"),
+                weekly_pnl_percent=Decimal("0.0"),
+                monthly_pnl=Decimal("0.0"),
+                monthly_pnl_percent=Decimal("0.0"),
+                ytd_pnl=Decimal(str(current_value - base_value)),
+                ytd_pnl_percent=Decimal(str(total_return)),
+                volatility=Decimal("15.0"),
+                sharpe_ratio=Decimal("1.2"),
+                max_drawdown=Decimal("5.0"),
             )
             snapshots.append(snapshot)
 
@@ -464,9 +496,17 @@ class TestPerformanceCalculationAccuracy:
                 total_value=Decimal(str(current_value)),
                 cash_value=Decimal("10000.00"),
                 positions_value=Decimal(str(current_value - 10000)),
-                total_return=Decimal(str(total_return)),
-                daily_return=Decimal(str(daily_return * 100)),
-                num_positions=10,
+                daily_pnl=Decimal(str(current_value * daily_return)),
+                daily_pnl_percent=Decimal(str(daily_return * 100)),
+                weekly_pnl=Decimal("0.0"),
+                weekly_pnl_percent=Decimal("0.0"),
+                monthly_pnl=Decimal("0.0"),
+                monthly_pnl_percent=Decimal("0.0"),
+                ytd_pnl=Decimal(str(current_value - base_value)),
+                ytd_pnl_percent=Decimal(str(total_return)),
+                volatility=Decimal("15.0"),
+                sharpe_ratio=Decimal("1.2"),
+                max_drawdown=Decimal("5.0"),
             )
             self.db.add(snapshot)
 
@@ -502,12 +542,21 @@ class TestBenchmarkIntegration:
     @pytest.mark.asyncio
     async def test_benchmark_data_fetching(self):
         """Test benchmark data fetching with mock data"""
-        with patch.object(self.benchmark_service, "_fetch_yahoo_data") as mock_fetch:
+        with patch.object(self.benchmark_service, "get_benchmark_data") as mock_fetch:
             # Mock successful Yahoo Finance response
             mock_data = {
-                "2024-01-01": 0.01,
-                "2024-01-02": -0.005,
-                "2024-01-03": 0.015,
+                "symbol": "SPY",
+                "total_return": 0.05,
+                "volatility": 0.15,
+                "sharpe_ratio": 0.33,
+                "returns": {
+                    "2024-01-01": 0.01,
+                    "2024-01-02": -0.005,
+                    "2024-01-03": 0.015,
+                },
+                "start_price": 100.0,
+                "end_price": 105.0,
+                "data_points": 3,
             }
             mock_fetch.return_value = mock_data
 
@@ -636,9 +685,17 @@ class TestDataFlowIntegration:
                 total_value=Decimal(str(portfolio_value)),
                 cash_value=Decimal(str(portfolio_value * 0.05)),  # 5% cash
                 positions_value=Decimal(str(portfolio_value * 0.95)),  # 95% positions
-                total_return=Decimal(str(total_return)),
-                daily_return=Decimal(str(daily_return)),
-                num_positions=15 + (days_offset % 10),  # Varying positions
+                daily_pnl=Decimal(str(portfolio_value * daily_return / 100)),
+                daily_pnl_percent=Decimal(str(daily_return)),
+                weekly_pnl=Decimal("0.0"),
+                weekly_pnl_percent=Decimal("0.0"), 
+                monthly_pnl=Decimal("0.0"),
+                monthly_pnl_percent=Decimal("0.0"),
+                ytd_pnl=Decimal(str(portfolio_value - base_value)),
+                ytd_pnl_percent=Decimal(str(total_return)),
+                volatility=Decimal("15.0"),
+                sharpe_ratio=Decimal("1.2"),
+                max_drawdown=Decimal("5.0"),
                 created_at=datetime.utcnow(),
             )
             self.db.add(snapshot)
