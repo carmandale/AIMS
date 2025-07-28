@@ -14,6 +14,7 @@ from src.db.models import CachedData
 
 class DecimalEncoder(json.JSONEncoder):
     """Custom JSON encoder to handle Decimal types"""
+
     def default(self, obj):
         if isinstance(obj, Decimal):
             return float(obj)

@@ -53,83 +53,110 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<AuthLayout />} />
-              
+
               {/* Protected Routes */}
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <AIMSDashboard onNavigate={() => {}} />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/morning-brief" element={
-                <ProtectedRoute>
-                  <div className="container mx-auto py-8">
-                    <MorningBriefCard />
-                  </div>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/income-tracker" element={
-                <ProtectedRoute>
-                  <div className="container mx-auto py-8">
-                    <IncomeGoalTracker />
-                  </div>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/tasks" element={
-                <ProtectedRoute>
-                  <TasksPage />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/trade-ticket" element={
-                <ProtectedRoute>
-                  <div className="container mx-auto py-8">
-                    <TradeTicketForm
-                      onSubmit={ticket => console.log('Trade ticket submitted:', ticket)}
-                      onCancel={() => console.log('Trade ticket cancelled')}
-                    />
-                  </div>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/snaptrade/register" element={
-                <ProtectedRoute>
-                  <div className="container mx-auto py-8">
-                    <SnapTradeRegistration
-                      onConnectionReady={url => window.open(url, '_blank')}
-                    />
-                  </div>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/snaptrade/connect" element={
-                <ProtectedRoute>
-                  <div className="container mx-auto py-8">
-                    <AccountConnectionFlow />
-                  </div>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/snaptrade/accounts" element={
-                <ProtectedRoute>
-                  <div className="container mx-auto py-8">
-                    <ConnectedAccountsList />
-                  </div>
-                </ProtectedRoute>
-              } />
-              
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AIMSDashboard onNavigate={() => {}} />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/morning-brief"
+                element={
+                  <ProtectedRoute>
+                    <div className="container mx-auto py-8">
+                      <MorningBriefCard />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/income-tracker"
+                element={
+                  <ProtectedRoute>
+                    <div className="container mx-auto py-8">
+                      <IncomeGoalTracker />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedRoute>
+                    <TasksPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/trade-ticket"
+                element={
+                  <ProtectedRoute>
+                    <div className="container mx-auto py-8">
+                      <TradeTicketForm
+                        onSubmit={ticket => console.log('Trade ticket submitted:', ticket)}
+                        onCancel={() => console.log('Trade ticket cancelled')}
+                      />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/snaptrade/register"
+                element={
+                  <ProtectedRoute>
+                    <div className="container mx-auto py-8">
+                      <SnapTradeRegistration
+                        onConnectionReady={url => window.open(url, '_blank')}
+                      />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/snaptrade/connect"
+                element={
+                  <ProtectedRoute>
+                    <div className="container mx-auto py-8">
+                      <AccountConnectionFlow />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/snaptrade/accounts"
+                element={
+                  <ProtectedRoute>
+                    <div className="container mx-auto py-8">
+                      <ConnectedAccountsList />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Catch all - redirect to home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            
+
             <Toaster theme={theme} richColors />
           </div>
         </Router>
