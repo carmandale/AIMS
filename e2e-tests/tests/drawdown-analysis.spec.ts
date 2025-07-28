@@ -15,8 +15,8 @@ test.describe('Drawdown Analysis Dashboard', () => {
     }
     
     // Navigate to Performance Analytics from home page
-    await page.waitForSelector('button:has-text("Performance Analytics")', { timeout: 10000 });
-    await page.click('button:has-text("Performance Analytics")');
+    await page.waitForSelector('h2:has-text("Performance Analytics")', { timeout: 10000 });
+    await page.click('button:has(h2:has-text("Performance Analytics"))');
     await page.waitForLoadState('networkidle');
   });
 
@@ -211,8 +211,8 @@ test.describe('Drawdown Analysis - Alert System', () => {
     }
     
     // Navigate to Performance Analytics
-    await page.waitForSelector('button:has-text("Performance Analytics")', { timeout: 10000 });
-    await page.click('button:has-text("Performance Analytics")');
+    await page.waitForSelector('h2:has-text("Performance Analytics")', { timeout: 10000 });
+    await page.click('button:has(h2:has-text("Performance Analytics"))');
     await page.waitForLoadState('networkidle');
   });
   
@@ -270,8 +270,8 @@ test.describe('Drawdown Analysis - Performance', () => {
     const startTime = Date.now();
     
     // Navigate to Performance Analytics
-    await page.waitForSelector('button:has-text("Performance Analytics")', { timeout: 10000 });
-    await page.click('button:has-text("Performance Analytics")');
+    await page.waitForSelector('h2:has-text("Performance Analytics")', { timeout: 10000 });
+    await page.click('button:has(h2:has-text("Performance Analytics"))');
     
     // Wait for main content to be visible
     await page.waitForSelector('h1:has-text("Performance Dashboard")', { timeout: 5000 });
@@ -285,8 +285,8 @@ test.describe('Drawdown Analysis - Performance', () => {
 
   test('should handle rapid interactions without errors', async ({ page }) => {
     // Navigate to Performance Analytics
-    await page.waitForSelector('button:has-text("Performance Analytics")', { timeout: 10000 });
-    await page.click('button:has-text("Performance Analytics")');
+    await page.waitForSelector('h2:has-text("Performance Analytics")', { timeout: 10000 });
+    await page.click('button:has(h2:has-text("Performance Analytics"))');
     await page.waitForLoadState('networkidle');
     
     // Wait for page to be ready

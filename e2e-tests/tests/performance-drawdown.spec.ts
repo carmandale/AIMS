@@ -17,7 +17,7 @@ test.describe('Performance Dashboard - Drawdown Analysis', () => {
     await page.waitForSelector('h1:has-text("AIMS")', { timeout: 10000 });
     
     // Navigate to Performance Analytics
-    await page.click('button:has-text("Performance Analytics")');
+    await page.click('button:has(h2:has-text("Performance Analytics"))');
     await page.waitForLoadState('networkidle');
   });
 
