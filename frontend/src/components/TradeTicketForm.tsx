@@ -221,7 +221,17 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
           {/* Input Fields */}
           <section className="space-y-4 mb-6">
             <div>
-              <label className="block text-slate-300 text-sm font-medium mb-2">Amount</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-slate-300 text-sm font-medium">Amount</label>
+                <button
+                  onClick={handleOpenCalculator}
+                  className="flex items-center space-x-1 px-2 py-1 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
+                  title="Open Position Size Calculator"
+                >
+                  <Calculator className="w-3 h-3" />
+                  <span>Calculate</span>
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type="text"
