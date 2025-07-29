@@ -309,6 +309,17 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
           </footer>
         </div>
       </motion.div>
+
+      {/* Position Size Calculator Modal */}
+      <PositionSizeCalculator
+        isOpen={isCalculatorOpen}
+        onClose={handleCloseCalculator}
+        onCopyToTrade={handleCopyFromCalculator}
+        initialData={{
+          symbol: symbol,
+          entry_price: orderMode === 'market' ? currentQuote?.price || 0 : parseFloat(price) || 0,
+        }}
+      />
     </div>
   );
 };
