@@ -34,6 +34,15 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
   const { data: quotes } = useMarketQuotes([symbol]);
   const currentQuote = quotes?.[symbol];
 
+  // Mock account limits (in real app, this would come from account API)
+  const accountLimits: AccountLimits = {
+    accountValue: 100000,
+    availableCash: 25000,
+    buyingPower: 50000,
+    maxPositionSize: 10000, // $10k max per position
+    maxRiskPerTrade: 0.02, // 2% max risk per trade
+  };
+
   // Check blocking tasks status
   const { data: blockingStatus } = useQuery({
     queryKey: ['blocking-status'],
