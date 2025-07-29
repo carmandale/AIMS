@@ -111,6 +111,19 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
     }
   }, [orderMode, price, currentQuote]);
 
+  // Validate trade when amount or price changes
+  useEffect(() => {
+    const amountNum = parseFloat(amount) || 0;
+    const priceNum = orderMode === 'market' ? currentQuote?.price || 0 : parseFloat(price) || 0;
+
+    if (amountNum > 0 && priceNum > 0) {
+      const validation = validateTradeSize(amountNum, priceNum, accountLimits, symbol);
+      setValidationResult(validation);
+    } else {
+      setValidationResult(null);
+    }
+  }, [amount, price, orderMode, currentQuote, accountLimits, symbol]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 flex items-center justify-center">
       <motion.div
