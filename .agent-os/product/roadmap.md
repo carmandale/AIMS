@@ -53,8 +53,8 @@ The following features have been implemented:
 ### Must-Have Features
 
 - [x] Performance Dashboard - Returns, Sharpe ratio, volatility metrics `M` ✓ PR #62
-- [ ] Drawdown Analysis - Real-time and historical drawdown tracking `S`
-- [ ] Monthly Reports - Automated PDF generation with performance summary `M`
+- [x] Drawdown Analysis - Real-time and historical drawdown tracking `S` ✓ Completed
+- [x] Monthly Reports - Automated PDF generation with performance summary `M` ✓ PR #67
 - [ ] Position Sizing Calculator - Risk-based position sizing tools `S`
 
 ### Should-Have Features
@@ -79,6 +79,25 @@ The following features have been implemented:
 - ✅ Mobile-optimized UI with Tailwind CSS v4
 - ✅ Comprehensive testing (Integration, E2E, and Component tests)
 - ✅ Real-time data updates and timeframe selection
+
+**Monthly Reports Implementation:**
+- ✅ Complete MonthlyReportService with WeasyPrint PDF generation
+- ✅ 7 RESTful API endpoints for report management (CRUD operations)
+- ✅ Integration with DrawdownService and PerformanceAnalyticsService  
+- ✅ Professional HTML/CSS templates with performance metrics, portfolio overview, risk analysis
+- ✅ Mock WeasyPrint implementation for testing environments
+- ✅ Comprehensive API and service test suites
+- ✅ Authentication, rate limiting, and error handling
+- ✅ File management and email framework integration
+
+**Drawdown Analysis Implementation:**
+- ✅ DrawdownService with comprehensive calculation methods (current, historical, events)
+- ✅ Complete API endpoints (`/api/performance/drawdown/*`) with rate limiting
+- ✅ CachedDrawdownService with 5-minute TTL for performance optimization
+- ✅ Database indexes for optimized query performance
+- ✅ Frontend components (DrawdownChart, DrawdownMetrics, DrawdownTable)
+- ✅ Real-time alerts with configurable thresholds
+- ✅ Comprehensive API documentation and performance testing
 
 ## Phase 3: Trading Automation (2 weeks)
 

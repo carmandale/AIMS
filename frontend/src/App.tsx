@@ -17,6 +17,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from './components/auth/AuthProvider';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuthLayout from './components/auth/AuthLayout';
+import { PerformanceDashboard } from './components/performance/PerformanceDashboard';
 
 const theme: Theme = 'dark';
 const container: Container = 'none';
@@ -44,7 +45,8 @@ type ComponentType =
   | 'snaptrade-register'
   | 'snaptrade-connect'
   | 'snaptrade-accounts'
-  | 'login';
+  | 'login'
+  | 'performance';
 
 function App() {
   // Check URL for routing
@@ -151,6 +153,12 @@ function App() {
                 console.log('Account disconnected:', accountId);
               }}
             />
+          </ProtectedRoute>
+        );
+      case 'performance':
+        return (
+          <ProtectedRoute>
+            <PerformanceDashboard />
           </ProtectedRoute>
         );
       default:

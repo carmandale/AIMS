@@ -14,6 +14,11 @@ AIMS is a modular Python-backed platform with a lightweight web dashboard design
 
 Success is measured by achieving $10k/month net income within three months while limiting drawdowns < 20%.
 
+### Phase 2 Features (In Progress)
+1. **Performance Analytics Dashboard** - Comprehensive performance metrics with benchmark comparison
+2. **Drawdown Analysis** - Real-time and historical drawdown tracking with alerts
+3. **Monthly Reports** - Automated PDF generation with performance summaries
+
 ## Tech Stack
 
 - **Backend**: FastAPI (Python 3.12+) with uv package manager
@@ -131,6 +136,8 @@ Once the application is running, you can access:
 - Interactive API docs: `http://localhost:8000/docs`
 - Alternative API docs: `http://localhost:8000/redoc`
 - Health check: `http://localhost:8000/api/health`
+
+For detailed API documentation including all endpoints, authentication, and examples, see [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md).
 
 ## Project Structure
 

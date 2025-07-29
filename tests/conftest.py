@@ -96,3 +96,16 @@ def override_get_db(test_db_session):
         yield test_db_session
 
     return _get_test_db
+
+
+@pytest.fixture
+def client(override_get_db):
+    """Create test client with database override"""
+    from fastapi.testclient import TestClient
+    from src.api.main import app
+    from src.db.session import get_db
+
+    app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+    yield client
+    app.dependency_overrides.clear()

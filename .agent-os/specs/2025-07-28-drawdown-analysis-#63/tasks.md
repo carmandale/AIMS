@@ -21,24 +21,24 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 2.4 Update SQLAlchemy models with new fields
   - [x] 2.5 Verify all database tests pass
 
-- [ ] 3. Frontend Dashboard Implementation
-  - [ ] 3.1 Write tests for DrawdownDashboard component
-  - [ ] 3.2 Create DrawdownChart component with time series visualization
-  - [ ] 3.3 Implement DrawdownMetrics component for key statistics
-  - [ ] 3.4 Build DrawdownTable component for historical data
-  - [ ] 3.5 Add drawdown section to main analytics dashboard
-  - [ ] 3.6 Verify all frontend tests pass
+- [x] 3. Frontend Dashboard Implementation
+  - [x] 3.1 Write tests for DrawdownDashboard component
+  - [x] 3.2 Create DrawdownChart component with time series visualization
+  - [x] 3.3 Implement DrawdownMetrics component for key statistics
+  - [x] 3.4 Build DrawdownTable component for historical data
+  - [x] 3.5 Add drawdown section to main analytics dashboard
+  - [x] 3.6 Verify all frontend tests pass
 
-- [ ] 4. Integration and E2E Testing
-  - [ ] 4.1 Write integration tests for complete drawdown workflow
-  - [ ] 4.2 Create Playwright E2E tests for drawdown dashboard
-  - [ ] 4.3 Test API integration with frontend components
-  - [ ] 4.4 Verify real-time updates and data consistency
-  - [ ] 4.5 Verify all integration and E2E tests pass
+- [x] 4. Integration and E2E Testing
+  - [x] 4.1 Write integration tests for complete drawdown workflow
+  - [x] 4.2 Create Playwright E2E tests for drawdown dashboard
+  - [x] 4.3 Test API integration with frontend components
+  - [x] 4.4 Verify real-time updates and data consistency
+  - [x] 4.5 Verify all integration and E2E tests pass
 
-- [ ] 5. Performance Optimization and Documentation
-  - [ ] 5.1 Write tests for performance optimizations
-  - [ ] 5.2 Implement caching for expensive drawdown calculations
-  - [ ] 5.3 Add database indexes for query optimization
-  - [ ] 5.4 Update API documentation with new endpoints
-  - [ ] 5.5 Verify all performance tests pass and documentation is complete
+- [x] 5. Performance Optimization and Documentation
+  - [x] 5.1 Write tests for performance optimizations
+  - [x] 5.2 Implement caching for expensive drawdown calculations
+  - [x] 5.3 Add database indexes for query optimization
+  - [x] 5.4 Update API documentation with new endpoints
+  - [x] 5.5 Verify all performance tests pass and documentation is complete

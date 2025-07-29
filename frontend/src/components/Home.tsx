@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Calendar, Target, CheckSquare, TrendingUp, Link } from 'lucide-react';
+import { Activity, Calendar, Target, CheckSquare, TrendingUp, Link, BarChart3 } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (component: string) => void;
@@ -34,6 +34,13 @@ const navigationItems = [
     description: 'Manage your weekly tasks and track productivity',
     icon: CheckSquare,
     color: 'from-orange-600 to-red-600',
+  },
+  {
+    id: 'performance',
+    title: 'Performance Analytics',
+    description: 'Detailed performance metrics with drawdown analysis',
+    icon: BarChart3,
+    color: 'from-emerald-600 to-teal-600',
   },
   {
     id: 'trade-ticket',
