@@ -106,7 +106,9 @@
       "Bash(timeout 30 npm test -- --grep \"should display Performance Dashboard with drawdown sections\" --workers=1)",
       "Bash(cd:*)",
       "Bash(gh pr:*)",
-      "Bash(uv remove:*)"
+      "Bash(uv remove:*)",
+      "Bash(/opt/homebrew/bin/python3 -m alembic revision:*)",
+      "Bash(ruff check:*)"
     ],
     "deny": []
   }
