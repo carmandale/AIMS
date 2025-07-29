@@ -372,7 +372,7 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
             disabled={
               !amount || 
               (orderMode === 'limit' && !price) || 
-              (validationResult && !validationResult.isValid)
+              (validationResult ? !validationResult.isValid : false)
             }
             className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-200 shadow-lg ${
               orderType === 'buy'
