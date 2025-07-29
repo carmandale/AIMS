@@ -29,12 +29,12 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 3.5 Add drawdown section to main analytics dashboard
   - [x] 3.6 Verify all frontend tests pass
 
-- [ ] 4. Integration and E2E Testing
-  - [ ] 4.1 Write integration tests for complete drawdown workflow
-  - [ ] 4.2 Create Playwright E2E tests for drawdown dashboard
-  - [ ] 4.3 Test API integration with frontend components
-  - [ ] 4.4 Verify real-time updates and data consistency
-  - [ ] 4.5 Verify all integration and E2E tests pass
+- [x] 4. Integration and E2E Testing
+  - [x] 4.1 Write integration tests for complete drawdown workflow
+  - [x] 4.2 Create Playwright E2E tests for drawdown dashboard
+  - [x] 4.3 Test API integration with frontend components
+  - [x] 4.4 Verify real-time updates and data consistency
+  - [x] 4.5 Verify all integration and E2E tests pass
 
 - [ ] 5. Performance Optimization and Documentation
   - [ ] 5.1 Write tests for performance optimizations
