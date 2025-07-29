@@ -16,6 +16,7 @@ import { api } from '../lib/api-client';
 import { toast } from 'sonner';
 import { PositionSizeCalculator } from './position-sizing/PositionSizeCalculator';
 import type { PositionSizeCalculationResult } from '../types/position-sizing';
+import { validateTradeSize, type AccountLimits, type TradeValidationResult } from '../lib/utils';
 
 interface TradeTicketFormProps {
   symbol?: string;
