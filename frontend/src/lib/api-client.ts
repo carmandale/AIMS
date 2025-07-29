@@ -191,6 +191,35 @@ export const api = {
     // User deletion
     deleteUser: () => apiClient.delete('/snaptrade/user'),
   },
+
+  // Position Sizing Calculator
+  positionSizing: {
+    // Calculate position size based on method and parameters
+    calculate: (params: {
+      method: 'fixed_risk' | 'kelly' | 'volatility_based';
+      account_value: number;
+      risk_percentage?: number;
+      entry_price?: number;
+      stop_loss?: number;
+      target_price?: number;
+      win_rate?: number;
+      avg_win_loss_ratio?: number;
+      confidence_level?: number;
+      atr?: number;
+      atr_multiplier?: number;
+    }) => apiClient.post('/position-sizing/calculate', params),
+
+    // Get available position sizing methods and their requirements
+    getMethods: () => apiClient.get('/position-sizing/methods'),
+
+    // Validate position size against portfolio rules
+    validate: (params: {
+      symbol: string;
+      position_size: number;
+      entry_price: number;
+      account_id: number;
+    }) => apiClient.post('/position-sizing/validate', params),
+  },
 };
 
 export default apiClient;
