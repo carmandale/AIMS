@@ -35,13 +35,13 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 3.7 Add copy-to-trade functionality
   - [x] 3.8 Verify all component tests pass
 
-- [ ] 4. Integrate Calculator with Trade Ticket Builder
-  - [ ] 4.1 Write integration tests for trade ticket flow
-  - [ ] 4.2 Add calculator button to trade ticket UI
-  - [ ] 4.3 Implement data passing from trade ticket to calculator
-  - [ ] 4.4 Add position size transfer back to trade ticket
-  - [ ] 4.5 Update trade validation to check calculated sizes
-  - [ ] 4.6 Verify all integration tests pass
+- [x] 4. Integrate Calculator with Trade Ticket Builder
+  - [x] 4.1 Write integration tests for trade ticket flow
+  - [x] 4.2 Add calculator button to trade ticket UI
+  - [x] 4.3 Implement data passing from trade ticket to calculator
+  - [x] 4.4 Add position size transfer back to trade ticket
+  - [x] 4.5 Update trade validation to check calculated sizes
+  - [x] 4.6 Verify all integration tests pass
 
 - [ ] 5. End-to-End Testing and Documentation
   - [ ] 5.1 Write Playwright tests for complete user flows
