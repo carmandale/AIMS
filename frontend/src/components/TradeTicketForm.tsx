@@ -14,6 +14,8 @@ import { useMarketQuotes } from '../hooks';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
+import { PositionSizeCalculator } from './position-sizing/PositionSizeCalculator';
+import type { PositionSizeCalculationResult } from '../types/position-sizing';
 
 interface TradeTicketFormProps {
   symbol?: string;
