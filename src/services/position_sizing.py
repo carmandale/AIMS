@@ -213,7 +213,7 @@ class PositionSizingService:
             position_value = position_size * entry_price  # Recalculate based on whole shares
 
         # Calculate stop loss percentage if provided
-        stop_loss_percentage = 0
+        stop_loss_percentage = 0.0
         if entry_price and stop_loss and stop_loss < entry_price:
             stop_loss_percentage = (entry_price - stop_loss) / entry_price
 
@@ -255,7 +255,14 @@ class PositionSizingService:
         stop_loss = entry_price - stop_distance
 
         # Use fixed risk calculation with ATR-based stop
-        return self._calculate_fixed_risk(account_value, risk_percentage, entry_price, stop_loss)
+        result = self._calculate_fixed_risk(account_value, risk_percentage, entry_price, stop_loss)
+
+        # Update metadata to reflect volatility-based method
+        result.metadata["method_used"] = "volatility_based"
+        result.metadata["atr"] = atr
+        result.metadata["atr_multiplier"] = atr_multiplier
+
+        return result
 
     def get_available_methods(self) -> list[dict[str, Any]]:
         """Get list of available position sizing methods with their requirements"""

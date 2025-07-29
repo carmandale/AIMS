@@ -16,14 +16,14 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 1.6 Add validation and constraint checking
   - [x] 1.7 Verify all calculation tests pass
 
-- [ ] 2. Create API Endpoints for Position Sizing
-  - [ ] 2.1 Write integration tests for position sizing endpoints
-  - [ ] 2.2 Create api/position_sizing.py router
-  - [ ] 2.3 Implement POST /api/position-sizing/calculate endpoint
-  - [ ] 2.4 Implement GET /api/position-sizing/methods endpoint
-  - [ ] 2.5 Implement POST /api/position-sizing/validate endpoint
-  - [ ] 2.6 Add rate limiting and error handling
-  - [ ] 2.7 Verify all API tests pass
+- [x] 2. Create API Endpoints for Position Sizing
+  - [x] 2.1 Write integration tests for position sizing endpoints
+  - [x] 2.2 Create api/position_sizing.py router
+  - [x] 2.3 Implement POST /api/position-sizing/calculate endpoint
+  - [x] 2.4 Implement GET /api/position-sizing/methods endpoint
+  - [x] 2.5 Implement POST /api/position-sizing/validate endpoint
+  - [x] 2.6 Add rate limiting and error handling
+  - [x] 2.7 Verify all API tests pass
 
 - [ ] 3. Build Position Sizing Calculator UI Component
   - [ ] 3.1 Write component tests for PositionSizeCalculator
