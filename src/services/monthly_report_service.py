@@ -11,14 +11,7 @@ import statistics
 
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, extract
-try:
-    from weasyprint import HTML, CSS
-    WEASYPRINT_AVAILABLE = True
-except (ImportError, OSError):
-    # WeasyPrint not available - use mock implementation for testing
-    from .mock_weasyprint import HTML, CSS
-    WEASYPRINT_AVAILABLE = False
-
+from playwright.sync_api import sync_playwright
 from jinja2 import Template
 
 from src.db.models import PerformanceSnapshot, Report
@@ -439,10 +432,10 @@ class MonthlyReportService:
         }
 
     def _generate_pdf(self, report_data: Dict[str, Any]) -> Path:
-        """Generate PDF from report data"""
+        """Generate PDF from report data using Playwright"""
         
-        # Generate HTML content
-        html_content = self._get_report_template_html(report_data)
+        # Generate HTML content with embedded CSS
+        html_content = self._get_complete_html_document(report_data)
         
         # Create filename
         report_month = report_data["report_month"].replace(" ", "_").lower()
@@ -451,26 +444,55 @@ class MonthlyReportService:
         filename = f"monthly_report_{user_id}_{report_month}_{timestamp}.pdf"
         file_path = self.reports_dir / filename
         
-        # Generate PDF using WeasyPrint (or mock implementation)
-        html = HTML(string=html_content)
-        css = CSS(string=self._get_report_css())
-        html.write_pdf(file_path, stylesheets=[css])
+        # Generate PDF using Playwright (standards-compliant approach)
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.set_content(html_content)
+            
+            # Generate PDF with proper formatting
+            page.pdf(
+                path=str(file_path),
+                format='A4',
+                margin={
+                    'top': '1in',
+                    'right': '1in', 
+                    'bottom': '1in',
+                    'left': '1in'
+                },
+                print_background=True
+            )
+            
+            browser.close()
         
-        if not WEASYPRINT_AVAILABLE:
-            logger.warning("Using mock WeasyPrint implementation - PDF may not render correctly")
-        
+        logger.info(f"PDF generated using Playwright: {file_path}")
         return file_path
 
+    def _get_complete_html_document(self, data: Dict[str, Any]) -> str:
+        """Generate complete HTML document with embedded CSS"""
+        
+        html_body = self._get_report_template_html(data)
+        css_styles = self._get_report_css()
+        
+        # Create complete HTML document with embedded CSS
+        complete_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Monthly Portfolio Report - {data["report_month"]}</title>
+    <style>
+    {css_styles}
+    </style>
+</head>
+{html_body[html_body.find('<body>'):]if '<body>' in html_body else f'<body>{html_body}</body>'}
+</html>"""
+        
+        return complete_html
+
     def _get_report_template_html(self, data: Dict[str, Any]) -> str:
-        """Generate HTML template for the monthly report"""
+        """Generate HTML body content for the monthly report"""
         
         template_str = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title>Monthly Portfolio Report - {{ report_month }}</title>
-        </head>
         <body>
             <div class="header">
                 <h1>Monthly Portfolio Report</h1>

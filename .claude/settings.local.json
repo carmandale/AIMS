@@ -104,7 +104,9 @@
       "Bash(alembic stamp:*)",
       "Bash(npm run:*)",
       "Bash(timeout 30 npm test -- --grep \"should display Performance Dashboard with drawdown sections\" --workers=1)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(gh pr:*)",
+      "Bash(uv remove:*)"
     ],
     "deny": []
   }
