@@ -8,6 +8,7 @@ import {
   Shield,
   Zap,
   AlertTriangle,
+  Calculator,
 } from 'lucide-react';
 import { useMarketQuotes } from '../hooks';
 import { useQuery } from '@tanstack/react-query';
