@@ -72,6 +72,27 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
     toast.success('Trade order submitted successfully!');
   };
 
+  // Calculator handlers
+  const handleOpenCalculator = () => {
+    setIsCalculatorOpen(true);
+  };
+
+  const handleCloseCalculator = () => {
+    setIsCalculatorOpen(false);
+  };
+
+  const handleCopyFromCalculator = (result: PositionSizeCalculationResult) => {
+    // Update the amount field with the calculated position size
+    setAmount(result.position_size.toString());
+    
+    // If the calculator provided price information, update price for limit orders
+    if (orderMode === 'limit' && result.entry_price) {
+      setPrice(result.entry_price.toString());
+    }
+    
+    toast.success('Position size applied to trade ticket');
+  };
+
   useEffect(() => {
     // Update limit price when switching to limit mode
     if (orderMode === 'limit' && !price && currentQuote) {
