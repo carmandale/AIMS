@@ -25,15 +25,15 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 2.6 Add rate limiting and error handling
   - [x] 2.7 Verify all API tests pass
 
-- [ ] 3. Build Position Sizing Calculator UI Component
-  - [ ] 3.1 Write component tests for PositionSizeCalculator
-  - [ ] 3.2 Create PositionSizeCalculator modal component
-  - [ ] 3.3 Implement calculation method selector
-  - [ ] 3.4 Build form inputs with validation
-  - [ ] 3.5 Add real-time calculation display
-  - [ ] 3.6 Implement risk/reward visualization
-  - [ ] 3.7 Add copy-to-trade functionality
-  - [ ] 3.8 Verify all component tests pass
+- [x] 3. Build Position Sizing Calculator UI Component
+  - [x] 3.1 Write component tests for PositionSizeCalculator
+  - [x] 3.2 Create PositionSizeCalculator modal component
+  - [x] 3.3 Implement calculation method selector
+  - [x] 3.4 Build form inputs with validation
+  - [x] 3.5 Add real-time calculation display
+  - [x] 3.6 Implement risk/reward visualization
+  - [x] 3.7 Add copy-to-trade functionality
+  - [x] 3.8 Verify all component tests pass
 
 - [ ] 4. Integrate Calculator with Trade Ticket Builder
   - [ ] 4.1 Write integration tests for trade ticket flow
