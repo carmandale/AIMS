@@ -366,7 +366,7 @@ export const simulateCalculatorWorkflow = (method: 'fixed_risk' | 'kelly' | 'vol
   // Implementation depends on chosen testing framework
 };
 
-export const verifyTradeTicketUpdate = (expectedValues: any) => {
+export const verifyTradeTicketUpdate = (expectedValues: unknown) => {
   // Would verify trade ticket reflects calculator results
   // Implementation depends on chosen testing framework
 };
