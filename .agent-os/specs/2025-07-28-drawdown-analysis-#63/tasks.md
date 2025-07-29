@@ -36,9 +36,9 @@ These are the tasks to be completed for the spec detailed in @.agent-os/specs/20
   - [x] 4.4 Verify real-time updates and data consistency
   - [x] 4.5 Verify all integration and E2E tests pass
 
-- [ ] 5. Performance Optimization and Documentation
-  - [ ] 5.1 Write tests for performance optimizations
-  - [ ] 5.2 Implement caching for expensive drawdown calculations
-  - [ ] 5.3 Add database indexes for query optimization
-  - [ ] 5.4 Update API documentation with new endpoints
-  - [ ] 5.5 Verify all performance tests pass and documentation is complete
+- [x] 5. Performance Optimization and Documentation
+  - [x] 5.1 Write tests for performance optimizations
+  - [x] 5.2 Implement caching for expensive drawdown calculations
+  - [x] 5.3 Add database indexes for query optimization
+  - [x] 5.4 Update API documentation with new endpoints
+  - [x] 5.5 Verify all performance tests pass and documentation is complete

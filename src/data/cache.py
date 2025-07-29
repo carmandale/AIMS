@@ -2,7 +2,7 @@
 
 import json
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Any, Optional, Dict, Union, List
 from functools import wraps
 from decimal import Decimal
@@ -47,10 +47,12 @@ class CacheManager:
         return None
 
     def _convert_decimals(self, obj: Any) -> Any:
-        """Recursively convert Decimal objects to float and datetime to ISO string"""
+        """Recursively convert Decimal objects to float and datetime/date to ISO string"""
         if isinstance(obj, Decimal):
             return float(obj)
         elif isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, date):
             return obj.isoformat()
         elif isinstance(obj, dict):
             return {k: self._convert_decimals(v) for k, v in obj.items()}

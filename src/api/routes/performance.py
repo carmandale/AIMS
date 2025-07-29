@@ -14,7 +14,7 @@ from src.db import get_db
 from src.db.models import User, PerformanceSnapshot
 from src.services.performance_analytics import PerformanceAnalyticsService
 from src.services.benchmark_service import BenchmarkService
-from src.services.drawdown_service import DrawdownService
+from src.services.drawdown_service_cached import CachedDrawdownService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/performance", tags=["performance"])
@@ -418,8 +418,8 @@ async def get_current_drawdown(
         )
         
         # Calculate current drawdown
-        drawdown_service = DrawdownService()
-        result = drawdown_service.calculate_current_drawdown(snapshots)
+        drawdown_service = CachedDrawdownService()
+        result = drawdown_service.calculate_current_drawdown_cached(db, current_user.user_id, snapshots)
         
         # Convert Decimal to string for JSON serialization
         return {
@@ -462,10 +462,14 @@ async def get_historical_drawdowns(
         snapshots = query.order_by(PerformanceSnapshot.snapshot_date).all()
         
         # Calculate drawdown events
-        drawdown_service = DrawdownService()
-        events = drawdown_service.calculate_drawdown_events(
-            snapshots, 
-            threshold_percent=Decimal(str(threshold))
+        drawdown_service = CachedDrawdownService()
+        events = drawdown_service.calculate_drawdown_events_cached(
+            db,
+            current_user.user_id,
+            threshold_percent=Decimal(str(threshold)),
+            start_date=datetime.combine(start_date, datetime.min.time()) if start_date else None,
+            end_date=datetime.combine(end_date, datetime.max.time()) if end_date else None,
+            snapshots=snapshots
         )
         
         # Format events for JSON
@@ -515,15 +519,23 @@ async def get_drawdown_analysis(
         snapshots = query.order_by(PerformanceSnapshot.snapshot_date).all()
         
         # Get drawdown analysis
-        drawdown_service = DrawdownService()
-        analysis = drawdown_service.get_historical_analysis(
-            snapshots,
+        drawdown_service = CachedDrawdownService()
+        analysis = drawdown_service.get_historical_analysis_cached(
+            db,
+            current_user.user_id,
             start_date=datetime.combine(start_date, datetime.min.time()) if start_date else None,
             end_date=datetime.combine(end_date, datetime.max.time()) if end_date else None,
+            snapshots=snapshots
         )
         
         # Get underwater curve
-        curve = drawdown_service.calculate_underwater_curve(snapshots)
+        curve = drawdown_service.calculate_underwater_curve_cached(
+            db,
+            current_user.user_id,
+            start_date=datetime.combine(start_date, datetime.min.time()) if start_date else None,
+            end_date=datetime.combine(end_date, datetime.max.time()) if end_date else None,
+            snapshots=snapshots
+        )
         
         # Format curve for JSON
         formatted_curve = []
@@ -580,7 +592,7 @@ async def get_drawdown_alerts(
         )
         
         # Check alerts
-        drawdown_service = DrawdownService()
+        drawdown_service = CachedDrawdownService()
         alerts = drawdown_service.check_alert_thresholds(
             snapshots,
             warning_threshold=Decimal(warning_threshold),
