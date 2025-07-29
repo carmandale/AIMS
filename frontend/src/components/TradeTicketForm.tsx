@@ -28,6 +28,7 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
   const [price, setPrice] = useState('');
   const [orderMode, setOrderMode] = useState<'market' | 'limit'>('market');
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [validationResult, setValidationResult] = useState<TradeValidationResult | null>(null);
 
   // Fetch real-time market data
   const { data: quotes } = useMarketQuotes([symbol]);
