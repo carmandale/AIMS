@@ -369,7 +369,11 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleSubmit}
-            disabled={!amount || (orderMode === 'limit' && !price)}
+            disabled={
+              !amount || 
+              (orderMode === 'limit' && !price) || 
+              (validationResult && !validationResult.isValid)
+            }
             className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-200 shadow-lg ${
               orderType === 'buy'
                 ? 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 disabled:from-gray-600 disabled:to-gray-500'
