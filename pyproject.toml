@@ -29,6 +29,9 @@ dependencies = [
     "snaptrade-python-sdk>=11.0.114",
     "pyjwt>=2.10.1",
     "bcrypt>=4.3.0",
+    "jinja2>=3.1.6",
+    "matplotlib>=3.10.3",
+    "email-validator>=2.2.0",
 ]
 
 [project.optional-dependencies]
