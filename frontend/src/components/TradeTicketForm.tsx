@@ -309,6 +309,61 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
             </div>
           </section>
 
+          {/* Validation Messages */}
+          {validationResult && (validationResult.errors.length > 0 || validationResult.warnings.length > 0) && (
+            <section className="mb-6">
+              {/* Validation Errors */}
+              {validationResult.errors.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-red-400 text-sm">Trade Validation Errors</p>
+                      <ul className="text-xs text-red-300 mt-1 space-y-1">
+                        {validationResult.errors.map((error, index) => (
+                          <li key={index}>• {error}</li>
+                        ))}
+                      </ul>
+                      {validationResult.adjustedAmount && (
+                        <button
+                          onClick={() => setAmount(validationResult.adjustedAmount!.toString())}
+                          className="mt-2 text-xs text-red-300 hover:text-red-200 underline"
+                        >
+                          Use suggested amount: {validationResult.adjustedAmount}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Validation Warnings */}
+              {validationResult.warnings.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl"
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-yellow-400 text-sm">Risk Warnings</p>
+                      <ul className="text-xs text-yellow-300 mt-1 space-y-1">
+                        {validationResult.warnings.map((warning, index) => (
+                          <li key={index}>• {warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </section>
+          )}
+
           {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
