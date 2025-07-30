@@ -72,20 +72,20 @@ uv run python scripts/init_db.py
 
 6. Run the full stack development environment:
 ```bash
-./scripts/start_dev.sh
+./start.sh
 ```
 
 This will:
-- Start the backend API server on `http://localhost:8000`
-- Start the frontend development server on `http://localhost:5173`
+- Start the backend API server on `http://localhost:8002`
+- Start the frontend development server on `http://localhost:3002`
 - Run setup verification checks
 - Display logs for both servers
 
 You can access:
-- Frontend UI: `http://localhost:5173`
-- API Documentation: `http://localhost:8000/docs`
-- Alternative API docs: `http://localhost:8000/redoc`
-- Health check: `http://localhost:8000/api/health`
+- Frontend UI: `http://localhost:3002`
+- API Documentation: `http://localhost:8002/docs`
+- Alternative API docs: `http://localhost:8002/redoc`
+- Health check: `http://localhost:8002/api/health`
 
 To stop all servers, press `Ctrl+C`.
 
@@ -95,7 +95,7 @@ If you prefer to run the servers separately:
 
 **Backend:**
 ```bash
-uv run uvicorn src.api.main:app --reload
+uv run uvicorn src.api.main:app --reload --port 8002 --host 0.0.0.0
 ```
 
 **Frontend (in a new terminal):**
@@ -133,9 +133,9 @@ uv run ruff check --fix .
 ## API Documentation
 
 Once the application is running, you can access:
-- Interactive API docs: `http://localhost:8000/docs`
-- Alternative API docs: `http://localhost:8000/redoc`
-- Health check: `http://localhost:8000/api/health`
+- Interactive API docs: `http://localhost:8002/docs`
+- Alternative API docs: `http://localhost:8002/redoc`
+- Health check: `http://localhost:8002/api/health`
 
 For detailed API documentation including all endpoints, authentication, and examples, see [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md).
 
