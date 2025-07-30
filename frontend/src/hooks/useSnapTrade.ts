@@ -272,7 +272,17 @@ export function useSnapTradeDelete() {
 export function useSnapTradeStatus() {
   const { accounts, isLoading, error } = useSnapTradeAccounts();
 
-  const isRegistered = !error || (error && !error.message.includes('not registered'));
+  // Check if the error indicates user is not registered
+  const isNotRegisteredError = error && (
+    error.message.includes('must be registered') || 
+    error.message.includes('not registered') ||
+    error.message.includes('400')  // Bad request often indicates not registered
+  );
+  
+  // User is registered if:
+  // 1. No error at all (successfully fetched accounts)
+  // 2. Error exists but it's not a registration error (e.g., network error)
+  const isRegistered = !isNotRegisteredError;
   const hasConnectedAccounts = accounts.length > 0;
 
   return {
