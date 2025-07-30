@@ -12,6 +12,7 @@ import {
   SnapTradeRegistration,
   AccountConnectionFlow,
   ConnectedAccountsList,
+  SnapTradeSetup,
 } from './components/snaptrade';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './components/auth/AuthProvider';
@@ -125,33 +126,12 @@ function App() {
           </ProtectedRoute>
         );
       case 'snaptrade-register':
-        return (
-          <ProtectedRoute>
-            <SnapTradeRegistration
-              onRegistrationComplete={() => {
-                console.log('SnapTrade registration completed');
-              }}
-              onNavigateToConnection={() => setCurrentComponent('snaptrade-connect')}
-            />
-          </ProtectedRoute>
-        );
       case 'snaptrade-connect':
-        return (
-          <ProtectedRoute>
-            <AccountConnectionFlow
-              onBack={() => setCurrentComponent('snaptrade-register')}
-              onConnectionComplete={() => setCurrentComponent('snaptrade-accounts')}
-            />
-          </ProtectedRoute>
-        );
       case 'snaptrade-accounts':
         return (
           <ProtectedRoute>
-            <ConnectedAccountsList
-              onAddAccount={() => setCurrentComponent('snaptrade-connect')}
-              onAccountDisconnect={accountId => {
-                console.log('Account disconnected:', accountId);
-              }}
+            <SnapTradeSetup
+              onBack={() => setCurrentComponent('home')}
             />
           </ProtectedRoute>
         );
