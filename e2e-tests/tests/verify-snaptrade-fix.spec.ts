@@ -12,8 +12,8 @@ test.describe('Verify SnapTrade Fix', () => {
       await signInButton.click();
       
       // Fill login form
-      await page.fill('input[placeholder="Enter your email"]', 'dale.carman@gmail.com');
-      await page.fill('input[placeholder="Enter your password"]', 'test123');
+      await page.fill('input[placeholder="Enter your email"]', 'test@aims.local');
+      await page.fill('input[placeholder="Enter your password"]', 'password123');
       await page.click('button:has-text("Sign in")');
       
       // Wait for redirect to home
