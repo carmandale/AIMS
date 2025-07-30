@@ -12,12 +12,30 @@ echo "================================================="
 # Load environment variables
 if [ -f .env ]; then
     echo "📋 Loading backend environment from .env"
-    export $(grep -v '^#' .env | xargs)
+    # Read .env file line by line, handling inline comments
+    while IFS= read -r line; do
+        # Skip empty lines and lines starting with #
+        if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+            # Remove inline comments and trim whitespace
+            clean_line=$(echo "$line" | cut -d'#' -f1 | sed 's/[[:space:]]*$//')
+            if [[ -n "$clean_line" ]]; then
+                export "$clean_line"
+            fi
+        fi
+    done < .env
 fi
 
 if [ -f frontend/.env.local ]; then
     echo "📋 Loading frontend environment from frontend/.env.local"
-    export $(grep -v '^#' frontend/.env.local | xargs)
+    # Read .env.local file line by line
+    while IFS= read -r line; do
+        if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+            clean_line=$(echo "$line" | cut -d'#' -f1 | sed 's/[[:space:]]*$//')
+            if [[ -n "$clean_line" ]]; then
+                export "$clean_line"
+            fi
+        fi
+    done < frontend/.env.local
 fi
 
 # Get ports from environment or use defaults
