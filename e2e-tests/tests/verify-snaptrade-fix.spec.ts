@@ -17,7 +17,7 @@ test.describe('Verify SnapTrade Fix', () => {
       await page.click('button[type="submit"]:has-text("Sign In")');
       
       // Wait for redirect to home
-      await page.waitForURL('http://localhost:3003/');
+      await page.waitForURL('http://localhost:3002/');
       console.log('Logged in successfully');
     }
     
