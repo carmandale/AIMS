@@ -501,3 +501,51 @@ async def delete_snaptrade_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during user deletion",
         )
+
+
+@router.post("/callback")
+async def handle_connection_callback(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Handle SnapTrade connection callback and force account refresh"""
+    
+    # Check rate limit
+    portfolio_rate_limiter.check_rate_limit(current_user.user_id)
+    
+    try:
+        # Check if SnapTrade service is enabled
+        if not snaptrade_service.is_enabled():
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="SnapTrade service is not configured",
+            )
+
+        # Get user secret from database
+        user_secret = get_user_secret(db, current_user.user_id)
+        
+        if not user_secret:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User must be registered with SnapTrade first",
+            )
+        
+        # Force refresh accounts from SnapTrade
+        accounts_data = await snaptrade_service.get_user_accounts(current_user.user_id, user_secret)
+        
+        logger.info(f"Callback processed for user {current_user.user_id}, found {len(accounts_data)} accounts")
+        
+        return {
+            "status": "connection_verified",
+            "accounts_count": len(accounts_data),
+            "message": "Connection callback processed successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing callback for user {current_user.user_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during callback processing",
+        )
