@@ -6,7 +6,7 @@ test.describe('Verify SnapTrade Fix', () => {
     await page.goto('http://localhost:3002');
     
     // Check if we need to login
-    const signInButton = page.locator('text=Sign In');
+    const signInButton = page.getByRole('button', { name: 'Sign in' });
     if (await signInButton.isVisible()) {
       console.log('Login required...');
       await signInButton.click();
