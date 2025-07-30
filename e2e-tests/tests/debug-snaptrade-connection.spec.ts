@@ -87,7 +87,7 @@ test.describe('SnapTrade Connection Debug', () => {
 
     // Step 3: Navigate to account connection
     console.log('Step 3: Navigating to account connection...');
-    await page.goto('http://localhost:3000/accounts/connect');
+    await page.goto('http://localhost:3002/accounts/connect');
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: 'debug-step-3-connect-page.png', fullPage: true });
 
