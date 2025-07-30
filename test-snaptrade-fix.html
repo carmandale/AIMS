@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SnapTrade Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4a9eff;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        .success {
+            color: #4ade80;
+        }
+        .error {
+            color: #f87171;
+        }
+        .warning {
+            color: #fbbf24;
+        }
+        code {
+            background: #3a3a3a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #4a9eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3a8eef;
+        }
+        .log {
+            background: #2a2a2a;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SnapTrade Connection Loop Fix Test</h1>
+        
+        <div class="step">
+            <h2>Test Procedure</h2>
+            <ol>
+                <li>Login to AIMS at <a href="http://localhost:3002" target="_blank">http://localhost:3002</a></li>
+                <li>Use credentials: <code>test@aims.local</code> / <code>password123</code></li>
+                <li>Click "Connect Brokerage" from home</li>
+                <li>Observe the flow and check for loops</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h2>Expected Behavior</h2>
+            <ul>
+                <li class="success">✓ If not registered: Show registration page first</li>
+                <li class="success">✓ If registered but no accounts: Skip to connection flow</li>
+                <li class="success">✓ If accounts exist: Show accounts list</li>
+                <li class="success">✓ "Connect Another Account" should go to connection flow, NOT registration</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>Manual Debug Tools</h2>
+            <button onclick="checkStatus()">Check Registration Status</button>
+            <button onclick="checkAccounts()">Check Connected Accounts</button>
+            <button onclick="clearLocalStorage()">Clear Local Storage</button>
+            <button onclick="runFullDebug()">Run Full Debug</button>
+            <div id="debugOutput" class="log"></div>
+        </div>
+
+        <div class="step">
+            <h2>Fix Summary</h2>
+            <p>The fix involves:</p>
+            <ul>
+                <li>Created <code>SnapTradeSetup</code> wrapper component that manages the flow</li>
+                <li>Uses <code>useSnapTradeStatus</code> hook to check registration status</li>
+                <li>Prevents navigation loops by managing state centrally</li>
+                <li>Ensures "Connect Another Account" goes to connection flow, not registration</li>
+            </ul>
+        </div>
+
+        <script>
+            function log(message, type = 'info') {
+                const output = document.getElementById('debugOutput');
+                const time = new Date().toLocaleTimeString();
+                const colorClass = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+                output.innerHTML += `<div class="${colorClass}">[${time}] ${message}</div>`;
+                output.scrollTop = output.scrollHeight;
+            }
+
+            async function checkStatus() {
+                log('Checking registration status...');
+                const token = localStorage.getItem('auth_token');
+                
+                if (!token) {
+                    log('No auth token found. Please login first.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8002/api/snaptrade/register', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    });
+                    const data = await response.json();
+                    log(`Registration status: ${data.status}`, 'success');
+                    log(`Response: ${JSON.stringify(data)}`);
+                } catch (error) {
+                    log(`Error checking status: ${error.message}`, 'error');
+                }
+            }
+
+            async function checkAccounts() {
+                log('Checking connected accounts...');
+                const token = localStorage.getItem('auth_token');
+                
+                if (!token) {
+                    log('No auth token found. Please login first.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8002/api/snaptrade/accounts', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const data = await response.json();
+                    log(`Found ${data.accounts?.length || 0} accounts`, 'success');
+                    log(`Response: ${JSON.stringify(data)}`);
+                } catch (error) {
+                    log(`Error checking accounts: ${error.message}`, 'error');
+                }
+            }
+
+            function clearLocalStorage() {
+                const token = localStorage.getItem('auth_token');
+                if (confirm('This will log you out. Continue?')) {
+                    localStorage.clear();
+                    log('Local storage cleared', 'success');
+                }
+            }
+
+            async function runFullDebug() {
+                log('=== Running Full Debug ===');
+                await checkStatus();
+                await checkAccounts();
+                log('=== Debug Complete ===');
+            }
+        </script>
+    </div>
+</body>
+</html>
