@@ -188,6 +188,9 @@ export const api = {
     // Data synchronization
     syncData: () => apiClient.post('/snaptrade/sync'),
 
+    // Connection callback
+    processCallback: () => apiClient.post('/snaptrade/callback'),
+
     // User deletion
     deleteUser: () => apiClient.delete('/snaptrade/user'),
   },
