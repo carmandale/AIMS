@@ -196,18 +196,26 @@ export function AccountConnectionFlow({
 
   const handleConnectionReturn = async () => {
     try {
-      // Check if accounts were connected
+      // Call the callback endpoint first to trigger refresh
+      const callbackResponse = await api.snaptrade.processCallback();
+      console.log('Callback processed:', callbackResponse.data);
+      
+      // Wait a moment for processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Then check accounts
       const accountsResponse = await api.snaptrade.getAccounts();
 
       if (accountsResponse.data.accounts && accountsResponse.data.accounts.length > 0) {
         toast.success('Account connected successfully!');
-        onConnectionComplete?.();
       } else {
         // In sandbox mode, accounts might not show up immediately
-        // Show success and let user continue
         toast.success('Connection initiated! Account will appear once confirmed by your broker.');
-        onConnectionComplete?.();
       }
+      
+      // Always call completion to exit the loop
+      onConnectionComplete?.();
+      
     } catch (err: unknown) {
       console.error('Failed to verify connection:', err);
       // Even if verification fails, the connection might have succeeded
