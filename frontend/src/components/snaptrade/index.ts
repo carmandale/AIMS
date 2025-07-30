@@ -7,6 +7,7 @@ export { AccountConnectionFlow } from './AccountConnectionFlow';
 export { ConnectedAccountsList } from './ConnectedAccountsList';
 export { SnapTradeStatusWidget } from './SnapTradeStatusWidget';
 export { AccountSelector } from './AccountSelector';
+export { SnapTradeSetup } from './SnapTradeSetup';
 
 // Re-export types for convenience
 export type {
