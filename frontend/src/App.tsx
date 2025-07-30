@@ -54,6 +54,7 @@ function App() {
   const getInitialComponent = (): ComponentType => {
     const path = window.location.pathname;
     if (path === '/login') return 'login';
+    
     // Check if user has auth token to determine initial route
     const hasToken = localStorage.getItem('auth_token');
     if (!hasToken && path !== '/login') {
@@ -61,6 +62,18 @@ function App() {
       window.history.replaceState({}, '', '/login');
       return 'login';
     }
+    
+    // Handle authenticated routes
+    if (path.startsWith('/accounts/connect') || path === '/snaptrade/connect') return 'snaptrade-connect';
+    if (path === '/accounts' || path === '/snaptrade/accounts') return 'snaptrade-accounts';
+    if (path === '/snaptrade/register') return 'snaptrade-register';
+    if (path === '/dashboard') return 'dashboard';
+    if (path === '/performance') return 'performance';
+    if (path === '/tasks') return 'tasks';
+    if (path === '/trade-ticket') return 'trade-ticket';
+    if (path === '/morning-brief') return 'morning-brief';
+    if (path === '/income-tracker') return 'income-tracker';
+    
     return 'home';
   };
 
