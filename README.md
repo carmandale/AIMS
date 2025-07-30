@@ -89,6 +89,8 @@ You can access:
 
 To stop all servers, press `Ctrl+C`.
 
+**Note:** This project uses ports 3002 (frontend) and 8002 (backend) as configured by Agent OS. The legacy `scripts/start_dev.sh` uses different ports and is kept for backwards compatibility.
+
 ### Alternative: Manual Server Startup
 
 If you prefer to run the servers separately:
