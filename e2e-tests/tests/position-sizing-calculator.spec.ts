@@ -78,14 +78,24 @@ test.describe('Position Sizing Calculator', () => {
         // Click sign in button
         await page.click('button:has-text("Sign in")');
         
-        // Wait for successful login or error
-        try {
-          await page.waitForSelector('h1:not(:has-text("Welcome back"))', { timeout: 10000 });
-          console.log('Login successful - main content loaded');
-        } catch (error) {
-          console.log('Login may have failed or main content not found');
-          // Take a screenshot for debugging
-          await page.screenshot({ path: 'test-results/debug-after-login.png' });
+        // Wait for navigation or error messages
+        await page.waitForTimeout(3000); // Give time for login request
+        
+        // Check if we're still on login page or moved to dashboard
+        const stillOnLogin = await page.locator('text=Welcome back').count();
+        const errorMessage = await page.locator('text=error', { hasText: /error|invalid|incorrect/i }).count();
+        
+        if (stillOnLogin > 0) {
+          console.log('Still on login page after attempt');
+          if (errorMessage > 0) {
+            const errorText = await page.locator('text=error', { hasText: /error|invalid|incorrect/i }).first().textContent();
+            console.log('Error message found:', errorText);
+          }
+          await page.screenshot({ path: 'test-results/debug-login-failed.png' });
+        } else {
+          console.log('Login successful - navigated away from login page');
+          // Wait for main content to load
+          await page.waitForSelector('nav, main, [data-testid]', { timeout: 5000 });
         }
       } else {
         console.log('Could not find or fill login form fields');
