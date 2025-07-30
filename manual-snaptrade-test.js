@@ -1,4 +1,4 @@
-const { chromium } = require('@playwright/test');
+const { chromium } = require('playwright');
 
 (async () => {
   console.log('🧪 Manual SnapTrade Connection Test');
