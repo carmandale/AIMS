@@ -151,7 +151,7 @@ test.describe('SnapTrade Connection Debug', () => {
       console.log('No completion button found, manually triggering callback...');
       
       // Manually navigate to callback URL to test the flow
-      const callbackUrl = 'http://localhost:3000/accounts/connect?code=test_code&state=test_state';
+      const callbackUrl = 'http://localhost:3002/accounts/connect?code=test_code&state=test_state';
       await page.goto(callbackUrl);
       await page.waitForTimeout(2000);
       await page.screenshot({ path: 'debug-step-6-manual-callback.png', fullPage: true });
