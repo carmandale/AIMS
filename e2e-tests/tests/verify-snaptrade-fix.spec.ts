@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Verify SnapTrade Fix', () => {
   test('should successfully connect to SnapTrade after encryption fix', async ({ page }) => {
     // Navigate to the app on the correct port
-    await page.goto('http://localhost:3003');
+    await page.goto('http://localhost:3002');
     
     // Check if we need to login
     const signInButton = page.locator('text=Sign In');
