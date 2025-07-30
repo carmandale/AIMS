@@ -12,9 +12,13 @@ interface SnapTradeSetupProps {
 export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
   const { isRegistered, hasConnectedAccounts, isLoading, error } = useSnapTradeStatus();
   const [currentView, setCurrentView] = useState<'loading' | 'register' | 'connect' | 'accounts'>('loading');
+  const [manuallySetView, setManuallySetView] = useState<string | null>(null);
   
   // Determine which view to show based on registration and connection status
   useEffect(() => {
+    // Don't override manually set views
+    if (manuallySetView) return;
+    
     if (isLoading) {
       setCurrentView('loading');
     } else if (!isRegistered) {
@@ -25,7 +29,7 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
       // Registered but no accounts - show connection flow
       setCurrentView('connect');
     }
-  }, [isRegistered, hasConnectedAccounts, isLoading]);
+  }, [isRegistered, hasConnectedAccounts, isLoading, manuallySetView]);
   
   // Loading state
   if (currentView === 'loading') {
