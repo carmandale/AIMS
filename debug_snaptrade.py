@@ -81,7 +81,7 @@ def test_snaptrade_service():
     
     if snaptrade_service.client:
         print(f"    Client Type: {type(snaptrade_service.client)}")
-        print(f"    Consumer Key Present: {bool(snaptrade_service.client.consumer_key)}")
+        # Consumer key is stored internally, can't access directly
     
     return service_enabled and client_initialized
 
