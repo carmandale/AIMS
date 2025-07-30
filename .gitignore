@@ -192,4 +192,4 @@ test-results/
 backend/
 
 # Temporary test files
-/tmp/aims_token.txt
+/tmp/aims_token.txttest_get_user_secret.py
