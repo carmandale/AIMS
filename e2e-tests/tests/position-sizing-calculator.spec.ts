@@ -16,14 +16,23 @@ test.describe('Position Sizing Calculator', () => {
     // Wait for the application to load
     await page.waitForSelector('h1', { timeout: 10000 });
     
-    // Handle authentication if needed
-    const loginButton = await page.locator('button:has-text("Login")').count();
+    // Handle authentication - check if we're on login page
+    const emailInput = await page.locator('input[type="email"]').count();
+    const passwordInput = await page.locator('input[type="password"]').count();
     const signInButton = await page.locator('button:has-text("Sign in")').count();
     
-    if (loginButton > 0 || signInButton > 0) {
-      // For testing, we'll assume we need to handle login
-      // This might need to be updated based on actual authentication flow
+    if (emailInput > 0 && passwordInput > 0 && signInButton > 0) {
       console.log('Login required - handling authentication');
+      
+      // Fill in test credentials
+      await page.fill('input[type="email"]', 'test@example.com');
+      await page.fill('input[type="password"]', 'testpassword');
+      
+      // Click sign in button
+      await page.click('button:has-text("Sign in")');
+      
+      // Wait for successful login (dashboard or main app to load)
+      await page.waitForSelector('nav', { timeout: 10000 });
     }
   });
 
