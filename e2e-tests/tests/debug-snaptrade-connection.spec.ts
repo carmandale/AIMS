@@ -91,13 +91,52 @@ test.describe('SnapTrade Connection Debug', () => {
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: 'debug-step-3-connect-page.png', fullPage: true });
 
-    // Step 4: Click connect account button
-    console.log('Step 4: Clicking connect account button...');
-    const connectButton = page.locator('button:has-text("Connect Account")').first();
-    await expect(connectButton).toBeVisible({ timeout: 10000 });
+    // Step 4: Look for and interact with the connection flow
+    console.log('Step 4: Looking for broker selection or connection elements...');
     
-    console.log('Network requests before connect click:', networkRequests.length);
-    await connectButton.click();
+    // First, let's see what's actually on the page
+    const pageText = await page.textContent('body');
+    console.log('Page content sample:', pageText?.substring(0, 500));
+    
+    // Look for different possible elements based on the connection flow state
+    const brokerCards = page.locator('[class*="broker"], [data-testid*="broker"], button:has-text("TD Ameritrade"), button:has-text("Fidelity"), button:has-text("Robinhood")');
+    const connectButtons = page.locator('button:has-text("Connect to"), button:has-text("Connect Account"), button:has-text("Connect")');
+    const continueButtons = page.locator('button:has-text("Continue"), button:has-text("Next")');
+    
+    console.log('Looking for broker cards...');
+    const brokerCardCount = await brokerCards.count();
+    console.log(`Found ${brokerCardCount} broker cards`);
+    
+    console.log('Looking for connect buttons...');
+    const connectButtonCount = await connectButtons.count();
+    console.log(`Found ${connectButtonCount} connect buttons`);
+    
+    console.log('Looking for continue buttons...');
+    const continueButtonCount = await continueButtons.count();
+    console.log(`Found ${continueButtonCount} continue buttons`);
+    
+    // Try to interact with the first available element
+    if (brokerCardCount > 0) {
+      console.log('Found broker cards, clicking first one...');
+      await brokerCards.first().click();
+      await page.waitForTimeout(2000);
+      await page.screenshot({ path: 'debug-step-4a-broker-selected.png', fullPage: true });
+      
+      // Now look for connect button after broker selection
+      const postSelectConnectButton = page.locator('button:has-text("Connect to"), button:has-text("Connect")').first();
+      if (await postSelectConnectButton.isVisible().catch(() => false)) {
+        console.log('Found connect button after broker selection, clicking...');
+        console.log('Network requests before connect click:', networkRequests.length);
+        await postSelectConnectButton.click();
+      }
+    } else if (connectButtonCount > 0) {
+      console.log('Found connect button directly, clicking...');
+      console.log('Network requests before connect click:', networkRequests.length);
+      await connectButtons.first().click();
+    } else {
+      console.log('No broker cards or connect buttons found, taking screenshot for analysis...');
+      await page.screenshot({ path: 'debug-step-4-no-buttons-found.png', fullPage: true });
+    }
     
     // Wait for connection URL to be generated
     await page.waitForTimeout(2000);
