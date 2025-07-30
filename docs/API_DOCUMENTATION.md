@@ -208,6 +208,175 @@ Content-Type: application/json
 }
 ```
 
+## Position Sizing Calculator Endpoints
+
+### Calculate Position Size
+```http
+POST /position-sizing/calculate
+Content-Type: application/json
+
+{
+  "method": "fixed_risk",
+  "account_value": 100000,
+  "risk_percentage": 0.02,
+  "entry_price": 150.00,
+  "stop_loss": 145.00,
+  "target_price": 165.00
+}
+```
+
+**Request Parameters**:
+- `method` (string, required): Calculation method - `fixed_risk`, `kelly`, `volatility_based`
+- `account_value` (number, required): Total account value in dollars
+- `risk_percentage` (number, required): Risk per trade as decimal (0.02 = 2%)
+- `entry_price` (number, required): Planned entry price per share
+- `stop_loss` (number, required): Stop loss price per share
+- `target_price` (number, optional): Target/take profit price per share
+- `win_rate` (number, optional): Historical win rate for Kelly method (0.6 = 60%)
+- `avg_win_loss_ratio` (number, optional): Average win/loss ratio for Kelly method
+- `confidence_level` (number, optional): Kelly fraction (0.5 = half Kelly, 1.0 = full Kelly)
+- `atr` (number, optional): Average True Range for volatility-based method
+- `atr_multiplier` (number, optional): ATR multiplier for stop distance (default: 2.0)
+
+**Response**:
+```json
+{
+  "position_size": 1000,
+  "position_value": 150000.00,
+  "risk_amount": 2000.00,
+  "risk_percentage": 0.02,
+  "stop_loss_percentage": 0.033,
+  "risk_reward_ratio": 3.0,
+  "kelly_percentage": 0.15,
+  "warnings": [
+    "Large position size: 15.0% of account value (10.0% recommended max)"
+  ],
+  "metadata": {
+    "method_used": "fixed_risk",
+    "calculation_timestamp": "2025-07-29T10:30:00Z",
+    "account_validation": true
+  }
+}
+```
+
+**Method-Specific Examples**:
+
+**Fixed Risk Method**:
+```json
+{
+  "method": "fixed_risk",
+  "account_value": 100000,
+  "risk_percentage": 0.02,
+  "entry_price": 150.00,
+  "stop_loss": 145.00
+}
+```
+
+**Kelly Criterion Method**:
+```json
+{
+  "method": "kelly",
+  "account_value": 100000,
+  "win_rate": 0.6,
+  "avg_win_loss_ratio": 2.0,
+  "confidence_level": 0.5
+}
+```
+
+**Volatility-Based Method**:
+```json
+{
+  "method": "volatility_based",
+  "account_value": 100000,
+  "risk_percentage": 0.02,
+  "entry_price": 150.00,
+  "atr": 2.5,
+  "atr_multiplier": 2.0
+}
+```
+
+### Get Available Methods
+```http
+GET /position-sizing/methods
+```
+
+**Response**:
+```json
+{
+  "methods": [
+    {
+      "id": "fixed_risk",
+      "name": "Fixed Risk",
+      "description": "Size positions based on fixed risk amount per trade",
+      "required_fields": ["account_value", "risk_percentage", "entry_price", "stop_loss"],
+      "optional_fields": ["target_price"]
+    },
+    {
+      "id": "kelly",
+      "name": "Kelly Criterion",
+      "description": "Optimize position size based on edge and win rate",
+      "required_fields": ["account_value", "win_rate", "avg_win_loss_ratio"],
+      "optional_fields": ["confidence_level", "entry_price", "stop_loss", "target_price"]
+    },
+    {
+      "id": "volatility_based",
+      "name": "Volatility-Based Sizing",
+      "description": "Size positions based on asset volatility (ATR)",
+      "required_fields": ["account_value", "risk_percentage", "entry_price", "atr"],
+      "optional_fields": ["atr_multiplier", "target_price"]
+    }
+  ]
+}
+```
+
+### Validate Position Size
+```http
+POST /position-sizing/validate
+Content-Type: application/json
+
+{
+  "symbol": "AAPL",
+  "position_size": 1000,
+  "entry_price": 150.00,
+  "account_id": 1
+}
+```
+
+**Request Parameters**:
+- `symbol` (string, required): Asset symbol (e.g., "AAPL", "BTC-USD")
+- `position_size` (number, required): Proposed position size in shares/units
+- `entry_price` (number, required): Entry price per share/unit
+- `account_id` (number, required): Trading account identifier
+
+**Response**:
+```json
+{
+  "valid": true,
+  "violations": [],
+  "warnings": [
+    "Position represents 15% of portfolio value",
+    "High concentration in single asset"
+  ],
+  "adjusted_size": 1000,
+  "max_allowed_size": 1200,
+  "validation_details": {
+    "position_value": 150000.00,
+    "portfolio_percentage": 0.15,
+    "available_cash": 25000.00,
+    "buying_power": 50000.00,
+    "concentration_check": "passed",
+    "cash_requirement_check": "failed"
+  }
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid calculation method or missing required parameters
+- `422 Unprocessable Entity`: Position violates risk management rules
+- `429 Too Many Requests`: Rate limit exceeded (100 calculations per minute)
+
+**Rate Limiting**: Position sizing endpoints are rate-limited to 100 requests per minute per user.
+
 ## Portfolio Management Endpoints
 
 ### Get Portfolio Summary
