@@ -68,7 +68,8 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
       <AccountConnectionFlow
         onBack={onBack}
         onConnectionComplete={() => {
-          // After connection, show accounts list
+          // After connection, show accounts list and prevent auto-override
+          setManuallySetView('accounts');
           setCurrentView('accounts');
         }}
       />
