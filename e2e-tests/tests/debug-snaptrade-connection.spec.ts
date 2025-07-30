@@ -66,7 +66,7 @@ test.describe('SnapTrade Connection Debug', () => {
 
     // Step 1: Navigate to app
     console.log('Step 1: Navigating to app...');
-    await page.goto('http://localhost:3000');
+    await page.goto('http://localhost:3002');
     await page.screenshot({ path: 'debug-step-1-home.png', fullPage: true });
 
     // Step 2: Login (if needed)
