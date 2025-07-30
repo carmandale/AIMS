@@ -17,30 +17,79 @@ test.describe('Position Sizing Calculator', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
     
     // Handle authentication - check if we're on login page
-    const emailInput = await page.locator('input[placeholder*="email"]').count();
-    const passwordInput = await page.locator('input[placeholder*="password"]').count();
+    const welcomeText = await page.locator('text=Welcome back').count();
     const signInButton = await page.locator('button:has-text("Sign in")').count();
     
-    if (emailInput > 0 && passwordInput > 0 && signInButton > 0) {
+    if (welcomeText > 0 && signInButton > 0) {
       console.log('Login required - handling authentication');
       
-      // Fill in test credentials using placeholder selectors
-      await page.fill('input[placeholder*="email"]', 'test@example.com');
-      await page.fill('input[placeholder*="password"]', 'testpassword');
+      // Try multiple selectors for email input
+      const emailSelectors = [
+        'input[type="email"]',
+        'input[placeholder*="email"]', 
+        'input[placeholder*="Enter your email"]',
+        'input:first-of-type'
+      ];
       
-      // Add a small delay to ensure fields are filled
-      await page.waitForTimeout(1000);
+      const passwordSelectors = [
+        'input[type="password"]',
+        'input[placeholder*="password"]',
+        'input[placeholder*="Enter your password"]',
+        'input:last-of-type'
+      ];
       
-      // Click sign in button
-      await page.click('button:has-text("Sign in")');
+      let emailFilled = false;
+      let passwordFilled = false;
       
-      // Wait for successful login - look for any main content that appears after login
-      try {
-        await page.waitForSelector('h1:not(:has-text("Welcome back"))', { timeout: 10000 });
-      } catch (error) {
-        console.log('Login may have failed or main content not found');
-        // Take a screenshot for debugging
-        await page.screenshot({ path: 'test-results/debug-after-login.png' });
+      // Try each email selector
+      for (const selector of emailSelectors) {
+        try {
+          const count = await page.locator(selector).count();
+          if (count > 0) {
+            await page.fill(selector, 'test@example.com');
+            console.log(`Email filled using selector: ${selector}`);
+            emailFilled = true;
+            break;
+          }
+        } catch (e) {
+          console.log(`Email selector failed: ${selector}`);
+        }
+      }
+      
+      // Try each password selector
+      for (const selector of passwordSelectors) {
+        try {
+          const count = await page.locator(selector).count();
+          if (count > 0) {
+            await page.fill(selector, 'testpassword');
+            console.log(`Password filled using selector: ${selector}`);
+            passwordFilled = true;
+            break;
+          }
+        } catch (e) {
+          console.log(`Password selector failed: ${selector}`);
+        }
+      }
+      
+      if (emailFilled && passwordFilled) {
+        // Add a small delay to ensure fields are filled
+        await page.waitForTimeout(1000);
+        
+        // Click sign in button
+        await page.click('button:has-text("Sign in")');
+        
+        // Wait for successful login or error
+        try {
+          await page.waitForSelector('h1:not(:has-text("Welcome back"))', { timeout: 10000 });
+          console.log('Login successful - main content loaded');
+        } catch (error) {
+          console.log('Login may have failed or main content not found');
+          // Take a screenshot for debugging
+          await page.screenshot({ path: 'test-results/debug-after-login.png' });
+        }
+      } else {
+        console.log('Could not find or fill login form fields');
+        await page.screenshot({ path: 'test-results/debug-form-fields.png' });
       }
     }
   });
