@@ -2,9 +2,16 @@
 import { api } from './lib/api-client';
 
 // Test API connection
-async function testAPI() {
-  console.log('Testing API connection to http://localhost:8000...\n');
+console.log('Testing API connection to http://localhost:8002...\n');
 
+// Test endpoints
+const endpoints = [
+  { name: 'Health Check', url: 'http://localhost:8002/health' },
+  { name: 'API Health', url: 'http://localhost:8002/api/health' },
+  { name: 'API Docs', url: 'http://localhost:8002/docs' },
+];
+
+async function testAPI() {
   try {
     // Test health endpoint
     console.log('1. Testing health check...');
@@ -42,7 +49,7 @@ async function testAPI() {
       console.error('Response data:', error.response.data);
       console.error('Response status:', error.response.status);
     }
-    console.error('\nMake sure the FastAPI backend is running on http://localhost:8000');
+    console.error('\nMake sure the FastAPI backend is running on http://localhost:8002');
   }
 }
 

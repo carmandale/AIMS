@@ -74,9 +74,9 @@ cd frontend && yarn dev
 ```
 
 The application will be available at:
-- Backend API: http://localhost:8000
-- Frontend UI: http://localhost:3000
-- API Documentation: http://localhost:8000/docs
+- Backend API: http://localhost:8002 (configurable via API_PORT)
+- Frontend UI: http://localhost:3002 (configurable via PORT)
+- API Documentation: http://localhost:8002/docs
 
 ## Detailed Setup Steps
 
@@ -136,10 +136,10 @@ SNAPTRADE_ENVIRONMENT=sandbox  # Use "production" for real trading
 
 # API Configuration
 API_HOST=0.0.0.0
-API_PORT=8000
+API_PORT=8002
 
 # Frontend URL for CORS
-CORS_ORIGINS=["http://localhost:3000", "http://localhost:8000"]
+CORS_ORIGINS=["http://localhost:3000", "http://localhost:3002", "http://localhost:8002"]
 ```
 
 ### 5. Initialize the Database
@@ -251,9 +251,9 @@ uv run uvicorn src.api.main:app --reload
 ```
 
 Backend will be available at:
-- API: http://localhost:8000
-- Interactive docs: http://localhost:8000/docs
-- Alternative docs: http://localhost:8000/redoc
+- API: http://localhost:8002
+- Interactive docs: http://localhost:8002/docs
+- Alternative docs: http://localhost:8002/redoc
 
 ### Start Frontend
 
@@ -284,10 +284,10 @@ Once startup scripts are created:
 
 ```bash
 # Check backend health
-curl http://localhost:8000/health
+curl http://localhost:8002/health
 
 # Check detailed health
-curl http://localhost:8000/api/health/detailed
+curl http://localhost:8002/api/health/detailed
 ```
 
 ### Run Tests
@@ -328,11 +328,11 @@ uv sync
 
 **Solution:**
 ```bash
-# Find process using port 8000
-lsof -ti :8000
+# Find process using port 8002
+lsof -ti :8002
 
 # Kill it
-kill -9 $(lsof -ti :8000)
+kill -9 $(lsof -ti :8002)
 
 # Or change port in .env
 API_PORT=8001
@@ -404,7 +404,7 @@ sudo npm install -g yarn
 After successful setup:
 
 1. **Explore the API**
-   - Visit http://localhost:8000/docs
+   - Visit http://localhost:8002/docs
    - Try the health check endpoints
    - Test authentication flow
 
@@ -445,7 +445,7 @@ If you encounter issues:
 ## Additional Resources
 
 - [Architecture Documentation](./architecture.md)
-- [API Documentation](http://localhost:8000/docs) (when running)
+- [API Documentation](http://localhost:8002/docs) (when running)
 - [SnapTrade Documentation](https://docs.snaptrade.com/)
 - [Contributing Guidelines](../CONTRIBUTING.md)
 

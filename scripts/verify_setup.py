@@ -49,12 +49,11 @@ class SetupVerifier:
     """Main setup verification class"""
 
     def __init__(self):
-        self.project_root = get_project_root()
-        self.errors: List[str] = []
-        self.warnings: List[str] = []
-        self.backend_url = "http://localhost:8000"
-        self.frontend_url = "http://localhost:3000"
-        self.skip_backend_start = False
+        """Initialize the setup validator."""
+        self.backend_url = "http://localhost:8002"
+        self.frontend_url = "http://localhost:3002"
+        self.passed = 0
+        self.failed = 0
 
     def run_all_checks(self) -> bool:
         """Run all verification checks"""
@@ -406,13 +405,13 @@ class SetupVerifier:
         """Start backend temporarily for testing"""
         try:
             # Check if port is already in use
-            if not check_port_available(8000):
-                print_info("Port 8000 already in use")
+            if not check_port_available(8002):
+                print_info("Port 8002 already in use")
                 return False
 
             # Start backend in background
             process = subprocess.Popen(
-                ["uv", "run", "uvicorn", "src.api.main:app", "--port", "8000"],
+                ["uv", "run", "uvicorn", "src.api.main:app", "--port", "8002"],
                 cwd=self.project_root,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -430,7 +429,7 @@ class SetupVerifier:
                 return False
 
             # Wait for it to be ready
-            if wait_for_port(8000, timeout=10):
+            if wait_for_port(8002, timeout=10):
                 print_success("Backend API started successfully")
                 # Kill it after tests
                 process.terminate()
@@ -482,7 +481,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Verify AIMS setup")
     parser.add_argument("--quick", action="store_true", help="Skip slow checks")
-    parser.add_argument("--backend-url", default="http://localhost:8000", help="Backend URL")
+    parser.add_argument("--backend-url", default="http://localhost:8002", help="Backend URL")
     parser.add_argument("--frontend-url", default="http://localhost:3000", help="Frontend URL")
     parser.add_argument(
         "--skip-backend", action="store_true", help="Skip backend startup if not running"

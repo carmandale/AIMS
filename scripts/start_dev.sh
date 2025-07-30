@@ -115,9 +115,9 @@ else
     fi
 fi
 
-# Get ports from environment
-BACKEND_PORT=${API_PORT:-8000}
-FRONTEND_PORT=${FRONTEND_PORT:-5173}
+# Get ports from environment or use defaults
+BACKEND_PORT=${API_PORT:-8002}
+FRONTEND_PORT=${PORT:-3002}
 
 # Check if ports are available
 echo ""

@@ -36,7 +36,7 @@ frontend-aims/
 
 The API client is configured in `src/lib/api-client.ts`:
 
-- Base URL: `http://localhost:8000`
+- Base URL: `http://localhost:${API_PORT:-8002}` (configurable via API_PORT environment variable)
 - Automatic token management
 - Request/response interceptors
 - Organized endpoints by feature
@@ -119,7 +119,7 @@ The app includes a navigation bar with links to all 5 components:
 The API URL can be configured via environment variable:
 
 ```bash
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=http://localhost:8002
 ```
 
 ## Next Steps

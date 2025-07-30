@@ -138,7 +138,7 @@ CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 Build and run:
 ```bash
 docker build -t aims:latest .
-docker run -p 8000:8000 --env-file .env aims:latest
+docker run -p 8002:8002 --env-file .env aims:latest
 ```
 
 ### Troubleshooting
@@ -166,7 +166,7 @@ docker run -p 8000:8000 --env-file .env aims:latest
 ### Next Steps
 
 After setup is complete:
-1. Run the health check: `curl http://localhost:8000/api/health`
-2. View API documentation: Open `http://localhost:8000/docs` in your browser
+1. Run the health check: `curl http://localhost:8002/api/health`
+2. View API documentation: Open `http://localhost:8002/docs` in your browser
 3. Run the test suite to ensure everything is working
 4. Start implementing Phase 1 features as outlined in the PRD

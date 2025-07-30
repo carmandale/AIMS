@@ -6,32 +6,28 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    """Application settings with environment variable support"""
-
+    """Application settings with environment variable support."""
+    
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False
     )
-
+    
     # API Configuration
     api_host: str = Field(default="0.0.0.0", description="API host")
-    api_port: int = Field(default=8000, description="API port")
-    api_reload: bool = Field(default=False, description="Enable auto-reload")
-
+    api_port: int = Field(default=8002, description="API port")
+    api_reload: bool = Field(default=True, description="API reload on change")
+    
     # Security
-    secret_key: str = Field(
-        default="development-secret-key-change-in-production",
-        description="Secret key for JWT tokens",
-    )
+    secret_key: str = Field(default="development-secret-key", description="Secret key for JWT")
     cors_origins: List[str] = Field(
         default=[
             "http://localhost:3000",
             "http://localhost:3002",
-            "http://localhost:8000",
             "http://localhost:8002",
             "http://localhost:5173",
             "http://localhost:5174",
         ],
-        description="Allowed CORS origins",
+        description="CORS allowed origins"
     )
 
     # Database

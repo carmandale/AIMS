@@ -323,7 +323,7 @@ print(result)
 Use tools like curl to inspect API responses:
 ```bash
 # Test registration endpoint
-curl -X POST http://localhost:8000/api/snaptrade/register \
+curl -X POST http://localhost:8002/api/snaptrade/register \
   -H "Content-Type: application/json" \
   -d '{"user_id": "test_user"}'
 ```

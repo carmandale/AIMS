@@ -3,7 +3,7 @@ import path from 'path';
 
 // Test configuration
 const BASE_URL = 'http://localhost:5173';
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://localhost:8002';
 const SCREENSHOTS_DIR = path.join(__dirname, '..', 'screenshots', 'full-validation');
 
 // Test user credentials

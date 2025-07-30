@@ -63,8 +63,9 @@ else
     yarn install
 fi
 
-# Check backend API availability
-BACKEND_URL="http://localhost:8000"
+# Backend connection test
+echo "🔗 Testing backend connection..."
+BACKEND_URL="http://localhost:8002"
 echo -e "${BLUE}Checking backend API at $BACKEND_URL...${NC}"
 
 if curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL/health" | grep -q "200"; then

@@ -4,7 +4,7 @@
 
 The AIMS API provides programmatic access to portfolio management features including performance analytics, drawdown analysis, task management, and brokerage integrations.
 
-**Base URL**: `http://localhost:8000/api`
+**Base URL**: `http://localhost:${API_PORT:-8002}/api` (configurable via API_PORT environment variable)
 
 **Authentication**: All endpoints require JWT Bearer token authentication unless otherwise specified.
 
@@ -490,7 +490,7 @@ Optimized indexes are in place for common query patterns:
 
 Real-time updates will be available via WebSocket connection:
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/ws');
+const ws = new WebSocket(`ws://localhost:${process.env.API_PORT || 8002}/ws`);
 ws.send(JSON.stringify({
   type: 'subscribe',
   channels: ['portfolio', 'tasks', 'alerts']
@@ -504,7 +504,10 @@ ws.send(JSON.stringify({
 import httpx
 
 class AIMSClient:
-    def __init__(self, base_url="http://localhost:8000", token=None):
+    def __init__(self, base_url=None, token=None):
+        if base_url is None:
+            api_port = os.getenv('API_PORT', '8002')
+            base_url = f"http://localhost:{api_port}"
         self.base_url = base_url
         self.headers = {"Authorization": f"Bearer {token}"} if token else {}
     
@@ -519,7 +522,9 @@ class AIMSClient:
 ### JavaScript/TypeScript
 ```typescript
 class AIMSClient {
-  constructor(private baseUrl = 'http://localhost:8000', private token?: string) {}
+      constructor(private baseUrl?: string, private token?: string) {
+        this.baseUrl = baseUrl || `http://localhost:${process.env.API_PORT || 8002}`;
+    }
   
   async getCurrentDrawdown() {
     const response = await fetch(`${this.baseUrl}/api/performance/drawdown/current`, {

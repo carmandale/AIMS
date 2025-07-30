@@ -59,7 +59,7 @@ else
 fi
 
 # Get port from environment or use default
-PORT=${API_PORT:-8000}
+PORT=${API_PORT:-8002}
 HOST=${API_HOST:-0.0.0.0}
 
 # Check if port is already in use

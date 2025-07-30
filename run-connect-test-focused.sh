@@ -25,8 +25,8 @@ cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/AIMS"
 
 # Make sure the backend and frontend are running
 echo "Checking if services are running..."
-if ! lsof -ti:8000 > /dev/null; then
-    echo "Backend not running on port 8000. Please start it first with: uv run uvicorn backend.main:app --reload"
+if ! lsof -ti:8002 > /dev/null; then
+    echo "Backend not running on port 8002. Please start it first with: uv run uvicorn backend.main:app --reload"
     exit 1
 fi
 
