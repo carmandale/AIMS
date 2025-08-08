@@ -75,7 +75,7 @@ DATABASE_URL=postgresql://user:password@localhost/aims_db
 uvicorn src.api.main:app --reload
 
 # Production mode
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+uvicorn src.api.main:app --host 0.0.0.0 --port 8002
 
 # Using Python directly
 python -m src.api.main
@@ -130,9 +130,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8002
 
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8002"]
 ```
 
 Build and run:
