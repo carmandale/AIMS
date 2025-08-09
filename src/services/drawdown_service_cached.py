@@ -51,7 +51,7 @@ class CachedDrawdownService(DrawdownService):
         # Check cache
         cached_result = cache_manager.get(db, cache_key)
         if cached_result is not None:
-            return cached_result
+            return cached_result  # type: ignore
 
         # Load snapshots if not provided
         if snapshots is None:
@@ -104,7 +104,7 @@ class CachedDrawdownService(DrawdownService):
         # Check cache
         cached_result = cache_manager.get(db, cache_key)
         if cached_result is not None:
-            return cached_result
+            return cached_result  # type: ignore
 
         # Load snapshots if not provided
         if snapshots is None:
@@ -156,7 +156,7 @@ class CachedDrawdownService(DrawdownService):
         # Check cache
         cached_result = cache_manager.get(db, cache_key)
         if cached_result is not None:
-            return cached_result
+            return cached_result  # type: ignore
 
         # Load snapshots if not provided
         if snapshots is None:
@@ -211,7 +211,7 @@ class CachedDrawdownService(DrawdownService):
         # Check cache
         cached_result = cache_manager.get(db, cache_key)
         if cached_result is not None:
-            return cached_result
+            return cached_result  # type: ignore
 
         # Load snapshots if not provided
         if snapshots is None:

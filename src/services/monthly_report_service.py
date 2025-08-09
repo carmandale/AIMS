@@ -285,24 +285,30 @@ class MonthlyReportService:
         start_datetime = datetime.combine(month_start, datetime.min.time())
         end_datetime = datetime.combine(month_end, datetime.max.time())
 
+        # Get performance snapshots for the month
+        snapshots = (
+            db.query(PerformanceSnapshot)
+            .filter(
+                PerformanceSnapshot.user_id == user_id,
+                PerformanceSnapshot.timestamp >= start_datetime,
+                PerformanceSnapshot.timestamp <= end_datetime,
+            )
+            .order_by(PerformanceSnapshot.timestamp)
+            .all()
+        )
+
         # Get monthly drawdown analysis
         analysis = drawdown_service.get_historical_analysis(
-            db=db, user_id=user_id, start_date=start_datetime, end_date=end_datetime
+            snapshots, start_date=start_datetime, end_date=end_datetime
         )
 
         # Get drawdown events for the month
         events = drawdown_service.calculate_drawdown_events(
-            db=db,
-            user_id=user_id,
-            threshold_percent=Decimal("1.0"),  # Lower threshold for monthly view
-            start_date=start_datetime,
-            end_date=end_datetime,
+            snapshots, threshold_percent=Decimal("1.0")  # Lower threshold for monthly view
         )
 
         # Calculate underwater days (days in drawdown)
-        underwater_curve = drawdown_service.calculate_underwater_curve(
-            db=db, user_id=user_id, start_date=start_datetime, end_date=end_datetime
-        )
+        underwater_curve = drawdown_service.calculate_underwater_curve(snapshots)
 
         underwater_days = sum(1 for point in underwater_curve if point["drawdown_percent"] > 0)
 

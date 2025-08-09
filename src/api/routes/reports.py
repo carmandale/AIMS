@@ -221,8 +221,9 @@ async def download_monthly_report(
             raise HTTPException(status_code=404, detail="Report file not found")
 
         # Create filename for download
+        params = report.parameters  # type: ignore
         filename = (
-            f"monthly_report_{report.parameters['month']:02d}_{report.parameters['year']}.pdf"
+            f"monthly_report_{params['month']:02d}_{params['year']}.pdf"
         )
 
         return FileResponse(
