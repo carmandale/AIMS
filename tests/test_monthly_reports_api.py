@@ -85,7 +85,7 @@ class TestMonthlyReportsAPI:
     def test_list_monthly_reports_unauthorized(self, client: TestClient):
         """Test monthly reports list without authentication"""
         response = client.get("/api/reports/monthly")
-        assert response.status_code == 401
+        assert response.status_code == 403  # FastAPI returns 403 for missing auth
 
     def test_generate_monthly_report_success(
         self, 
@@ -140,8 +140,10 @@ class TestMonthlyReportsAPI:
             headers=auth_headers
         )
         
-        assert response.status_code == 400
-        assert "Invalid month" in response.json()["detail"]
+        assert response.status_code == 422  # FastAPI validation error
+        # FastAPI returns validation errors in a different format
+        error_detail = response.json()["detail"]
+        assert any("Month must be between 1 and 12" in str(error) for error in error_detail)
 
     def test_generate_monthly_report_future_date(
         self, 
@@ -155,7 +157,7 @@ class TestMonthlyReportsAPI:
             headers=auth_headers
         )
         
-        assert response.status_code == 400
+        assert response.status_code == 422  # FastAPI validation error
 
     def test_download_monthly_report_success(
         self, 
@@ -353,7 +355,7 @@ class TestMonthlyReportsAPI:
             headers=auth_headers
         )
         
-        assert response.status_code == 400
+        assert response.status_code == 422  # FastAPI validation error
 
     def test_monthly_reports_rate_limiting(
         self, 
