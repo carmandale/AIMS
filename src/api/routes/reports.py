@@ -221,7 +221,14 @@ async def download_monthly_report(
             raise HTTPException(status_code=404, detail="Report file not found")
 
         # Create filename for download
-        params = report.parameters  # type: ignore
+        params = report.parameters
+        if not isinstance(params, dict):
+            raise HTTPException(status_code=500, detail="Invalid report parameters format")
+        
+        # Ensure required parameters exist
+        if 'month' not in params or 'year' not in params:
+            raise HTTPException(status_code=500, detail="Missing required parameters: month, year")
+            
         filename = f"monthly_report_{params['month']:02d}_{params['year']}.pdf"
 
         return FileResponse(
