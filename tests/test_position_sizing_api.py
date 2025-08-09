@@ -10,16 +10,7 @@ from src.db.models import User, BrokerageAccount
 class TestPositionSizingAPI:
     """Test suite for position sizing API endpoints"""
 
-    @pytest.fixture
-    def client(self, override_get_db):
-        """Create test client with database override"""
-        from src.api.main import app
-        from src.db.session import get_db
-
-        app.dependency_overrides[get_db] = override_get_db
-        client = TestClient(app)
-        yield client
-        app.dependency_overrides.clear()
+    # Use the global client fixture from conftest.py instead of defining our own
 
     @pytest.fixture
     def test_user(self, test_db_session: Session) -> User:
