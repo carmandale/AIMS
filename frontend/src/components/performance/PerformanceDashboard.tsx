@@ -21,10 +21,7 @@ import {
   useHistoricalPerformanceData,
   useConfigureBenchmark,
 } from '../../hooks/use-portfolio';
-import {
-  useCurrentDrawdownMetrics,
-  useHistoricalDrawdownData,
-} from '../../hooks/use-drawdown';
+import { useCurrentDrawdownMetrics, useHistoricalDrawdownData } from '../../hooks/use-drawdown';
 import { useIsMobile } from '../../hooks/use-mobile';
 
 export interface PerformanceDashboardProps {
@@ -104,7 +101,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
 
   const isLoading = metricsLoading || historicalLoading;
   const error = metricsError || historicalError;
-  
+
   // Drawdown loading and error states are handled separately since they're not critical for the main dashboard
 
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
@@ -374,7 +371,8 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({ clas
                     </div>
                     {selectedBenchmark !== 'none' && currentDrawdownMetrics.benchmark_drawdown && (
                       <span className="text-sm text-slate-400">
-                        vs {currentDrawdownMetrics.benchmark_drawdown.symbol}: {currentDrawdownMetrics.benchmark_drawdown.percentage.toFixed(1)}%
+                        vs {currentDrawdownMetrics.benchmark_drawdown.symbol}:{' '}
+                        {currentDrawdownMetrics.benchmark_drawdown.percentage.toFixed(1)}%
                       </span>
                     )}
                   </div>

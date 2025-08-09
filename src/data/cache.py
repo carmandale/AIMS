@@ -17,8 +17,26 @@ class DecimalEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, Decimal):
-            return float(obj)
+            return {"__decimal__": str(obj)}
         return super().default(obj)
+
+
+def decimal_decoder(obj):
+    """Custom JSON decoder to handle Decimal types"""
+    if isinstance(obj, dict) and "__decimal__" in obj:
+        return Decimal(obj["__decimal__"])
+    return obj
+
+
+def decode_decimals(obj):
+    """Recursively decode decimal objects"""
+    if isinstance(obj, dict):
+        if "__decimal__" in obj:
+            return Decimal(obj["__decimal__"])
+        return {k: decode_decimals(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [decode_decimals(item) for item in obj]
+    return obj
 
 
 class CacheManager:
@@ -43,13 +61,14 @@ class CacheManager:
         )
 
         if cached:
-            return cached.data  # type: ignore[return-value]
+            # Decode any decimal objects back to Decimal instances
+            return decode_decimals(cached.data)  # type: ignore[return-value]
         return None
 
     def _convert_decimals(self, obj: Any) -> Any:
-        """Recursively convert Decimal objects to float and datetime/date to ISO string"""
+        """Recursively convert Decimal objects to special dict and datetime/date to ISO string"""
         if isinstance(obj, Decimal):
-            return float(obj)
+            return {"__decimal__": str(obj)}
         elif isinstance(obj, datetime):
             return obj.isoformat()
         elif isinstance(obj, date):

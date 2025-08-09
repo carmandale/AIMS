@@ -73,7 +73,7 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
       });
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       const calculationResult: PositionSizeCalculationResult = {
         ...data,
         entry_price: formData.entry_price,
@@ -84,10 +84,15 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
       setResult(calculationResult);
       setErrors({});
     },
-    onError: (error: { response?: { status: number; data: { detail: string | Array<{ loc?: string[]; msg: string }> } } }) => {
+    onError: (error: {
+      response?: {
+        status: number;
+        data: { detail: string | Array<{ loc?: string[]; msg: string }> };
+      };
+    }) => {
       console.error('Calculation error:', error);
       setResult(null);
-      
+
       // Handle validation errors
       if (error.response?.status === 422) {
         const detail = error.response.data.detail;
@@ -130,7 +135,11 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
       if (!formData.stop_loss || formData.stop_loss <= 0) {
         newErrors.stop_loss = 'Stop loss is required';
       }
-      if (formData.entry_price && formData.stop_loss && formData.stop_loss >= formData.entry_price) {
+      if (
+        formData.entry_price &&
+        formData.stop_loss &&
+        formData.stop_loss >= formData.entry_price
+      ) {
         newErrors.stop_loss = 'Stop loss must be below entry price';
       }
     } else if (formData.method === 'kelly') {
@@ -177,7 +186,10 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
   }, [isOpen, initialData]);
 
   // Handle input changes
-  const handleInputChange = (field: keyof PositionSizeCalculationData, value: string | number | undefined) => {
+  const handleInputChange = (
+    field: keyof PositionSizeCalculationData,
+    value: string | number | undefined
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -243,7 +255,7 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -253,7 +265,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">Position Size Calculator</h2>
-                <p className="text-sm text-gray-500">Determine optimal position size based on risk parameters</p>
+                <p className="text-sm text-gray-500">
+                  Determine optimal position size based on risk parameters
+                </p>
               </div>
             </div>
             <button
@@ -276,10 +290,25 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                   </label>
                   <div className="grid grid-cols-1 gap-3">
                     {[
-                      { id: 'fixed_risk', name: 'Fixed Risk', icon: Shield, desc: 'Size based on fixed risk amount' },
-                      { id: 'kelly', name: 'Kelly Criterion', icon: TrendingUp, desc: 'Optimal size based on win rate' },
-                      { id: 'volatility_based', name: 'Volatility-Based', icon: Activity, desc: 'Size based on ATR volatility' },
-                    ].map((method) => (
+                      {
+                        id: 'fixed_risk',
+                        name: 'Fixed Risk',
+                        icon: Shield,
+                        desc: 'Size based on fixed risk amount',
+                      },
+                      {
+                        id: 'kelly',
+                        name: 'Kelly Criterion',
+                        icon: TrendingUp,
+                        desc: 'Optimal size based on win rate',
+                      },
+                      {
+                        id: 'volatility_based',
+                        name: 'Volatility-Based',
+                        icon: Activity,
+                        desc: 'Size based on ATR volatility',
+                      },
+                    ].map(method => (
                       <button
                         key={method.id}
                         onClick={() => handleMethodChange(method.id as SizingMethod)}
@@ -312,7 +341,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                       min="0"
                       step="1000"
                       value={formData.account_value}
-                      onChange={(e) => handleInputChange('account_value', parseFloat(e.target.value) || 0)}
+                      onChange={e =>
+                        handleInputChange('account_value', parseFloat(e.target.value) || 0)
+                      }
                       className={cn(
                         'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                         errors.account_value ? 'border-red-500' : 'border-gray-300'
@@ -337,7 +368,12 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           max="100"
                           step="0.1"
                           value={(formData.risk_percentage || 0) * 100}
-                          onChange={(e) => handleInputChange('risk_percentage', (parseFloat(e.target.value) || 0) / 100)}
+                          onChange={e =>
+                            handleInputChange(
+                              'risk_percentage',
+                              (parseFloat(e.target.value) || 0) / 100
+                            )
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.risk_percentage ? 'border-red-500' : 'border-gray-300'
@@ -358,7 +394,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.01"
                           value={formData.entry_price}
-                          onChange={(e) => handleInputChange('entry_price', parseFloat(e.target.value) || 0)}
+                          onChange={e =>
+                            handleInputChange('entry_price', parseFloat(e.target.value) || 0)
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.entry_price ? 'border-red-500' : 'border-gray-300'
@@ -379,7 +417,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.01"
                           value={formData.stop_loss}
-                          onChange={(e) => handleInputChange('stop_loss', parseFloat(e.target.value) || 0)}
+                          onChange={e =>
+                            handleInputChange('stop_loss', parseFloat(e.target.value) || 0)
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.stop_loss ? 'border-red-500' : 'border-gray-300'
@@ -400,7 +440,12 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.01"
                           value={formData.target_price || ''}
-                          onChange={(e) => handleInputChange('target_price', e.target.value ? parseFloat(e.target.value) : undefined)}
+                          onChange={e =>
+                            handleInputChange(
+                              'target_price',
+                              e.target.value ? parseFloat(e.target.value) : undefined
+                            )
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="165.00"
                         />
@@ -421,7 +466,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           max="100"
                           step="1"
                           value={(formData.win_rate || 0) * 100}
-                          onChange={(e) => handleInputChange('win_rate', (parseFloat(e.target.value) || 0) / 100)}
+                          onChange={e =>
+                            handleInputChange('win_rate', (parseFloat(e.target.value) || 0) / 100)
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.win_rate ? 'border-red-500' : 'border-gray-300'
@@ -442,7 +489,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.1"
                           value={formData.avg_win_loss_ratio}
-                          onChange={(e) => handleInputChange('avg_win_loss_ratio', parseFloat(e.target.value) || 0)}
+                          onChange={e =>
+                            handleInputChange('avg_win_loss_ratio', parseFloat(e.target.value) || 0)
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.avg_win_loss_ratio ? 'border-red-500' : 'border-gray-300'
@@ -464,11 +513,15 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           max="1"
                           step="0.1"
                           value={formData.confidence_level}
-                          onChange={(e) => handleInputChange('confidence_level', parseFloat(e.target.value) || 1)}
+                          onChange={e =>
+                            handleInputChange('confidence_level', parseFloat(e.target.value) || 1)
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="1.0"
                         />
-                        <p className="mt-1 text-sm text-gray-500">1.0 = Full Kelly, 0.5 = Half Kelly (more conservative)</p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          1.0 = Full Kelly, 0.5 = Half Kelly (more conservative)
+                        </p>
                       </div>
                     </>
                   )}
@@ -486,7 +539,12 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           max="100"
                           step="0.1"
                           value={(formData.risk_percentage || 0) * 100}
-                          onChange={(e) => handleInputChange('risk_percentage', (parseFloat(e.target.value) || 0) / 100)}
+                          onChange={e =>
+                            handleInputChange(
+                              'risk_percentage',
+                              (parseFloat(e.target.value) || 0) / 100
+                            )
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.risk_percentage ? 'border-red-500' : 'border-gray-300'
@@ -507,7 +565,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.01"
                           value={formData.entry_price}
-                          onChange={(e) => handleInputChange('entry_price', parseFloat(e.target.value) || 0)}
+                          onChange={e =>
+                            handleInputChange('entry_price', parseFloat(e.target.value) || 0)
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.entry_price ? 'border-red-500' : 'border-gray-300'
@@ -528,16 +588,19 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.01"
                           value={formData.atr || ''}
-                          onChange={(e) => handleInputChange('atr', e.target.value ? parseFloat(e.target.value) : undefined)}
+                          onChange={e =>
+                            handleInputChange(
+                              'atr',
+                              e.target.value ? parseFloat(e.target.value) : undefined
+                            )
+                          }
                           className={cn(
                             'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                             errors.atr ? 'border-red-500' : 'border-gray-300'
                           )}
                           placeholder="2.50"
                         />
-                        {errors.atr && (
-                          <p className="mt-1 text-sm text-red-600">{errors.atr}</p>
-                        )}
+                        {errors.atr && <p className="mt-1 text-sm text-red-600">{errors.atr}</p>}
                       </div>
 
                       <div>
@@ -549,11 +612,15 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                           min="0"
                           step="0.1"
                           value={formData.atr_multiplier}
-                          onChange={(e) => handleInputChange('atr_multiplier', parseFloat(e.target.value) || 2)}
+                          onChange={e =>
+                            handleInputChange('atr_multiplier', parseFloat(e.target.value) || 2)
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="2.0"
                         />
-                        <p className="mt-1 text-sm text-gray-500">Multiplier for ATR to calculate stop distance</p>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Multiplier for ATR to calculate stop distance
+                        </p>
                       </div>
                     </>
                   )}
@@ -566,7 +633,9 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                   <>
                     {/* Calculation Results */}
                     <div className="bg-gray-50 rounded-lg p-6">
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Calculation Results</h3>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        Calculation Results
+                      </h3>
                       <div className="space-y-4">
                         <div className="flex justify-between items-center py-2 border-b border-gray-200">
                           <span className="text-gray-600">Position Size</span>
@@ -612,14 +681,16 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                     </div>
 
                     {/* Risk/Reward Visualization */}
-                    {formData.method === 'fixed_risk' && formData.entry_price > 0 && formData.stop_loss > 0 && (
-                      <RiskRewardChart
-                        entryPrice={formData.entry_price}
-                        stopLoss={formData.stop_loss}
-                        targetPrice={formData.target_price}
-                        positionSize={result.position_size}
-                      />
-                    )}
+                    {formData.method === 'fixed_risk' &&
+                      formData.entry_price > 0 &&
+                      formData.stop_loss > 0 && (
+                        <RiskRewardChart
+                          entryPrice={formData.entry_price}
+                          stopLoss={formData.stop_loss}
+                          targetPrice={formData.target_price}
+                          positionSize={result.position_size}
+                        />
+                      )}
 
                     {/* Warnings */}
                     {result.warnings.length > 0 && (
@@ -656,8 +727,8 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
                       {calculateMutation.isPending
                         ? 'Calculating...'
                         : Object.keys(errors).length > 0
-                        ? 'Please fix validation errors'
-                        : 'Enter parameters to calculate position size'}
+                          ? 'Please fix validation errors'
+                          : 'Enter parameters to calculate position size'}
                     </p>
                   </div>
                 )}

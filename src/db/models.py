@@ -376,14 +376,17 @@ class Report(Base):  # type: ignore
     __table_args__ = (
         Index("idx_user_type", "user_id", "report_type"),
         Index("idx_status_expires", "status", "expires_at"),
-        Index("idx_monthly_reports", "user_id", "report_type", "created_at"),  # Monthly reports optimization
+        Index(
+            "idx_monthly_reports", "user_id", "report_type", "created_at"
+        ),  # Monthly reports optimization
     )
 
 
 class ReportEmailDelivery(Base):  # type: ignore
     """Email delivery tracking for reports"""
+
     __tablename__ = "report_email_deliveries"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     report_id = Column(Integer, ForeignKey("reports.id"), nullable=False, index=True)
     email_address = Column(String(255), nullable=False)
@@ -392,14 +395,12 @@ class ReportEmailDelivery(Base):  # type: ignore
     error_message = Column(Text, nullable=True)
     retry_count = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
-    
+
     # Relationship
     report = relationship("Report", backref="email_deliveries")  # type: ignore
-    
+
     # Indexes
-    __table_args__ = (
-        Index("idx_report_delivery_status", "report_id", "delivery_status"),
-    )
+    __table_args__ = (Index("idx_report_delivery_status", "report_id", "delivery_status"),)
 
 
 class AssetAllocation(Base):  # type: ignore

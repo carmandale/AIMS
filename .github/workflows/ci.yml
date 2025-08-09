@@ -31,6 +31,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
     
+    - name: Install Playwright browsers
+      run: |
+        playwright install
+    
     - name: Format check with black
       run: |
         black --check src tests

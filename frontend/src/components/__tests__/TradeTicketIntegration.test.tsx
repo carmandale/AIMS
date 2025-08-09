@@ -324,8 +324,8 @@ export const mockTradeTicketData = {
     price: 150.25,
     change: 2.15,
     change_percent: 1.45,
-    bid: 150.20,
-    ask: 150.30,
+    bid: 150.2,
+    ask: 150.3,
     last_updated: new Date().toISOString(),
   },
 };

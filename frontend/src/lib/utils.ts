@@ -90,7 +90,7 @@ export function validateTradeSize(
       `Insufficient cash: Need $${positionValue.toLocaleString()}, available $${accountLimits.availableCash.toLocaleString()}`
     );
     result.isValid = false;
-    
+
     // Suggest adjusted position size
     result.adjustedAmount = Math.floor(accountLimits.availableCash / price);
   }
@@ -115,7 +115,7 @@ export function validateTradeSize(
   if (accountLimits.maxRiskPerTrade) {
     const maxRiskAmount = accountLimits.accountValue * accountLimits.maxRiskPerTrade;
     const positionRiskPercentage = positionValue / accountLimits.accountValue;
-    
+
     if (positionValue > maxRiskAmount) {
       result.warnings.push(
         `Large position size: ${(positionRiskPercentage * 100).toFixed(1)}% of account value (${(accountLimits.maxRiskPerTrade * 100).toFixed(1)}% recommended max)`
@@ -125,7 +125,8 @@ export function validateTradeSize(
 
   // Position concentration warnings
   const concentrationPercentage = positionValue / accountLimits.accountValue;
-  if (concentrationPercentage > 0.1) { // More than 10% of account
+  if (concentrationPercentage > 0.1) {
+    // More than 10% of account
     result.warnings.push(
       `High concentration: Position represents ${(concentrationPercentage * 100).toFixed(1)}% of total account value`
     );
@@ -134,8 +135,14 @@ export function validateTradeSize(
   // Asset-specific validations
   if (symbol) {
     // Cryptocurrency specific warnings
-    if (symbol.includes('BTC') || symbol.includes('ETH') || symbol.includes('USD') || symbol.includes('-')) {
-      if (concentrationPercentage > 0.05) { // More than 5% for crypto
+    if (
+      symbol.includes('BTC') ||
+      symbol.includes('ETH') ||
+      symbol.includes('USD') ||
+      symbol.includes('-')
+    ) {
+      if (concentrationPercentage > 0.05) {
+        // More than 5% for crypto
         result.warnings.push(
           `High crypto exposure: Consider limiting crypto positions to 5% of portfolio`
         );
