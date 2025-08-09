@@ -15,8 +15,11 @@ class TestDrawdownModels:
     def test_performance_snapshot_drawdown_fields(self, test_db_session):
         """Test that PerformanceSnapshot model can store drawdown metrics"""
         # Create a test user
+        from tests.conftest import generate_unique_user_id
+        
+        user_id = generate_unique_user_id()
         user = User(
-            user_id="test_user_123", email="test@example.com", password_hash="hashed_password"
+            user_id=user_id, email=f"test_{user_id}@example.com", password_hash="hashed_password"
         )
         test_db_session.add(user)
         test_db_session.commit()

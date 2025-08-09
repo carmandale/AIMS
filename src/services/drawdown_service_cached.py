@@ -28,8 +28,9 @@ class CachedDrawdownService(DrawdownService):
 
     def _get_cache_key(self, user_id: str, method: str, params: Dict[str, Any]) -> str:
         """Generate cache key for drawdown calculations"""
-        cache_params = {"user_id": user_id, "method": method, **params}
-        return cache_manager._generate_key("drawdown", cache_params)
+        cache_params = {"method": method, **params}
+        # Include user_id in prefix for easier invalidation
+        return cache_manager._generate_key(f"drawdown:{user_id}", cache_params)
 
     def calculate_current_drawdown_cached(
         self, db: Session, user_id: str, snapshots: Optional[List[PerformanceSnapshot]] = None
@@ -241,7 +242,7 @@ class CachedDrawdownService(DrawdownService):
             user_id: User ID to invalidate cache for
         """
         # Invalidate all cache entries for this user's drawdown data
-        cache_pattern = f"drawdown:*{user_id}*"
+        cache_pattern = f"drawdown:{user_id}:"
         cache_manager.invalidate(db, cache_pattern)
 
     def get_or_calculate_all(

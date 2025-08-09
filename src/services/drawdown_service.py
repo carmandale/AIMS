@@ -54,10 +54,10 @@ class DrawdownService:
 
         return {
             "current_drawdown_percent": drawdown_percent,
-            "current_drawdown_amount": drawdown_amount,
-            "peak_value": peak_value,
+            "current_drawdown_amount": drawdown_amount.quantize(Decimal("0.01")),
+            "peak_value": peak_value.quantize(Decimal("0.01")),
             "peak_date": peak_date,
-            "current_value": current_value,
+            "current_value": current_value.quantize(Decimal("0.01")),
             "current_date": current_date,
             "days_in_drawdown": (
                 (current_date - peak_date).days if peak_date and drawdown_amount > 0 else 0

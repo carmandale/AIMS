@@ -18,9 +18,12 @@ class TestDrawdownAPIEndpoints:
     @pytest.fixture
     def test_user(self, test_db_session: Session) -> User:
         """Create a test user"""
+        from tests.conftest import generate_unique_user_id
+        
+        user_id = generate_unique_user_id()
         user = User(
-            user_id="test_user_123",
-            email="test@example.com",
+            user_id=user_id,
+            email=f"test_{user_id}@example.com",
             password_hash="hashed_password",
             is_active=True,
         )

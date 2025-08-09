@@ -4,6 +4,7 @@ import pytest
 import asyncio
 import tempfile
 import os
+import uuid
 from typing import Generator
 from unittest.mock import patch
 from sqlalchemy import create_engine
@@ -19,6 +20,11 @@ from src.db.models import Base
 from src.db.session import get_db
 from src.core.config import settings
 from tests.mocks.rate_limiter import MockRateLimiter
+
+
+def generate_unique_user_id() -> str:
+    """Generate a unique user ID for tests"""
+    return f"test_user_{uuid.uuid4().hex[:8]}"
 
 
 @pytest.fixture(scope="session")
