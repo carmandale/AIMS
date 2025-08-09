@@ -222,9 +222,7 @@ async def download_monthly_report(
 
         # Create filename for download
         params = report.parameters  # type: ignore
-        filename = (
-            f"monthly_report_{params['month']:02d}_{params['year']}.pdf"
-        )
+        filename = f"monthly_report_{params['month']:02d}_{params['year']}.pdf"
 
         return FileResponse(
             path=report.file_path,
