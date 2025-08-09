@@ -65,7 +65,9 @@ def override_get_db():
 # Don't set global overrides - each test will manage its own client
 
 
-@pytest.mark.skip(reason="Test isolation issues - passes individually but interferes with other tests")
+@pytest.mark.skip(
+    reason="Test isolation issues - passes individually but interferes with other tests"
+)
 class TestPerformanceAPIEndpoints:
     """Test performance API endpoints with real database integration"""
 
@@ -166,18 +168,21 @@ class TestPerformanceAPIEndpoints:
         mock_data.index = [datetime(2024, 1, 1), datetime(2024, 1, 2)]
         mock_data.__getitem__.return_value = [100.0, 101.0]  # Mock Close prices
         mock_yf_download.return_value = mock_data
-        
+
         # Create isolated test client with dependency override
         app.dependency_overrides[get_db] = override_get_db
         client = TestClient(app)
-        
+
         try:
             # Get auth headers for the test user
             from src.api.auth import create_access_token
+
             token = create_access_token(data={"sub": self.test_user_id, "email": self.test_email})
             headers = {"Authorization": f"Bearer {token}"}
-            
-            response = client.get("/api/performance/metrics?period=1M&benchmark=SPY", headers=headers)
+
+            response = client.get(
+                "/api/performance/metrics?period=1M&benchmark=SPY", headers=headers
+            )
         finally:
             # Clean up dependency overrides
             app.dependency_overrides.clear()
@@ -347,7 +352,9 @@ class TestPerformanceAPIEndpoints:
         print("✅ API error handling tests passed")
 
 
-@pytest.mark.skip(reason="Test isolation issues - passes individually but interferes with other tests")
+@pytest.mark.skip(
+    reason="Test isolation issues - passes individually but interferes with other tests"
+)
 class TestPerformanceCalculationAccuracy:
     """Test accuracy of performance calculations"""
 
@@ -559,7 +566,9 @@ class TestPerformanceCalculationAccuracy:
             print("⚠️  Sharpe ratio calculation returned None (may need more data)")
 
 
-@pytest.mark.skip(reason="Test isolation issues - passes individually but interferes with other tests")
+@pytest.mark.skip(
+    reason="Test isolation issues - passes individually but interferes with other tests"
+)
 class TestBenchmarkIntegration:
     """Test benchmark service integration"""
 
@@ -638,7 +647,9 @@ class TestBenchmarkIntegration:
         print("✅ Benchmark comparison calculations test passed")
 
 
-@pytest.mark.skip(reason="Test isolation issues - passes individually but interferes with other tests")
+@pytest.mark.skip(
+    reason="Test isolation issues - passes individually but interferes with other tests"
+)
 class TestDataFlowIntegration:
     """Test complete data flow from database to API to response"""
 
