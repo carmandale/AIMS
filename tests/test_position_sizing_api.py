@@ -38,7 +38,7 @@ class TestPositionSizingAPI:
     def test_account(self, test_db_session: Session, test_user: User) -> BrokerageAccount:
         """Create a test brokerage account"""
         from src.data.models import BrokerType
-        
+
         account = BrokerageAccount(
             user_id=test_user.user_id,
             brokerage_type=BrokerType.FIDELITY,
@@ -132,9 +132,7 @@ class TestPositionSizingAPI:
         # The metadata might vary based on implementation
         assert "metadata" in data
 
-    def test_calculate_missing_required_fields(
-        self, client: TestClient, auth_headers: dict
-    ):
+    def test_calculate_missing_required_fields(self, client: TestClient, auth_headers: dict):
         """Test calculation with missing required fields"""
         payload = {
             "method": "fixed_risk",
@@ -212,7 +210,9 @@ class TestPositionSizingAPI:
         assert "account_value" in fixed_risk["required_fields"]
         assert "target_price" in fixed_risk["optional_fields"]
 
-    def test_validate_position_size(self, client: TestClient, auth_headers: dict, test_account: BrokerageAccount):
+    def test_validate_position_size(
+        self, client: TestClient, auth_headers: dict, test_account: BrokerageAccount
+    ):
         """Test position size validation"""
         payload = {
             "symbol": "AAPL",
@@ -234,7 +234,9 @@ class TestPositionSizingAPI:
         assert "warnings" in data
         assert "max_allowed_size" in data
 
-    def test_validate_oversized_position(self, client: TestClient, auth_headers: dict, test_account: BrokerageAccount):
+    def test_validate_oversized_position(
+        self, client: TestClient, auth_headers: dict, test_account: BrokerageAccount
+    ):
         """Test validation of oversized position"""
         payload = {
             "symbol": "AAPL",

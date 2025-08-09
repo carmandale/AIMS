@@ -41,6 +41,7 @@ from src.core.config import settings
 
 # Test Database Setup - Use unique DB per test run
 import uuid
+
 SQLALCHEMY_DATABASE_URL = f"sqlite:///./test_performance_integration_{uuid.uuid4().hex[:8]}.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

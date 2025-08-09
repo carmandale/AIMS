@@ -43,13 +43,12 @@ from src.core.config import settings
 
 
 # Skip integration tests if SnapTrade credentials are not available
-SNAPTRADE_AVAILABLE = bool(
-    os.getenv("SNAPTRADE_CLIENT_ID") and os.getenv("SNAPTRADE_CONSUMER_KEY")
-)
+SNAPTRADE_AVAILABLE = bool(os.getenv("SNAPTRADE_CLIENT_ID") and os.getenv("SNAPTRADE_CONSUMER_KEY"))
 
 
 # Test Database Setup - Use unique DB per test run
 import uuid
+
 SQLALCHEMY_DATABASE_URL = f"sqlite:///./test_performance_dataflow_{uuid.uuid4().hex[:8]}.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

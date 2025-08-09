@@ -26,7 +26,9 @@ class CalculatePositionRequest(BaseModel):
 
     method: SizingMethod
     account_value: float = Field(..., gt=0, description="Total account value")
-    risk_percentage: float | None = Field(None, ge=0, le=1, description="Risk per trade (0.01 = 1%)")
+    risk_percentage: float | None = Field(
+        None, ge=0, le=1, description="Risk per trade (0.01 = 1%)"
+    )
     entry_price: float | None = Field(None, gt=0, description="Planned entry price")
     stop_loss: float | None = Field(None, gt=0, description="Stop loss price")
     target_price: float | None = Field(None, gt=0, description="Target/take profit price")
@@ -120,9 +122,7 @@ async def calculate_position_size(
 
         # Validate required fields based on method
         if request.method == SizingMethod.FIXED_RISK:
-            if not all(
-                [request.risk_percentage, request.entry_price, request.stop_loss]
-            ):
+            if not all([request.risk_percentage, request.entry_price, request.stop_loss]):
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail="Fixed risk method requires: risk_percentage, entry_price, stop_loss",
@@ -136,10 +136,10 @@ async def calculate_position_size(
         elif request.method == SizingMethod.VOLATILITY_BASED and not all(
             [request.risk_percentage, request.entry_price, request.atr]
         ):
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail="Volatility method requires: risk_percentage, entry_price, atr",
-                )
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Volatility method requires: risk_percentage, entry_price, atr",
+            )
 
         # Calculate position size
         result = service.calculate_position_size(

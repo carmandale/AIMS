@@ -16,9 +16,7 @@ class TestDrawdownModels:
         """Test that PerformanceSnapshot model can store drawdown metrics"""
         # Create a test user
         user = User(
-            user_id="test_user_123",
-            email="test@example.com",
-            password_hash="hashed_password"
+            user_id="test_user_123", email="test@example.com", password_hash="hashed_password"
         )
         test_db_session.add(user)
         test_db_session.commit()
@@ -36,16 +34,16 @@ class TestDrawdownModels:
             portfolio_high_water_mark=Decimal("105000.00"),
             current_drawdown=Decimal("5000.00"),
             current_drawdown_percent=Decimal("4.76"),
-            days_in_drawdown=15
+            days_in_drawdown=15,
         )
         test_db_session.add(snapshot)
         test_db_session.commit()
 
         # Verify the snapshot was saved with drawdown data
-        saved_snapshot = test_db_session.query(PerformanceSnapshot).filter_by(
-            user_id=user.user_id
-        ).first()
-        
+        saved_snapshot = (
+            test_db_session.query(PerformanceSnapshot).filter_by(user_id=user.user_id).first()
+        )
+
         assert saved_snapshot is not None
         assert saved_snapshot.portfolio_high_water_mark == Decimal("105000.00")
         assert saved_snapshot.current_drawdown == Decimal("5000.00")
@@ -56,9 +54,7 @@ class TestDrawdownModels:
         """Test that drawdown fields are nullable for backward compatibility"""
         # Create a test user
         user = User(
-            user_id="test_user_456",
-            email="test2@example.com",
-            password_hash="hashed_password"
+            user_id="test_user_456", email="test2@example.com", password_hash="hashed_password"
         )
         test_db_session.add(user)
         test_db_session.commit()
@@ -71,17 +67,17 @@ class TestDrawdownModels:
             cash_value=Decimal("10000.00"),
             positions_value=Decimal("90000.00"),
             daily_pnl=Decimal("500.00"),
-            daily_pnl_percent=Decimal("0.50")
+            daily_pnl_percent=Decimal("0.50"),
             # Omitting drawdown fields
         )
         test_db_session.add(snapshot)
         test_db_session.commit()
 
         # Verify the snapshot was saved with null drawdown data
-        saved_snapshot = test_db_session.query(PerformanceSnapshot).filter_by(
-            user_id=user.user_id
-        ).first()
-        
+        saved_snapshot = (
+            test_db_session.query(PerformanceSnapshot).filter_by(user_id=user.user_id).first()
+        )
+
         assert saved_snapshot is not None
         assert saved_snapshot.portfolio_high_water_mark is None
         assert saved_snapshot.current_drawdown is None
@@ -92,7 +88,7 @@ class TestDrawdownModels:
 # Import DrawdownEvent when it's created
 try:
     from src.db.models import DrawdownEvent
-    
+
     class TestDrawdownEventModel:
         """Test suite for DrawdownEvent model"""
 
@@ -100,9 +96,7 @@ try:
             """Test creating a new drawdown event"""
             # Create a test user
             user = User(
-                user_id="test_user_789",
-                email="test3@example.com",
-                password_hash="hashed_password"
+                user_id="test_user_789", email="test3@example.com", password_hash="hashed_password"
             )
             test_db_session.add(user)
             test_db_session.commit()
@@ -116,16 +110,16 @@ try:
                 max_drawdown_amount=Decimal("15000.00"),
                 max_drawdown_percent=Decimal("13.64"),
                 duration_days=30,
-                is_recovered=False
+                is_recovered=False,
             )
             test_db_session.add(event)
             test_db_session.commit()
 
             # Verify the event was saved
-            saved_event = test_db_session.query(DrawdownEvent).filter_by(
-                user_id=user.user_id
-            ).first()
-            
+            saved_event = (
+                test_db_session.query(DrawdownEvent).filter_by(user_id=user.user_id).first()
+            )
+
             assert saved_event is not None
             assert saved_event.start_date == date(2025, 1, 1)
             assert saved_event.peak_value == Decimal("110000.00")
@@ -141,7 +135,7 @@ try:
             user = User(
                 user_id="test_user_recovery",
                 email="recovery@example.com",
-                password_hash="hashed_password"
+                password_hash="hashed_password",
             )
             test_db_session.add(user)
             test_db_session.commit()
@@ -158,16 +152,16 @@ try:
                 max_drawdown_percent=Decimal("13.64"),
                 duration_days=30,
                 recovery_days=45,
-                is_recovered=True
+                is_recovered=True,
             )
             test_db_session.add(event)
             test_db_session.commit()
 
             # Verify the complete event was saved
-            saved_event = test_db_session.query(DrawdownEvent).filter_by(
-                user_id=user.user_id
-            ).first()
-            
+            saved_event = (
+                test_db_session.query(DrawdownEvent).filter_by(user_id=user.user_id).first()
+            )
+
             assert saved_event is not None
             assert saved_event.end_date == date(2025, 2, 15)
             assert saved_event.recovery_value == Decimal("110500.00")
@@ -180,10 +174,10 @@ try:
             event = DrawdownEvent(
                 user_id="non_existent_user",
                 start_date=date(2025, 1, 1),
-                peak_value=Decimal("100000.00")
+                peak_value=Decimal("100000.00"),
             )
             test_db_session.add(event)
-            
+
             # Should fail with foreign key constraint
             # Note: SQLite foreign keys might not be enforced in test environment
             try:
@@ -201,7 +195,7 @@ try:
             user = User(
                 user_id="test_user_query",
                 email="query@example.com",
-                password_hash="hashed_password"
+                password_hash="hashed_password",
             )
             test_db_session.add(user)
             test_db_session.commit()
@@ -212,7 +206,7 @@ try:
                 (date(2024, 6, 1), date(2024, 7, 15)),
                 (date(2025, 1, 1), None),  # Ongoing
             ]
-            
+
             for start, end in events_data:
                 event = DrawdownEvent(
                     user_id=user.user_id,
@@ -220,26 +214,31 @@ try:
                     end_date=end,
                     peak_value=Decimal("100000.00"),
                     trough_value=Decimal("90000.00"),
-                    is_recovered=end is not None
+                    is_recovered=end is not None,
                 )
                 test_db_session.add(event)
             test_db_session.commit()
 
             # Query events in 2024
-            events_2024 = test_db_session.query(DrawdownEvent).filter(
-                DrawdownEvent.user_id == user.user_id,
-                DrawdownEvent.start_date >= date(2024, 1, 1),
-                DrawdownEvent.start_date < date(2025, 1, 1)
-            ).all()
-            
+            events_2024 = (
+                test_db_session.query(DrawdownEvent)
+                .filter(
+                    DrawdownEvent.user_id == user.user_id,
+                    DrawdownEvent.start_date >= date(2024, 1, 1),
+                    DrawdownEvent.start_date < date(2025, 1, 1),
+                )
+                .all()
+            )
+
             assert len(events_2024) == 2
-            
+
             # Query ongoing events
-            ongoing_events = test_db_session.query(DrawdownEvent).filter(
-                DrawdownEvent.user_id == user.user_id,
-                DrawdownEvent.is_recovered == False
-            ).all()
-            
+            ongoing_events = (
+                test_db_session.query(DrawdownEvent)
+                .filter(DrawdownEvent.user_id == user.user_id, DrawdownEvent.is_recovered == False)
+                .all()
+            )
+
             assert len(ongoing_events) == 1
             assert ongoing_events[0].start_date == date(2025, 1, 1)
 

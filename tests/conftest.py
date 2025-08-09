@@ -98,8 +98,10 @@ def override_get_db(test_db_session):
 @pytest.fixture
 def mock_rate_limiters():
     """Mock rate limiters to prevent 429 errors in tests"""
-    with patch('src.api.auth.portfolio_rate_limiter', MockRateLimiter()), \
-         patch('src.api.auth.sensitive_rate_limiter', MockRateLimiter()):
+    with (
+        patch("src.api.auth.portfolio_rate_limiter", MockRateLimiter()),
+        patch("src.api.auth.sensitive_rate_limiter", MockRateLimiter()),
+    ):
         yield
 
 
