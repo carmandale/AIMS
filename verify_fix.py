@@ -9,10 +9,9 @@ BASE_URL = "http://localhost:8002"
 
 # Login with test user
 print("1️⃣ Testing login...")
-login_response = requests.post(f"{BASE_URL}/api/auth/login", json={
-    "email": "test@aims.local",
-    "password": "password123"
-})
+login_response = requests.post(
+    f"{BASE_URL}/api/auth/login", json={"email": "test@aims.local", "password": "password123"}
+)
 
 if login_response.status_code != 200:
     print(f"❌ Login failed: {login_response.status_code}")

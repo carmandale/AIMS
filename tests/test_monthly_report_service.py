@@ -206,7 +206,9 @@ class TestMonthlyReportService:
         # Mock Playwright
         mock_browser = Mock()
         mock_page = Mock()
-        mock_playwright.return_value.__enter__.return_value.chromium.launch.return_value = mock_browser
+        mock_playwright.return_value.__enter__.return_value.chromium.launch.return_value = (
+            mock_browser
+        )
         mock_browser.new_page.return_value = mock_page
 
         report_data = {
@@ -228,7 +230,14 @@ class TestMonthlyReportService:
                 "total_value": Decimal("105000"),
                 "cash_value": Decimal("5000"),
                 "positions_value": Decimal("100000"),
-                "positions": [{"symbol": "AAPL", "quantity": 100, "market_value": Decimal("50000"), "percentage": Decimal("47.6")}],
+                "positions": [
+                    {
+                        "symbol": "AAPL",
+                        "quantity": 100,
+                        "market_value": Decimal("50000"),
+                        "percentage": Decimal("47.6"),
+                    }
+                ],
             },
             "drawdown": {
                 "max_drawdown_percent": Decimal("1.5"),
@@ -283,7 +292,14 @@ class TestMonthlyReportService:
                 "total_value": Decimal("102500"),
                 "cash_value": Decimal("2500"),
                 "positions_value": Decimal("100000"),
-                "positions": [{"symbol": "AAPL", "quantity": 100, "market_value": Decimal("50000"), "percentage": Decimal("48.8")}],
+                "positions": [
+                    {
+                        "symbol": "AAPL",
+                        "quantity": 100,
+                        "market_value": Decimal("50000"),
+                        "percentage": Decimal("48.8"),
+                    }
+                ],
             },
             "drawdown": {
                 "max_drawdown_percent": Decimal("5.2"),
