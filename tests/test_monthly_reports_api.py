@@ -3,11 +3,12 @@
 import pytest
 from datetime import datetime, date
 from decimal import Decimal
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, ANY
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from src.db.models import User, Report
+from src.db.session import get_db
 from src.data.models.portfolio import Report as ReportModel
 
 
@@ -165,17 +166,38 @@ class TestMonthlyReportsAPI:
         """Test successful monthly report download"""
         report_id = test_reports[0].id
         
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value.__enter__.return_value.read.return_value = b"PDF content"
-            with patch('os.path.exists', return_value=True):
-                response = client.get(
-                    f"/api/reports/monthly/{report_id}/download",
-                    headers=auth_headers
-                )
-                
-                assert response.status_code == 200
-                assert response.headers["content-type"] == "application/pdf"
-                assert "attachment" in response.headers["content-disposition"]
+        # Create a temporary file for the test
+        import tempfile
+        import os
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+            tmp_file.write(b"Mock PDF content")
+            tmp_path = tmp_file.name
+        
+        try:
+            # Update the report to have the temp file path
+            from src.db.models import Report
+            from sqlalchemy.orm import Session
+            
+            # Get the database session from the test
+            db = next(client.app.dependency_overrides[get_db]())
+            report = db.query(Report).filter(Report.id == report_id).first()
+            report.file_path = tmp_path
+            db.commit()
+            
+            response = client.get(
+                f"/api/reports/monthly/{report_id}/download",
+                headers=auth_headers
+            )
+            
+            assert response.status_code == 200
+            assert response.headers["content-type"] == "application/pdf"
+            assert "attachment" in response.headers["content-disposition"]
+        finally:
+            # Clean up temp file
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
 
     def test_download_monthly_report_not_found(
         self, 
@@ -230,7 +252,7 @@ class TestMonthlyReportsAPI:
             
             # Verify service was called
             mock_delete.assert_called_once_with(
-                db=pytest.any,
+                db=ANY,
                 user_id=test_reports[0].user_id,
                 report_id=report_id
             )
@@ -305,9 +327,8 @@ class TestMonthlyReportsAPI:
         """Test successful monthly report email sending"""
         report_id = test_reports[0].id
         
-        with patch('src.services.email_service.EmailService.send_report_email') as mock_email:
-            mock_email.return_value = True
-            
+        # Mock the file path check since email service is not implemented
+        with patch('os.path.exists', return_value=True):
             response = client.post(
                 f"/api/reports/monthly/{report_id}/email",
                 json={"recipient_email": "test@example.com"},

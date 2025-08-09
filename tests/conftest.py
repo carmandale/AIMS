@@ -5,6 +5,7 @@ import asyncio
 import tempfile
 import os
 from typing import Generator
+from unittest.mock import patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -17,6 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from src.db.models import Base
 from src.db.session import get_db
 from src.core.config import settings
+from tests.mocks.rate_limiter import MockRateLimiter
 
 
 @pytest.fixture(scope="session")
@@ -70,22 +72,17 @@ def test_session_factory(test_db_engine):
 
 @pytest.fixture
 def test_db_session(test_session_factory, test_db_engine) -> Generator[Session, None, None]:
-    """Create a database session for a test with proper isolation"""
-    session = test_session_factory()
-
-    # Clear all data before the test
-    for table in reversed(Base.metadata.sorted_tables):
-        session.execute(table.delete())
-    session.commit()
+    """Create a database session for a test with proper isolation using transactions"""
+    connection = test_db_engine.connect()
+    transaction = connection.begin()
+    session = test_session_factory(bind=connection)
 
     try:
         yield session
     finally:
-        # Clear all data after the test to ensure isolation
-        for table in reversed(Base.metadata.sorted_tables):
-            session.execute(table.delete())
-        session.commit()
         session.close()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture
@@ -99,8 +96,16 @@ def override_get_db(test_db_session):
 
 
 @pytest.fixture
-def client(override_get_db):
-    """Create test client with database override"""
+def mock_rate_limiters():
+    """Mock rate limiters to prevent 429 errors in tests"""
+    with patch('src.api.auth.portfolio_rate_limiter', MockRateLimiter()), \
+         patch('src.api.auth.sensitive_rate_limiter', MockRateLimiter()):
+        yield
+
+
+@pytest.fixture
+def client(override_get_db, mock_rate_limiters):
+    """Create test client with database override and mocked rate limiters"""
     from fastapi.testclient import TestClient
     from src.api.main import app
     from src.db.session import get_db
