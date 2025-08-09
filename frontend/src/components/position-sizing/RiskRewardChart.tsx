@@ -1,5 +1,15 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+} from 'recharts';
 import { RiskRewardChartData } from '../../types/position-sizing';
 
 interface RiskRewardChartProps {
@@ -30,9 +40,9 @@ export const RiskRewardChart: React.FC<RiskRewardChartProps> = ({
     const data: RiskRewardChartData[] = [];
 
     for (let i = 0; i <= points; i++) {
-      const price = minPrice + (step * i);
+      const price = minPrice + step * i;
       const profitLoss = (price - entryPrice) * positionSize;
-      
+
       let zone: 'loss' | 'breakeven' | 'profit' = 'breakeven';
       if (profitLoss < 0) zone = 'loss';
       else if (profitLoss > 0) zone = 'profit';
@@ -48,7 +58,7 @@ export const RiskRewardChart: React.FC<RiskRewardChartProps> = ({
   };
 
   const chartData = generateChartData();
-  
+
   if (!chartData.length) {
     return (
       <div className={`bg-gray-50 rounded-lg p-6 text-center ${className}`}>
@@ -68,45 +78,41 @@ export const RiskRewardChart: React.FC<RiskRewardChartProps> = ({
         <h4 className="text-sm font-medium text-gray-900 mb-2">Risk/Reward Profile</h4>
         <div className="flex justify-between text-xs text-gray-500">
           <span>Risk: ${Math.abs(riskAmount).toLocaleString()}</span>
-          {targetPrice && (
-            <span>Reward: ${rewardAmount.toLocaleString()}</span>
-          )}
-          {targetPrice && (
-            <span>R:R = 1:{(rewardAmount / Math.abs(riskAmount)).toFixed(2)}</span>
-          )}
+          {targetPrice && <span>Reward: ${rewardAmount.toLocaleString()}</span>}
+          {targetPrice && <span>R:R = 1:{(rewardAmount / Math.abs(riskAmount)).toFixed(2)}</span>}
         </div>
       </div>
 
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis 
-            dataKey="price" 
+          <XAxis
+            dataKey="price"
             type="number"
             scale="linear"
             domain={['dataMin', 'dataMax']}
-            tickFormatter={(value) => `$${value.toFixed(0)}`}
+            tickFormatter={value => `$${value.toFixed(0)}`}
             fontSize={11}
             stroke="#666"
           />
-          <YAxis 
-            tickFormatter={(value) => `$${value.toLocaleString()}`}
+          <YAxis
+            tickFormatter={value => `$${value.toLocaleString()}`}
             fontSize={11}
             stroke="#666"
           />
-          
+
           {/* Profit/Loss area */}
           <defs>
             <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
+              <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#10b981" stopOpacity={0.05} />
             </linearGradient>
             <linearGradient id="lossGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.05}/>
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3}/>
+              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.05} />
+              <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3} />
             </linearGradient>
           </defs>
-          
+
           <Area
             type="monotone"
             dataKey="profit_loss"
@@ -114,24 +120,24 @@ export const RiskRewardChart: React.FC<RiskRewardChartProps> = ({
             strokeWidth={2}
             fill="url(#profitGradient)"
           />
-          
+
           {/* Reference lines */}
-          <ReferenceLine 
-            x={entryPrice} 
-            stroke="#6b7280" 
+          <ReferenceLine
+            x={entryPrice}
+            stroke="#6b7280"
             strokeDasharray="5 5"
             label={{ value: 'Entry', position: 'top', fontSize: 11 }}
           />
-          <ReferenceLine 
-            x={stopLoss} 
-            stroke="#ef4444" 
+          <ReferenceLine
+            x={stopLoss}
+            stroke="#ef4444"
             strokeDasharray="3 3"
             label={{ value: 'Stop', position: 'top', fontSize: 11 }}
           />
           {targetPrice && (
-            <ReferenceLine 
-              x={targetPrice} 
-              stroke="#10b981" 
+            <ReferenceLine
+              x={targetPrice}
+              stroke="#10b981"
               strokeDasharray="3 3"
               label={{ value: 'Target', position: 'top', fontSize: 11 }}
             />

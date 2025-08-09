@@ -35,13 +35,16 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
   const currentQuote = quotes?.[symbol];
 
   // Mock account limits (in real app, this would come from account API)
-  const accountLimits: AccountLimits = useMemo(() => ({
-    accountValue: 100000,
-    availableCash: 25000,
-    buyingPower: 50000,
-    maxPositionSize: 10000, // $10k max per position
-    maxRiskPerTrade: 0.02, // 2% max risk per trade
-  }), []);
+  const accountLimits: AccountLimits = useMemo(
+    () => ({
+      accountValue: 100000,
+      availableCash: 25000,
+      buyingPower: 50000,
+      maxPositionSize: 10000, // $10k max per position
+      maxRiskPerTrade: 0.02, // 2% max risk per trade
+    }),
+    []
+  );
 
   // Check blocking tasks status
   const { data: blockingStatus } = useQuery({
@@ -95,12 +98,12 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
   const handleCopyFromCalculator = (result: PositionSizeCalculationResult) => {
     // Update the amount field with the calculated position size
     setAmount(result.position_size.toString());
-    
+
     // If the calculator provided price information, update price for limit orders
     if (orderMode === 'limit' && result.entry_price) {
       setPrice(result.entry_price.toString());
     }
-    
+
     toast.success('Position size applied to trade ticket');
   };
 
@@ -310,59 +313,60 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
           </section>
 
           {/* Validation Messages */}
-          {validationResult && (validationResult.errors.length > 0 || validationResult.warnings.length > 0) && (
-            <section className="mb-6">
-              {/* Validation Errors */}
-              {validationResult.errors.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
-                >
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-red-400 text-sm">Trade Validation Errors</p>
-                      <ul className="text-xs text-red-300 mt-1 space-y-1">
-                        {validationResult.errors.map((error, index) => (
-                          <li key={index}>• {error}</li>
-                        ))}
-                      </ul>
-                      {validationResult.adjustedAmount && (
-                        <button
-                          onClick={() => setAmount(validationResult.adjustedAmount!.toString())}
-                          className="mt-2 text-xs text-red-300 hover:text-red-200 underline"
-                        >
-                          Use suggested amount: {validationResult.adjustedAmount}
-                        </button>
-                      )}
+          {validationResult &&
+            (validationResult.errors.length > 0 || validationResult.warnings.length > 0) && (
+              <section className="mb-6">
+                {/* Validation Errors */}
+                {validationResult.errors.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
+                  >
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-red-400 text-sm">Trade Validation Errors</p>
+                        <ul className="text-xs text-red-300 mt-1 space-y-1">
+                          {validationResult.errors.map((error, index) => (
+                            <li key={index}>• {error}</li>
+                          ))}
+                        </ul>
+                        {validationResult.adjustedAmount && (
+                          <button
+                            onClick={() => setAmount(validationResult.adjustedAmount!.toString())}
+                            className="mt-2 text-xs text-red-300 hover:text-red-200 underline"
+                          >
+                            Use suggested amount: {validationResult.adjustedAmount}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
+                  </motion.div>
+                )}
 
-              {/* Validation Warnings */}
-              {validationResult.warnings.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl"
-                >
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-yellow-400 text-sm">Risk Warnings</p>
-                      <ul className="text-xs text-yellow-300 mt-1 space-y-1">
-                        {validationResult.warnings.map((warning, index) => (
-                          <li key={index}>• {warning}</li>
-                        ))}
-                      </ul>
+                {/* Validation Warnings */}
+                {validationResult.warnings.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl"
+                  >
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-yellow-400 text-sm">Risk Warnings</p>
+                        <ul className="text-xs text-yellow-300 mt-1 space-y-1">
+                          {validationResult.warnings.map((warning, index) => (
+                            <li key={index}>• {warning}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
-            </section>
-          )}
+                  </motion.div>
+                )}
+              </section>
+            )}
 
           {/* Submit Button */}
           <motion.button
@@ -370,8 +374,8 @@ export const TradeTicketForm: React.FC<TradeTicketFormProps> = ({ symbol = 'BTC-
             whileTap={{ scale: 0.98 }}
             onClick={handleSubmit}
             disabled={
-              !amount || 
-              (orderMode === 'limit' && !price) || 
+              !amount ||
+              (orderMode === 'limit' && !price) ||
               (validationResult ? !validationResult.isValid : false)
             }
             className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-200 shadow-lg ${
