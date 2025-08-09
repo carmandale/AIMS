@@ -161,9 +161,22 @@ class TestPerformanceAPIEndpoints:
 
         self.db.commit()
 
-    def test_get_performance_metrics_endpoint(self):
+    @patch("src.services.benchmark_service.yf.download")
+    def test_get_performance_metrics_endpoint(self, mock_yf_download):
         """Test /api/performance/metrics endpoint"""
-        response = client.get("/api/performance/metrics?period=1M&benchmark=SPY")
+        # Mock yfinance data to avoid external API calls
+        mock_data = MagicMock()
+        mock_data.empty = False
+        mock_data.index = [datetime(2024, 1, 1), datetime(2024, 1, 2)]
+        mock_data.__getitem__.return_value = [100.0, 101.0]  # Mock Close prices
+        mock_yf_download.return_value = mock_data
+        
+        # Get auth headers for the test user
+        from src.api.auth import create_access_token
+        token = create_access_token(data={"sub": self.test_user_id, "email": self.test_email})
+        headers = {"Authorization": f"Bearer {token}"}
+        
+        response = client.get("/api/performance/metrics?period=1M&benchmark=SPY", headers=headers)
 
         assert response.status_code == 200
         data = response.json()
