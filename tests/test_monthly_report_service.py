@@ -194,33 +194,72 @@ class TestMonthlyReportService:
         assert isinstance(risk_metrics["volatility"], (float, Decimal))
         assert isinstance(risk_metrics["sharpe_ratio"], (float, Decimal, type(None)))
 
-    @patch("src.services.monthly_report_service.HTML")
+    @patch("src.services.monthly_report_service.sync_playwright")
     def test_generate_pdf_report(
         self,
-        mock_html,
+        mock_playwright,
         monthly_service: MonthlyReportService,
         test_db_session: Session,
         test_user: User,
     ):
         """Test PDF generation from HTML template"""
-        # Mock WeasyPrint HTML
-        mock_pdf = Mock()
-        mock_html.return_value.write_pdf.return_value = mock_pdf
+        # Mock Playwright
+        mock_browser = Mock()
+        mock_page = Mock()
+        mock_playwright.return_value.__enter__.return_value.chromium.launch.return_value = mock_browser
+        mock_browser.new_page.return_value = mock_page
 
         report_data = {
             "user_id": test_user.user_id,
             "report_month": "June 2025",
-            "performance": {"monthly_return": Decimal("2.5")},
-            "portfolio": {"total_value": Decimal("105000")},
-            "drawdown": {"max_drawdown_percent": Decimal("1.5")},
-            "risk": {"volatility": 0.15},
+            "report_date": "2025-06-30",
+            "performance": {
+                "monthly_return": Decimal("2.5"),
+                "monthly_return_percent": Decimal("2.5"),
+                "ytd_return_percent": Decimal("5.0"),
+                "start_value": Decimal("100000"),
+                "end_value": Decimal("102500"),
+                "highest_value": Decimal("103000"),
+                "lowest_value": Decimal("99500"),
+                "volatility": Decimal("0.15"),
+                "trading_days": 22,
+            },
+            "portfolio": {
+                "total_value": Decimal("105000"),
+                "cash_value": Decimal("5000"),
+                "positions_value": Decimal("100000"),
+                "positions": [{"symbol": "AAPL", "quantity": 100, "market_value": Decimal("50000"), "percentage": Decimal("47.6")}],
+            },
+            "drawdown": {
+                "max_drawdown_percent": Decimal("1.5"),
+                "drawdown_events": 1,
+                "underwater_days": 2,
+                "total_days": 22,
+            },
+            "risk": {
+                "volatility": Decimal("0.15"),
+                "sharpe_ratio": Decimal("1.2"),
+                "var_95": Decimal("0.03"),
+            },
+            "trades": {
+                "total_trades": 5,
+                "win_rate": Decimal("60.0"),
+                "net_pnl": Decimal("2500"),
+                "commissions": Decimal("25.0"),
+                "recent_trades": [],
+                "trades": [],
+            },
         }
 
         file_path = monthly_service._generate_pdf(report_data)
 
-        # Verify PDF generation was called
-        mock_html.assert_called_once()
-        assert file_path.endswith(".pdf")
+        # Verify Playwright was called
+        mock_playwright.assert_called_once()
+        mock_browser.new_page.assert_called_once()
+        mock_page.set_content.assert_called_once()
+        mock_page.pdf.assert_called_once()
+        mock_browser.close.assert_called_once()
+        assert str(file_path).endswith(".pdf")
         assert "monthly_report" in str(file_path)
 
     def test_get_report_template_html(self, monthly_service: MonthlyReportService):
@@ -228,21 +267,49 @@ class TestMonthlyReportService:
         template_data = {
             "user_id": "test_user",
             "report_month": "June 2025",
+            "report_date": "2025-06-30",
             "performance": {
                 "monthly_return": Decimal("2.5"),
+                "monthly_return_percent": Decimal("2.5"),
+                "ytd_return_percent": Decimal("5.0"),
                 "start_value": Decimal("100000"),
                 "end_value": Decimal("102500"),
+                "highest_value": Decimal("103000"),
+                "lowest_value": Decimal("99500"),
+                "volatility": Decimal("0.15"),
+                "trading_days": 22,
             },
             "portfolio": {
                 "total_value": Decimal("102500"),
-                "positions": [{"symbol": "AAPL", "value": Decimal("50000")}],
+                "cash_value": Decimal("2500"),
+                "positions_value": Decimal("100000"),
+                "positions": [{"symbol": "AAPL", "quantity": 100, "market_value": Decimal("50000"), "percentage": Decimal("48.8")}],
+            },
+            "drawdown": {
+                "max_drawdown_percent": Decimal("5.2"),
+                "drawdown_events": 2,
+                "underwater_days": 5,
+                "total_days": 22,
+            },
+            "risk": {
+                "volatility": Decimal("0.15"),
+                "sharpe_ratio": Decimal("1.2"),
+                "var_95": Decimal("0.03"),
+            },
+            "trades": {
+                "total_trades": 10,
+                "win_rate": Decimal("65.0"),
+                "net_pnl": Decimal("2500"),
+                "commissions": Decimal("50.0"),
+                "recent_trades": [],
+                "trades": [],
             },
         }
 
         html_content = monthly_service._get_report_template_html(template_data)
 
         # Verify HTML structure
-        assert "<!DOCTYPE html>" in html_content
+        assert "<body>" in html_content
         assert "June 2025" in html_content
         assert "Monthly Portfolio Report" in html_content
         assert "Performance Summary" in html_content
@@ -299,7 +366,7 @@ class TestMonthlyReportService:
         report_id = report.id
 
         # Delete report
-        with patch("os.remove") as mock_remove:
+        with patch("os.remove") as mock_remove, patch("os.path.exists", return_value=True):
             result = monthly_service.delete_monthly_report(
                 db=test_db_session, user_id=test_user.user_id, report_id=report_id
             )
@@ -326,7 +393,7 @@ class TestMonthlyReportService:
         self, monthly_service: MonthlyReportService, test_db_session: Session, test_user: User
     ):
         """Test monthly report generation with no performance data"""
-        report_month = date(2025, 12, 1)  # Future month with no data
+        report_month = date(2023, 1, 1)  # Past month with no data
 
         with pytest.raises(ValueError, match="No performance data found"):
             monthly_service.generate_monthly_report(

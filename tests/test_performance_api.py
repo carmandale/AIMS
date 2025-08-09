@@ -3,8 +3,7 @@
 import json
 from datetime import datetime, date, timedelta
 from decimal import Decimal
-
-# Removed unused mock imports
+from unittest.mock import patch, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -115,10 +114,18 @@ class TestPerformanceAPI:
             for key in ["date", "portfolio_value", "portfolio_return", "benchmark_return"]
         )
 
+    @patch("src.services.benchmark_service.yf.download")
     def test_get_performance_metrics_with_benchmark(
-        self, client: TestClient, auth_headers: dict, performance_snapshots: list
+        self, mock_yf_download, client: TestClient, auth_headers: dict, performance_snapshots: list
     ):
         """Test performance metrics with benchmark comparison"""
+        # Mock yfinance data
+        mock_data = MagicMock()
+        mock_data.empty = False
+        mock_data.index = [datetime(2024, 1, 1), datetime(2024, 1, 2)]
+        mock_data.__getitem__.return_value = [100.0, 101.0]  # Mock Close prices
+        mock_yf_download.return_value = mock_data
+        
         response = client.get(
             "/api/performance/metrics?period=1M&benchmark=SPY", headers=auth_headers
         )

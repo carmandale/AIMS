@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, extract
 from playwright.sync_api import sync_playwright
 from jinja2 import Template
+from weasyprint import HTML
 
 from src.db.models import PerformanceSnapshot, Report
 from src.data.models.portfolio import Report as ReportModel
@@ -290,10 +291,10 @@ class MonthlyReportService:
             db.query(PerformanceSnapshot)
             .filter(
                 PerformanceSnapshot.user_id == user_id,
-                PerformanceSnapshot.timestamp >= start_datetime,
-                PerformanceSnapshot.timestamp <= end_datetime,
+                PerformanceSnapshot.created_at >= start_datetime,
+                PerformanceSnapshot.created_at <= end_datetime,
             )
-            .order_by(PerformanceSnapshot.timestamp)
+            .order_by(PerformanceSnapshot.created_at)
             .all()
         )
 
@@ -514,9 +515,9 @@ class MonthlyReportService:
                         </value>
                     </div>
                     <div class="metric">
-                        <label>Monthly P&L</label>
+                        <label>Monthly PnL</label>
                         <value class="{% if performance.monthly_return >= 0 %}positive{% else %}negative{% endif %}">
-                            ${{ "{:,.2f}"|format(performance.monthly_return|float) }}
+                            ${{ "%.2f"|format(performance.monthly_return|float) }}
                         </value>
                     </div>
                     <div class="metric">
@@ -527,15 +528,15 @@ class MonthlyReportService:
                     </div>
                     <div class="metric">
                         <label>Portfolio Value</label>
-                        <value>${{ "{:,.2f}"|format(performance.end_value|float) }}</value>
+                        <value>${{ "%.2f"|format(performance.end_value|float) }}</value>
                     </div>
                 </div>
                 
                 <div class="performance-details">
-                    <p><strong>Starting Value:</strong> ${{ "{:,.2f}"|format(performance.start_value|float) }}</p>
-                    <p><strong>Ending Value:</strong> ${{ "{:,.2f}"|format(performance.end_value|float) }}</p>
-                    <p><strong>Highest Value:</strong> ${{ "{:,.2f}"|format(performance.highest_value|float) }}</p>
-                    <p><strong>Lowest Value:</strong> ${{ "{:,.2f}"|format(performance.lowest_value|float) }}</p>
+                    <p><strong>Starting Value:</strong> ${{ "%.2f"|format(performance.start_value|float) }}</p>
+                    <p><strong>Ending Value:</strong> ${{ "%.2f"|format(performance.end_value|float) }}</p>
+                    <p><strong>Highest Value:</strong> ${{ "%.2f"|format(performance.highest_value|float) }}</p>
+                    <p><strong>Lowest Value:</strong> ${{ "%.2f"|format(performance.lowest_value|float) }}</p>
                     <p><strong>Volatility:</strong> {{ "%.2f"|format(performance.volatility|float * 100) }}%</p>
                     <p><strong>Trading Days:</strong> {{ performance.trading_days }}</p>
                 </div>
@@ -544,9 +545,9 @@ class MonthlyReportService:
             <div class="section">
                 <h3>Portfolio Overview</h3>
                 <div class="portfolio-summary">
-                    <p><strong>Total Value:</strong> ${{ "{:,.2f}"|format(portfolio.total_value|float) }}</p>
-                    <p><strong>Cash:</strong> ${{ "{:,.2f}"|format(portfolio.cash_value|float) }}</p>
-                    <p><strong>Positions:</strong> ${{ "{:,.2f}"|format(portfolio.positions_value|float) }}</p>
+                    <p><strong>Total Value:</strong> ${{ "%.2f"|format(portfolio.total_value|float) }}</p>
+                    <p><strong>Cash:</strong> ${{ "%.2f"|format(portfolio.cash_value|float) }}</p>
+                    <p><strong>Positions:</strong> ${{ "%.2f"|format(portfolio.positions_value|float) }}</p>
                 </div>
                 
                 <h4>Top Holdings</h4>
@@ -564,7 +565,7 @@ class MonthlyReportService:
                         <tr>
                             <td>{{ position.symbol }}</td>
                             <td>{{ position.quantity }}</td>
-                            <td>${{ "{:,.2f}"|format(position.market_value|float) }}</td>
+                            <td>${{ "%.2f"|format(position.market_value|float) }}</td>
                             <td>{{ "%.1f"|format(position.percentage|float) }}%</td>
                         </tr>
                         {% endfor %}
@@ -591,12 +592,12 @@ class MonthlyReportService:
                 <div class="trade-summary">
                     <p><strong>Total Trades:</strong> {{ trades.total_trades }}</p>
                     <p><strong>Win Rate:</strong> {{ "%.1f"|format(trades.win_rate|float) }}%</p>
-                    <p><strong>Net P&L:</strong> 
+                    <p><strong>Net PnL:</strong> 
                         <span class="{% if trades.net_pnl >= 0 %}positive{% else %}negative{% endif %}">
-                            ${{ "{:,.2f}"|format(trades.net_pnl|float) }}
+                            ${{ "%.2f"|format(trades.net_pnl|float) }}
                         </span>
                     </p>
-                    <p><strong>Total Commissions:</strong> ${{ "{:,.2f}"|format(trades.commissions|float) }}</p>
+                    <p><strong>Total Commissions:</strong> ${{ "%.2f"|format(trades.commissions|float) }}</p>
                 </div>
                 
                 {% if trades.trades %}
@@ -609,7 +610,7 @@ class MonthlyReportService:
                             <th>Action</th>
                             <th>Quantity</th>
                             <th>Price</th>
-                            <th>P&L</th>
+                            <th>PnL</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -621,7 +622,7 @@ class MonthlyReportService:
                             <td>{{ trade.quantity }}</td>
                             <td>${{ "%.2f"|format(trade.price|float) }}</td>
                             <td class="{% if trade.pnl >= 0 %}positive{% else %}negative{% endif %}">
-                                ${{ "{:,.2f}"|format(trade.pnl|float) }}
+                                ${{ "%.2f"|format(trade.pnl|float) }}
                             </td>
                         </tr>
                         {% endfor %}
