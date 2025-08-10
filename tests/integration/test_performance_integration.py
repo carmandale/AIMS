@@ -171,7 +171,7 @@ class TestPerformanceAPIEndpoints:
             "returns": {"2024-01-01": 0.0, "2024-01-02": 0.01},
             "start_price": 100.0,
             "end_price": 101.0,
-            "data_points": 2
+            "data_points": 2,
         }
 
         # Create isolated test client with dependency override

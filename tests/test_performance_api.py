@@ -110,22 +110,23 @@ class TestPerformanceAPI:
 
     @patch("src.services.benchmark_service.BenchmarkService.get_benchmark_data")
     def test_get_performance_metrics_with_benchmark(
-        self, mock_get_benchmark_data, client: TestClient, auth_headers: dict, performance_snapshots: list
+        self,
+        mock_get_benchmark_data,
+        client: TestClient,
+        auth_headers: dict,
+        performance_snapshots: list,
     ):
         """Test performance metrics with benchmark comparison"""
         # Mock benchmark service to return valid data
         mock_get_benchmark_data.return_value = {
             "symbol": "SPY",
             "total_return": 0.05,  # 5% return
-            "volatility": 0.15,    # 15% volatility
+            "volatility": 0.15,  # 15% volatility
             "sharpe_ratio": 0.33,  # Sharpe ratio
-            "returns": {
-                "2024-01-01": 0.0,
-                "2024-01-02": 0.01
-            },
+            "returns": {"2024-01-01": 0.0, "2024-01-02": 0.01},
             "start_price": 100.0,
             "end_price": 101.0,
-            "data_points": 2
+            "data_points": 2,
         }
 
         response = client.get(
