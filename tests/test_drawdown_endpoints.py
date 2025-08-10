@@ -106,9 +106,9 @@ class TestDrawdownAPIEndpoints:
         assert data["current_drawdown_amount"] == "0"
         assert data["peak_value"] == "0"
 
-    def test_get_current_drawdown_unauthorized(self, client: TestClient):
+    def test_get_current_drawdown_unauthorized(self, no_auth_client: TestClient):
         """Test current drawdown without authentication"""
-        response = client.get("/api/performance/drawdown/current")
+        response = no_auth_client.get("/api/performance/drawdown/current")
         assert response.status_code == 403
 
     def test_get_historical_drawdowns_success(

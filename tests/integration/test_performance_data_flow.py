@@ -188,7 +188,12 @@ class TestSnapTradeToPerformanceFlow:
     @patch.object(SnapTradeService, "get_account_positions")
     @patch.object(SnapTradeService, "get_account_balances")
     def test_snaptrade_to_performance_snapshot_flow(
-        self, mock_balances, mock_positions, mock_accounts
+        self,
+        mock_balances,
+        mock_positions,
+        mock_accounts,
+        client,  # use shared client fixture (ensures DB override and auth)
+        test_db_session,  # use shared DB session so API sees inserted data
     ):
         """Test complete flow from SnapTrade data to performance snapshot creation"""
 
@@ -212,7 +217,7 @@ class TestSnapTradeToPerformanceFlow:
 
         # Simulate data collection and snapshot creation
         snaptrade_service = SnapTradeService()
-        performance_service = PerformanceAnalyticsService(self.db)
+        performance_service = PerformanceAnalyticsService(test_db_session)
 
         # This would typically be done by a scheduled task
         # For testing, we simulate the process
@@ -221,11 +226,18 @@ class TestSnapTradeToPerformanceFlow:
         positions_value = mock_data["total_positions_value"]
 
         # Create performance snapshot
+        # Ensure API sees the same user as this test
+        from src.api.main import app
+        from src.api.auth import get_current_user, CurrentUser
+        app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+            user_id=self.test_user_id, email=self.test_email
+        )
+
         snapshot = create_performance_snapshot(
             self.test_user_id, date.today(), total_value, 0.0  # First snapshot - no change
         )
-        self.db.add(snapshot)
-        self.db.commit()
+        test_db_session.add(snapshot)
+        test_db_session.commit()
 
         # Test API endpoint retrieval
         response = client.get("/api/performance/metrics?period=1D&benchmark=NONE")
@@ -235,12 +247,15 @@ class TestSnapTradeToPerformanceFlow:
         assert "portfolio_metrics" in data
         assert data["portfolio_metrics"]["current_value"] == total_value
 
+        # Clean override
+        app.dependency_overrides.pop(get_current_user, None)
+
         print("✅ SnapTrade to Performance Snapshot flow test passed")
         print(f"   - Portfolio Value: ${total_value:,.2f}")
         print(f"   - Cash: ${cash_value:,.2f}")
         print(f"   - Positions: ${positions_value:,.2f}")
 
-    def test_real_time_performance_updates_simulation(self):
+    def test_real_time_performance_updates_simulation(self, client, test_db_session):
         """Test simulation of real-time performance updates"""
 
         # Create initial snapshot
@@ -264,8 +279,16 @@ class TestSnapTradeToPerformanceFlow:
             max_drawdown=Decimal("5.0"),
             created_at=datetime.utcnow() - timedelta(days=1),
         )
-        self.db.add(initial_snapshot)
-        self.db.commit()
+
+        # Ensure API authenticates as this test user
+        from src.api.main import app
+        from src.api.auth import get_current_user, CurrentUser
+        app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+            user_id=self.test_user_id, email=self.test_email
+        )
+
+        test_db_session.add(initial_snapshot)
+        test_db_session.commit()
 
         # Simulate market movements with multiple updates throughout the day
         market_movements = [
@@ -300,8 +323,8 @@ class TestSnapTradeToPerformanceFlow:
                 max_drawdown=Decimal("5.0"),
                 created_at=datetime.utcnow(),
             )
-            self.db.add(intraday_snapshot)
-            self.db.commit()
+            test_db_session.add(intraday_snapshot)
+            test_db_session.commit()
 
             # Test API response reflects latest update
             response = client.get("/api/performance/metrics?period=1D&benchmark=NONE")
@@ -319,8 +342,11 @@ class TestSnapTradeToPerformanceFlow:
 
         print("✅ Real-time performance updates simulation test passed")
 
+        # Clean override
+        app.dependency_overrides.pop(get_current_user, None)
+
     @patch.object(BenchmarkService, "get_benchmark_data")
-    def test_benchmark_integration_flow(self, mock_benchmark_data):
+    def test_benchmark_integration_flow(self, mock_benchmark_data, client, test_db_session):
         """Test benchmark data integration with performance metrics"""
 
         # Create performance snapshots for testing
@@ -352,9 +378,9 @@ class TestSnapTradeToPerformanceFlow:
                 max_drawdown=Decimal("5.0"),
                 created_at=datetime.utcnow(),
             )
-            self.db.add(snapshot)
+            test_db_session.add(snapshot)
 
-        self.db.commit()
+        test_db_session.commit()
 
         # Mock benchmark data (SPY with different performance)
         mock_benchmark_data.return_value = {
@@ -369,6 +395,13 @@ class TestSnapTradeToPerformanceFlow:
         }
 
         # Test API with benchmark comparison
+        # Ensure API authenticates as this test user
+        from src.api.main import app
+        from src.api.auth import get_current_user, CurrentUser
+        app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+            user_id=self.test_user_id, email=self.test_email
+        )
+
         response = client.get("/api/performance/metrics?period=1M&benchmark=SPY")
         assert response.status_code == 200
 
@@ -397,6 +430,7 @@ class TestSnapTradeToPerformanceFlow:
             # Most points should have benchmark data (mock returns)
 
         print("✅ Benchmark integration flow test passed")
+        app.dependency_overrides.pop(get_current_user, None)
         print(f"   - Portfolio return: {portfolio_metrics['total_return']:.2%}")
         print(f"   - Benchmark return: {benchmark_metrics['total_return']:.2%}")
         print(
@@ -407,12 +441,15 @@ class TestSnapTradeToPerformanceFlow:
         """Test how errors propagate through the data flow"""
 
         # Test 1: Missing performance data
+        # API now returns 200 with an empty payload to allow clients to render no-data state gracefully
         response = client.get("/api/performance/metrics?period=1M&benchmark=NONE")
-        assert response.status_code == 404  # No performance data
+        assert response.status_code == 200
 
         data = response.json()
-        assert "detail" in data
-        assert "No performance data available" in data["detail"]
+        assert "portfolio_metrics" in data
+        assert data["portfolio_metrics"]["current_value"] == 0.0
+        assert isinstance(data.get("time_series", []), list)
+        assert len(data.get("time_series", [])) == 0
 
         # Test 2: Create minimal data and test benchmark error handling
         snapshot = PerformanceSnapshot(
@@ -452,7 +489,7 @@ class TestSnapTradeToPerformanceFlow:
 
         print("✅ Error propagation test passed")
 
-    def test_performance_calculation_accuracy_flow(self):
+    def test_performance_calculation_accuracy_flow(self, client, test_db_session):
         """Test accuracy of calculations throughout the entire flow"""
 
         # Create precise test data with known expected results
@@ -473,10 +510,10 @@ class TestSnapTradeToPerformanceFlow:
 
         for scenario in test_scenarios:
             # Clean previous data
-            self.db.query(PerformanceSnapshot).filter(
+            test_db_session.query(PerformanceSnapshot).filter(
                 PerformanceSnapshot.user_id == self.test_user_id
             ).delete()
-            self.db.commit()
+            test_db_session.commit()
 
             # Create snapshots for scenario
             for i, value in enumerate(scenario["daily_values"]):
@@ -513,12 +550,24 @@ class TestSnapTradeToPerformanceFlow:
                     max_drawdown=Decimal("5.0"),
                     created_at=datetime.utcnow(),
                 )
-                self.db.add(snapshot)
+                test_db_session.add(snapshot)
 
-            self.db.commit()
+            test_db_session.commit()
 
             # Test API calculations
             period = f"{len(scenario['daily_values']) - 1}D"
+            # Ensure API authenticates as this test user
+            from src.api.main import app
+            from src.api.auth import get_current_user, CurrentUser
+            app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+                user_id=self.test_user_id, email=self.test_email
+            )
+            # Ensure API authenticates as this test user
+            from src.api.main import app
+            from src.api.auth import get_current_user, CurrentUser
+            app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+                user_id=self.test_user_id, email=self.test_email
+            )
             response = client.get(f"/api/performance/metrics?period={period}&benchmark=NONE")
             assert response.status_code == 200
 
@@ -539,8 +588,11 @@ class TestSnapTradeToPerformanceFlow:
             print(f"✅ Calculation accuracy test passed: {scenario['name']}")
             print(f"   - Expected return: {expected_return:.2%}")
             print(f"   - Actual return: {actual_return:.2%}")
+            app.dependency_overrides.pop(get_current_user, None)
 
-    def test_historical_data_consistency(self):
+            app.dependency_overrides.pop(get_current_user, None)
+
+    def test_historical_data_consistency(self, client, test_db_session):
         """Test consistency of historical data across different API calls"""
 
         # Create 90 days of test data
@@ -573,13 +625,20 @@ class TestSnapTradeToPerformanceFlow:
                 max_drawdown=Decimal("5.0"),
                 created_at=datetime.utcnow(),
             )
-            self.db.add(snapshot)
+            test_db_session.add(snapshot)
 
-        self.db.commit()
+        test_db_session.commit()
 
         # Test different period endpoints for consistency
         test_periods = ["1M", "3M"]
         current_values = []
+
+        # Ensure API authenticates as this test user
+        from src.api.main import app
+        from src.api.auth import get_current_user, CurrentUser
+        app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+            user_id=self.test_user_id, email=self.test_email
+        )
 
         for period in test_periods:
             response = client.get(f"/api/performance/metrics?period={period}&benchmark=NONE")
@@ -614,6 +673,8 @@ class TestSnapTradeToPerformanceFlow:
         print("✅ Historical data consistency test passed")
         print(f"   - Current values match across periods: {current_values[0]:.2f}")
         print(f"   - Historical data points: {len(historical_data['data'])}")
+
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 if __name__ == "__main__":

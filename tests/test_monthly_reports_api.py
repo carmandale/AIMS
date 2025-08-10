@@ -60,10 +60,10 @@ class TestMonthlyReportsAPI:
         return reports
 
     def test_list_monthly_reports_success(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test successful retrieval of monthly reports list"""
-        response = client.get("/api/reports/monthly", headers=auth_headers)
+        response = no_auth_client.get("/api/reports/monthly", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -80,13 +80,13 @@ class TestMonthlyReportsAPI:
         assert "file_size" in report
         assert report["report_type"] == "monthly"
 
-    def test_list_monthly_reports_unauthorized(self, client: TestClient):
+    def test_list_monthly_reports_unauthorized(self, no_auth_client: TestClient):
         """Test monthly reports list without authentication"""
-        response = client.get("/api/reports/monthly")
+        response = no_auth_client.get("/api/reports/monthly")
         assert response.status_code == 403
 
     def test_generate_monthly_report_success(
-        self, client: TestClient, auth_headers: dict, test_user: User
+        self, no_auth_client: TestClient, auth_headers: dict, test_user: User
     ):
         """Test successful monthly report generation"""
         with patch(
@@ -106,7 +106,7 @@ class TestMonthlyReportsAPI:
             )
             mock_generate.return_value = mock_report
 
-            response = client.post(
+            response = no_auth_client.post(
                 "/api/reports/monthly/generate",
                 json={"month": 6, "year": 2025},
                 headers=auth_headers,
@@ -125,9 +125,9 @@ class TestMonthlyReportsAPI:
             assert call_args[1]["user_id"] == test_user.user_id
             assert call_args[1]["report_month"] == date(2025, 6, 1)
 
-    def test_generate_monthly_report_invalid_month(self, client: TestClient, auth_headers: dict):
+    def test_generate_monthly_report_invalid_month(self, no_auth_client: TestClient, auth_headers: dict):
         """Test monthly report generation with invalid month"""
-        response = client.post(
+        response = no_auth_client.post(
             "/api/reports/monthly/generate",
             json={"month": 13, "year": 2025},  # Invalid month
             headers=auth_headers,
@@ -138,9 +138,9 @@ class TestMonthlyReportsAPI:
         response_data = response.json()
         assert "detail" in response_data
 
-    def test_generate_monthly_report_future_date(self, client: TestClient, auth_headers: dict):
+    def test_generate_monthly_report_future_date(self, no_auth_client: TestClient, auth_headers: dict):
         """Test monthly report generation for future date"""
-        response = client.post(
+        response = no_auth_client.post(
             "/api/reports/monthly/generate",
             json={"month": 12, "year": 2030},  # Future date
             headers=auth_headers,
@@ -149,7 +149,7 @@ class TestMonthlyReportsAPI:
         assert response.status_code == 422
 
     def test_download_monthly_report_success(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test successful monthly report download"""
         report_id = test_reports[0].id
@@ -168,12 +168,12 @@ class TestMonthlyReportsAPI:
             from sqlalchemy.orm import Session
 
             # Get the database session from the test
-            db = next(client.app.dependency_overrides[get_db]())
+            db = next(no_auth_client.app.dependency_overrides[get_db]())
             report = db.query(Report).filter(Report.id == report_id).first()
             report.file_path = tmp_path
             db.commit()
 
-            response = client.get(
+            response = no_auth_client.get(
                 f"/api/reports/monthly/{report_id}/download", headers=auth_headers
             )
 
@@ -187,20 +187,20 @@ class TestMonthlyReportsAPI:
             except OSError:
                 pass
 
-    def test_download_monthly_report_not_found(self, client: TestClient, auth_headers: dict):
+    def test_download_monthly_report_not_found(self, no_auth_client: TestClient, auth_headers: dict):
         """Test download of non-existent monthly report"""
-        response = client.get("/api/reports/monthly/99999/download", headers=auth_headers)
+        response = no_auth_client.get("/api/reports/monthly/99999/download", headers=auth_headers)
 
         assert response.status_code == 404
 
     def test_download_monthly_report_file_missing(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test download when report file is missing"""
         report_id = test_reports[0].id
 
         with patch("os.path.exists", return_value=False):
-            response = client.get(
+            response = no_auth_client.get(
                 f"/api/reports/monthly/{report_id}/download", headers=auth_headers
             )
 
@@ -208,7 +208,7 @@ class TestMonthlyReportsAPI:
             assert "file not found" in response.json()["detail"].lower()
 
     def test_delete_monthly_report_success(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test successful monthly report deletion"""
         report_id = test_reports[0].id
@@ -218,7 +218,7 @@ class TestMonthlyReportsAPI:
         ) as mock_delete:
             mock_delete.return_value = True
 
-            response = client.delete(f"/api/reports/monthly/{report_id}", headers=auth_headers)
+            response = no_auth_client.delete(f"/api/reports/monthly/{report_id}", headers=auth_headers)
 
             assert response.status_code == 200
             assert response.json()["message"] == "Report deleted successfully"
@@ -228,19 +228,19 @@ class TestMonthlyReportsAPI:
                 db=ANY, user_id=test_reports[0].user_id, report_id=report_id
             )
 
-    def test_delete_monthly_report_not_found(self, client: TestClient, auth_headers: dict):
+    def test_delete_monthly_report_not_found(self, no_auth_client: TestClient, auth_headers: dict):
         """Test deletion of non-existent monthly report"""
         with patch(
             "src.services.monthly_report_service.MonthlyReportService.delete_monthly_report"
         ) as mock_delete:
             mock_delete.return_value = False
 
-            response = client.delete("/api/reports/monthly/99999", headers=auth_headers)
+            response = no_auth_client.delete("/api/reports/monthly/99999", headers=auth_headers)
 
             assert response.status_code == 404
 
     def test_get_report_status_success(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test successful report status retrieval"""
         report_id = test_reports[0].id
@@ -256,7 +256,7 @@ class TestMonthlyReportsAPI:
                 "error_message": None,
             }
 
-            response = client.get(f"/api/reports/monthly/{report_id}/status", headers=auth_headers)
+            response = no_auth_client.get(f"/api/reports/monthly/{report_id}/status", headers=auth_headers)
 
             assert response.status_code == 200
             data = response.json()
@@ -264,26 +264,26 @@ class TestMonthlyReportsAPI:
             assert data["status"] == "completed"
             assert data["progress"] == 100
 
-    def test_get_report_status_not_found(self, client: TestClient, auth_headers: dict):
+    def test_get_report_status_not_found(self, no_auth_client: TestClient, auth_headers: dict):
         """Test status retrieval for non-existent report"""
         with patch(
             "src.services.monthly_report_service.MonthlyReportService.get_report_status"
         ) as mock_status:
             mock_status.side_effect = ValueError("Report not found")
 
-            response = client.get("/api/reports/monthly/99999/status", headers=auth_headers)
+            response = no_auth_client.get("/api/reports/monthly/99999/status", headers=auth_headers)
 
             assert response.status_code == 404
 
     def test_email_monthly_report_success(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test successful monthly report email sending"""
         report_id = test_reports[0].id
 
         # Mock the file path check since email service is not implemented
         with patch("os.path.exists", return_value=True):
-            response = client.post(
+            response = no_auth_client.post(
                 f"/api/reports/monthly/{report_id}/email",
                 json={"recipient_email": "test@example.com"},
                 headers=auth_headers,
@@ -293,12 +293,12 @@ class TestMonthlyReportsAPI:
             assert response.json()["message"] == "Report sent successfully"
 
     def test_email_monthly_report_invalid_email(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test email sending with invalid email address"""
         report_id = test_reports[0].id
 
-        response = client.post(
+        response = no_auth_client.post(
             f"/api/reports/monthly/{report_id}/email",
             json={"recipient_email": "invalid-email"},
             headers=auth_headers,
@@ -306,20 +306,20 @@ class TestMonthlyReportsAPI:
 
         assert response.status_code == 422
 
-    def test_monthly_reports_rate_limiting(self, client: TestClient, auth_headers: dict):
+    def test_monthly_reports_rate_limiting(self, no_auth_client: TestClient, auth_headers: dict):
         """Test rate limiting on monthly reports endpoints"""
         # This would test the actual rate limiting implementation
         # For now, just verify the endpoint structure
-        response = client.get("/api/reports/monthly", headers=auth_headers)
+        response = no_auth_client.get("/api/reports/monthly", headers=auth_headers)
 
         # Rate limiting headers should be present
         assert "X-RateLimit-Limit" in response.headers or response.status_code in [200, 429]
 
     def test_monthly_reports_pagination(
-        self, client: TestClient, auth_headers: dict, test_reports: list
+        self, no_auth_client: TestClient, auth_headers: dict, test_reports: list
     ):
         """Test pagination of monthly reports list"""
-        response = client.get("/api/reports/monthly?limit=2&offset=0", headers=auth_headers)
+        response = no_auth_client.get("/api/reports/monthly?limit=2&offset=0", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()

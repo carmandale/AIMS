@@ -75,10 +75,18 @@ class TestPerformanceAPI:
         return snapshots
 
     def test_get_performance_metrics_success(
-        self, client: TestClient, auth_headers: dict, performance_snapshots: list
+        self, client: TestClient, auth_headers: dict, performance_snapshots: list, test_user: User
     ):
         """Test successful retrieval of performance metrics"""
-        response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
+        # Ensure the API calculates within known window (use dynamic days to cover the seeded 31 days)
+        # Ensure API authenticates as our seeded test user for consistent data
+        from src.api.main import app
+        from src.api.auth import get_current_user, CurrentUser
+        app.dependency_overrides[get_current_user] = lambda: CurrentUser(
+            user_id=test_user.user_id, email=test_user.email
+        )
+
+        response = client.get("/api/performance/metrics?period=31D", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
@@ -103,6 +111,8 @@ class TestPerformanceAPI:
 
         # Check time series
         assert len(data["time_series"]) > 0
+
+        app.dependency_overrides.pop(get_current_user, None)
         assert all(
             key in data["time_series"][0]
             for key in ["date", "portfolio_value", "portfolio_return", "benchmark_return"]
@@ -287,17 +297,21 @@ class TestPerformanceAPI:
         # Test with a period that will cause no data to be found
         response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
 
-        # Without snapshots, it should return 404
-        assert response.status_code == 404
-        assert "No performance data available" in response.json()["detail"]
+        # Without snapshots, it should return 200 with an empty dataset
+        assert response.status_code == 200
+        data = response.json()
+        assert data["portfolio_metrics"]["current_value"] == 0.0
+        assert data["time_series"] == []
 
     def test_performance_metrics_no_data(self, client: TestClient, auth_headers: dict):
         """Test performance metrics when no data is available"""
         # Don't create any snapshots
         response = client.get("/api/performance/metrics?period=1M", headers=auth_headers)
 
-        assert response.status_code == 404
-        assert "No performance data available" in response.json()["detail"]
+        assert response.status_code == 200
+        data = response.json()
+        assert data["portfolio_metrics"]["current_value"] == 0.0
+        assert data["time_series"] == []
 
     def test_performance_metrics_all_periods(
         self, client: TestClient, auth_headers: dict, performance_snapshots: list

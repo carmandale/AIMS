@@ -21,18 +21,17 @@ from src.db.session import get_db
 from src.core.config import settings
 from tests.mocks.rate_limiter import MockRateLimiter
 
+# Propagate SnapTrade settings into environment for tests that rely on os.getenv
+os.environ.setdefault("SNAPTRADE_CLIENT_ID", settings.snaptrade_client_id or "")
+os.environ.setdefault("SNAPTRADE_CONSUMER_KEY", settings.snaptrade_consumer_key or "")
+
 
 def generate_unique_user_id() -> str:
     """Generate a unique user ID for tests"""
     return f"test_user_{uuid.uuid4().hex[:8]}"
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create an event loop for async tests"""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+# Let pytest-asyncio manage the event loop via asyncio_mode=auto in pytest.ini
 
 
 @pytest.fixture
@@ -119,6 +118,22 @@ def client(override_get_db, mock_rate_limiters):
     from src.db.session import get_db
 
     app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+    yield client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def no_auth_client(override_get_db, mock_rate_limiters):
+    """Create a client without auth override to test unauthorized cases"""
+    from fastapi.testclient import TestClient
+    from src.api.main import app
+    from src.db.session import get_db
+    from src.api.auth import get_current_user
+
+    app.dependency_overrides[get_db] = override_get_db
+    # Remove any auth override so endpoints require Authorization header
+    app.dependency_overrides.pop(get_current_user, None)
     client = TestClient(app)
     yield client
     app.dependency_overrides.clear()

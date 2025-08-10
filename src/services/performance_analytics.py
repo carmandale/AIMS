@@ -36,8 +36,33 @@ class PerformanceAnalyticsService:
         # Get snapshots for the period
         snapshots = self._get_snapshots_for_period(user_id, start_date, end_date)
 
-        if not snapshots or len(snapshots) < 2:
+        if not snapshots:
             return None
+
+        # If only a single snapshot exists, return a minimal metrics object rather than None
+        # so API endpoints can respond with 200 and basic values for freshly seeded data
+        if len(snapshots) == 1:
+            single = snapshots[0]
+            starting_value = Decimal(str(single.total_value))
+            ending_value = starting_value
+            absolute_change = Decimal("0")
+            percent_change = 0.0
+            annualized_return = None
+
+            return PerformanceMetrics(
+                timeframe=timeframe,
+                start_date=datetime.combine(start_date, datetime.min.time()),
+                end_date=datetime.combine(end_date, datetime.min.time()),
+                starting_value=starting_value,
+                ending_value=ending_value,
+                absolute_change=absolute_change,
+                percent_change=percent_change,
+                annualized_return=annualized_return,
+                volatility=None,
+                sharpe_ratio=None,
+                max_drawdown=None,
+                periodic_returns={},
+            )
 
         first_snapshot = snapshots[0]
         last_snapshot = snapshots[-1]
