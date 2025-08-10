@@ -16,7 +16,7 @@ class TestDrawdownModels:
         """Test that PerformanceSnapshot model can store drawdown metrics"""
         # Create a test user
         from tests.conftest import generate_unique_user_id
-        
+
         user_id = generate_unique_user_id()
         user = User(
             user_id=user_id, email=f"test_{user_id}@example.com", password_hash="hashed_password"

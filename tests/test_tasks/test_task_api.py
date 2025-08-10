@@ -155,9 +155,7 @@ class TestTaskAPI:
         start_date = date.today().isoformat()
         end_date = date.today().isoformat()
 
-        response = client.get(
-            f"/api/tasks/compliance?start_date={start_date}&end_date={end_date}"
-        )
+        response = client.get(f"/api/tasks/compliance?start_date={start_date}&end_date={end_date}")
 
         assert response.status_code == 200
         data = response.json()
@@ -251,9 +249,7 @@ class TestTaskAPI:
         start_date = date.today().isoformat()
         end_date = (date.today() + timedelta(days=7)).isoformat()
 
-        response = client.post(
-            f"/api/tasks/generate?start_date={start_date}&end_date={end_date}"
-        )
+        response = client.post(f"/api/tasks/generate?start_date={start_date}&end_date={end_date}")
 
         assert response.status_code == 200
         data = response.json()

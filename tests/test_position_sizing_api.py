@@ -16,7 +16,7 @@ class TestPositionSizingAPI:
     def test_user(self, test_db_session: Session) -> User:
         """Create a test user"""
         from tests.conftest import generate_unique_user_id
-        
+
         user_id = generate_unique_user_id()
         user = User(
             user_id=user_id,
