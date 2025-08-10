@@ -159,15 +159,20 @@ class TestPerformanceAPIEndpoints:
 
         self.db.commit()
 
-    @patch("src.services.benchmark_service.yf.download")
-    def test_get_performance_metrics_endpoint(self, mock_yf_download):
+    @patch("src.services.benchmark_service.BenchmarkService.get_benchmark_data")
+    def test_get_performance_metrics_endpoint(self, mock_get_benchmark_data):
         """Test /api/performance/metrics endpoint"""
-        # Mock yfinance data to avoid external API calls
-        mock_data = MagicMock()
-        mock_data.empty = False
-        mock_data.index = [datetime(2024, 1, 1), datetime(2024, 1, 2)]
-        mock_data.__getitem__.return_value = [100.0, 101.0]  # Mock Close prices
-        mock_yf_download.return_value = mock_data
+        # Mock benchmark service to return valid data
+        mock_get_benchmark_data.return_value = {
+            "symbol": "SPY",
+            "total_return": 0.05,
+            "volatility": 0.15,
+            "sharpe_ratio": 0.33,
+            "returns": {"2024-01-01": 0.0, "2024-01-02": 0.01},
+            "start_price": 100.0,
+            "end_price": 101.0,
+            "data_points": 2
+        }
 
         # Create isolated test client with dependency override
         app.dependency_overrides[get_db] = override_get_db
