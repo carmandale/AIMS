@@ -1,6 +1,6 @@
 /**
  * Position Sizing Calculator Types
- * 
+ *
  * Type definitions for the position sizing calculator component and API responses
  */
 
@@ -111,15 +111,15 @@ export interface PositionSizingStore {
   isCalculatorOpen: boolean;
   currentCalculation: PositionSizeCalculationData | null;
   calculationResult: PositionSizeCalculationResult | null;
-  
+
   // Available methods (cached from API)
   availableMethods: MethodInfo[];
-  
+
   // UI state
   isCalculating: boolean;
   errors: ValidationErrors;
   warnings: string[];
-  
+
   // Actions
   openCalculator: (initialData?: Partial<PositionSizeCalculationData>) => void;
   closeCalculator: () => void;

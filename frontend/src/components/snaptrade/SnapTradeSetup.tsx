@@ -11,14 +11,16 @@ interface SnapTradeSetupProps {
 
 export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
   const { isRegistered, hasConnectedAccounts, isLoading, error } = useSnapTradeStatus();
-  const [currentView, setCurrentView] = useState<'loading' | 'register' | 'connect' | 'accounts'>('loading');
+  const [currentView, setCurrentView] = useState<'loading' | 'register' | 'connect' | 'accounts'>(
+    'loading'
+  );
   const [manuallySetView, setManuallySetView] = useState<string | null>(null);
-  
+
   // Determine which view to show based on registration and connection status
   useEffect(() => {
     // Don't override manually set views
     if (manuallySetView) return;
-    
+
     if (isLoading) {
       setCurrentView('loading');
     } else if (!isRegistered) {
@@ -30,7 +32,7 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
       setCurrentView('connect');
     }
   }, [isRegistered, hasConnectedAccounts, isLoading, manuallySetView]);
-  
+
   // Loading state
   if (currentView === 'loading') {
     return (
@@ -45,7 +47,7 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
       </div>
     );
   }
-  
+
   // Registration view
   if (currentView === 'register') {
     return (
@@ -61,7 +63,7 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
       />
     );
   }
-  
+
   // Connection flow view
   if (currentView === 'connect') {
     return (
@@ -75,7 +77,7 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
       />
     );
   }
-  
+
   // Accounts list view
   return (
     <ConnectedAccountsList
@@ -83,7 +85,7 @@ export function SnapTradeSetup({ onBack }: SnapTradeSetupProps) {
         // When adding another account, go to connection flow (NOT registration)
         setCurrentView('connect');
       }}
-      onAccountDisconnect={(accountId) => {
+      onAccountDisconnect={accountId => {
         console.log('Account disconnected:', accountId);
         // Could refresh the status here if needed
       }}

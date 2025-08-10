@@ -1,6 +1,6 @@
 export { PositionSizeCalculator } from './PositionSizeCalculator';
 export { RiskRewardChart } from './RiskRewardChart';
-export type { 
+export type {
   PositionSizeCalculatorProps,
   PositionSizeCalculationData,
   PositionSizeCalculationResult,

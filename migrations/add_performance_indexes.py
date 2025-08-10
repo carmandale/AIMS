@@ -24,35 +24,23 @@ def add_indexes():
     """Add performance-related indexes to the database"""
     # Create engine
     engine = create_engine(settings.database_url)
-    
+
     # Create indexes
     indexes = [
         # Composite index for user_id + snapshot_date (most common query pattern)
         Index(
-            'idx_performance_user_date',
+            "idx_performance_user_date",
             PerformanceSnapshot.user_id,
-            PerformanceSnapshot.snapshot_date
+            PerformanceSnapshot.snapshot_date,
         ),
-        
         # Index for snapshot_date alone (for date range queries)
-        Index(
-            'idx_performance_date',
-            PerformanceSnapshot.snapshot_date
-        ),
-        
+        Index("idx_performance_date", PerformanceSnapshot.snapshot_date),
         # Index for cache_key lookups (already exists but verify)
-        Index(
-            'idx_cached_data_key',
-            CachedData.cache_key
-        ),
-        
+        Index("idx_cached_data_key", CachedData.cache_key),
         # Index for cache expiration cleanup
-        Index(
-            'idx_cached_data_expires',
-            CachedData.expires_at
-        )
+        Index("idx_cached_data_expires", CachedData.expires_at),
     ]
-    
+
     # Create indexes
     with engine.connect() as conn:
         for index in indexes:
@@ -64,27 +52,31 @@ def add_indexes():
                     print(f"  Index {index.name} already exists")
                 else:
                     print(f"✗ Failed to create index {index.name}: {e}")
-        
+
         # Commit the transaction
         conn.commit()
-    
+
     print("\nDatabase indexes updated successfully!")
 
 
 def verify_indexes():
     """Verify that indexes were created"""
     engine = create_engine(settings.database_url)
-    
+
     with engine.connect() as conn:
         # SQLite specific query to list indexes
-        result = conn.execute(text("""
+        result = conn.execute(
+            text(
+                """
             SELECT name, sql 
             FROM sqlite_master 
             WHERE type = 'index' 
             AND tbl_name IN ('performance_snapshots', 'cached_data')
             ORDER BY tbl_name, name
-        """))
-        
+        """
+            )
+        )
+
         print("\n📊 Current indexes:")
         for row in result:
             print(f"  - {row[0]}")

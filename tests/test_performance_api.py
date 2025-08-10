@@ -3,8 +3,7 @@
 import json
 from datetime import datetime, date, timedelta
 from decimal import Decimal
-
-# Removed unused mock imports
+from unittest.mock import patch, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -18,23 +17,17 @@ from src.db.models import User, PerformanceSnapshot
 class TestPerformanceAPI:
     """Test suite for performance API endpoints"""
 
-    @pytest.fixture
-    def client(self, override_get_db):
-        """Create test client with database override"""
-        from src.api.main import app
-        from src.db.session import get_db
-
-        app.dependency_overrides[get_db] = override_get_db
-        client = TestClient(app)
-        yield client
-        app.dependency_overrides.clear()
+    # Use the global client fixture from conftest.py instead of defining our own
 
     @pytest.fixture
     def test_user(self, test_db_session: Session) -> User:
         """Create a test user"""
+        from tests.conftest import generate_unique_user_id
+
+        user_id = generate_unique_user_id()
         user = User(
-            user_id="test_user_123",
-            email="test@example.com",
+            user_id=user_id,
+            email=f"test_{user_id}@example.com",
             password_hash="hashed_password",
             is_active=True,
         )
@@ -115,10 +108,27 @@ class TestPerformanceAPI:
             for key in ["date", "portfolio_value", "portfolio_return", "benchmark_return"]
         )
 
+    @patch("src.services.benchmark_service.BenchmarkService.get_benchmark_data")
     def test_get_performance_metrics_with_benchmark(
-        self, client: TestClient, auth_headers: dict, performance_snapshots: list
+        self,
+        mock_get_benchmark_data,
+        client: TestClient,
+        auth_headers: dict,
+        performance_snapshots: list,
     ):
         """Test performance metrics with benchmark comparison"""
+        # Mock benchmark service to return valid data
+        mock_get_benchmark_data.return_value = {
+            "symbol": "SPY",
+            "total_return": 0.05,  # 5% return
+            "volatility": 0.15,  # 15% volatility
+            "sharpe_ratio": 0.33,  # Sharpe ratio
+            "returns": {"2024-01-01": 0.0, "2024-01-02": 0.01},
+            "start_price": 100.0,
+            "end_price": 101.0,
+            "data_points": 2,
+        }
+
         response = client.get(
             "/api/performance/metrics?period=1M&benchmark=SPY", headers=auth_headers
         )
