@@ -225,7 +225,7 @@ class TestPerformanceAPIEndpoints:
 
         print("✅ Performance metrics endpoint test passed")
 
-    def test_get_performance_metrics_different_periods(self):
+    def test_get_performance_metrics_different_periods(self, client):
         """Test performance metrics endpoint with different time periods"""
         periods = ["1D", "7D", "1M", "3M", "6M", "1Y", "YTD", "ALL"]
 
@@ -242,7 +242,7 @@ class TestPerformanceAPIEndpoints:
             else:
                 pytest.fail(f"Unexpected status code {response.status_code} for period {period}")
 
-    def test_get_historical_performance_endpoint(self):
+    def test_get_historical_performance_endpoint(self, client):
         """Test /api/performance/historical endpoint"""
         start_date = (date.today() - timedelta(days=30)).isoformat()
         end_date = date.today().isoformat()
@@ -283,7 +283,7 @@ class TestPerformanceAPIEndpoints:
 
         print("✅ Historical performance endpoint test passed")
 
-    def test_get_historical_performance_different_frequencies(self):
+    def test_get_historical_performance_different_frequencies(self, client):
         """Test historical performance with different frequencies"""
         start_date = (date.today() - timedelta(days=30)).isoformat()
         end_date = date.today().isoformat()
@@ -300,7 +300,7 @@ class TestPerformanceAPIEndpoints:
             assert isinstance(data["data"], list)
             print(f"✅ Frequency {frequency} test passed")
 
-    def test_update_benchmark_config_endpoint(self):
+    def test_update_benchmark_config_endpoint(self, client):
         """Test /api/performance/benchmark endpoint"""
         benchmark_data = {
             "benchmark_type": "custom",
@@ -326,7 +326,7 @@ class TestPerformanceAPIEndpoints:
 
         print("✅ Benchmark configuration endpoint test passed")
 
-    def test_api_error_handling(self):
+    def test_api_error_handling(self, client):
         """Test API error handling for invalid requests"""
         # Test invalid period
         response = client.get("/api/performance/metrics?period=INVALID&benchmark=SPY")
@@ -747,7 +747,7 @@ class TestDataFlowIntegration:
 
         self.db.commit()
 
-    def test_complete_data_flow_integration(self):
+    def test_complete_data_flow_integration(self, client):
         """Test complete data flow from database through API to client"""
         # Test different API endpoints to ensure complete flow
         test_scenarios = [
@@ -811,7 +811,7 @@ class TestDataFlowIntegration:
 
             print(f"✅ Data flow test passed: {scenario['description']}")
 
-    def test_performance_data_consistency(self):
+    def test_performance_data_consistency(self, client):
         """Test consistency of performance data across different time periods"""
         # Test that shorter period data is consistent with longer period data
 
@@ -839,7 +839,7 @@ class TestDataFlowIntegration:
         print(f"   - 1M return: {data_1m['portfolio_metrics']['total_return']:.4f}")
         print(f"   - 3M return: {data_3m['portfolio_metrics']['total_return']:.4f}")
 
-    def test_time_series_data_integrity(self):
+    def test_time_series_data_integrity(self, client):
         """Test integrity of time series data"""
         start_date = (date.today() - timedelta(days=30)).isoformat()
         end_date = date.today().isoformat()
