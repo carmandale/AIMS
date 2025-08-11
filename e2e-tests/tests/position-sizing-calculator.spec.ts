@@ -128,11 +128,11 @@ test.describe('Position Sizing Calculator', () => {
       await page.fill('input[placeholder="150.00"]', '50'); // Entry price
       await page.fill('input[placeholder="145.00"]', '48'); // Stop loss
       
-      // Wait for calculation to complete
-      await page.waitForSelector('text=1000 shares', { timeout: 3000 });
+      // Wait for calculation to complete (with comma formatting)
+      await page.waitForSelector('text=1,000 shares', { timeout: 5000 });
       
       // Verify calculated results
-      await expect(page.locator('text=1000 shares')).toBeVisible();
+      await expect(page.locator('text=1,000 shares')).toBeVisible();
       await expect(page.locator('text=$2,000')).toBeVisible(); // Risk amount
       
       // Take screenshot for validation
