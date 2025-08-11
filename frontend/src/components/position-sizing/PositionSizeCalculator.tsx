@@ -167,7 +167,8 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
 
   // Auto-calculate when form data changes
   useEffect(() => {
-    if (validateForm()) {
+    const isValid = validateForm();
+    if (isValid) {
       const timer = setTimeout(() => {
         calculateMutation.mutate(formData);
       }, 500); // Debounce calculation
@@ -176,7 +177,7 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
     } else {
       setResult(null);
     }
-  }, [formData, validateForm, calculateMutation]);
+  }, [formData, calculateMutation]);
 
   // Reset form when modal opens/closes
   useEffect(() => {
