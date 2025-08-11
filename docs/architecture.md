@@ -85,6 +85,11 @@ The dashboard is built primarily with React Server Components, fetching data dir
 - `GET /api/market/indices` - Market indices
 - `GET /api/market/crypto` - Crypto prices
 
+### Position Sizing
+- `POST /api/position-sizing/calculate` - Calculate position size using various methods
+- `GET /api/position-sizing/methods` - Get available sizing methods and requirements
+- `POST /api/position-sizing/validate` - Validate position size against portfolio rules
+
 ## Data Flow
 
 1. **Scheduled Tasks**: APScheduler triggers data fetches
