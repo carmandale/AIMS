@@ -30,7 +30,7 @@ class CalculatePositionRequest(BaseModel):
         None, ge=0, le=1, description="Risk per trade (0.01 = 1%)"
     )
     entry_price: float | None = Field(None, gt=0, description="Planned entry price")
-    stop_loss: float | None = Field(None, gt=0, description="Stop loss price")
+    stop_loss: float | None = Field(None, ge=0, description="Stop loss price")
     target_price: float | None = Field(None, gt=0, description="Target/take profit price")
     win_rate: float | None = Field(None, ge=0, le=1, description="Historical win rate")
     avg_win_loss_ratio: float | None = Field(None, gt=0, description="Average win/loss ratio")
@@ -128,7 +128,7 @@ async def calculate_position_size(
                     detail="Fixed risk method requires: risk_percentage, entry_price, stop_loss",
                 )
         elif request.method == SizingMethod.KELLY:
-            if not all([request.win_rate, request.avg_win_loss_ratio]):
+            if request.win_rate is None or request.avg_win_loss_ratio is None:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail="Kelly method requires: win_rate, avg_win_loss_ratio",

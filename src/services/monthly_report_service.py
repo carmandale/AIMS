@@ -13,7 +13,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, extract
 from playwright.sync_api import sync_playwright
 from jinja2 import Template
-from weasyprint import HTML
+try:
+    from weasyprint import HTML
+except (OSError, ImportError) as e:
+    print(f"WeasyPrint not available: {e}. PDF generation will be disabled.")
+    HTML = None
 
 from src.db.models import PerformanceSnapshot, Report
 from src.data.models.portfolio import Report as ReportModel

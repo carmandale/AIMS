@@ -111,7 +111,8 @@
       "Bash(ruff check:*)",
       "Bash(git rm:*)",
       "Bash(playwright install)",
-      "Bash(open http://localhost:3002)"
+      "Bash(open http://localhost:3002)",
+      "Bash(timeout 30 npm test -- --grep \"should show validation errors for invalid inputs\" --workers=1)"
     ],
     "deny": []
   }
