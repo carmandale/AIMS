@@ -90,6 +90,16 @@ The dashboard is built primarily with React Server Components, fetching data dir
 - `GET /api/position-sizing/methods` - Get available sizing methods and requirements
 - `POST /api/position-sizing/validate` - Validate position size against portfolio rules
 
+#### Position Sizing Methods
+- **Fixed Risk**: Requires risk_percentage, entry_price, stop_loss
+- **Kelly Criterion**: Requires win_rate, avg_win_loss_ratio; stop_loss accepts 0
+- **Volatility-Based**: Requires risk_percentage, entry_price, atr
+
+#### Validation Changes
+- `stop_loss` field now accepts values ≥ 0 (previously required > 0)
+- Kelly method uses explicit None checks for required parameters
+- All methods include comprehensive validation and warning messages
+
 ## Data Flow
 
 1. **Scheduled Tasks**: APScheduler triggers data fetches
