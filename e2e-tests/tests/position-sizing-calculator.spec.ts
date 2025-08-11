@@ -256,10 +256,9 @@ test.describe('Position Sizing Calculator', () => {
       await page.click('text=Trade Ticket');
       await page.waitForSelector('text=Trade Ticket');
       
-      // Set up a sample trade (AAPL limit buy order)
-      await page.selectOption('text=BTC-USD', 'AAPL'); // Change symbol if needed
-      await page.click('text=Buy'); // Select buy order
-      await page.click('text=Limit'); // Select limit order
+      // Set up a sample trade (limit buy order with current symbol)
+      await page.click('button:has-text("Buy")'); // Select buy order (should already be selected)
+      await page.click('button:has-text("Limit")'); // Select limit order
       await page.fill('input[placeholder="0.00"]', '150'); // Entry price
       
       // Click position size calculator button
