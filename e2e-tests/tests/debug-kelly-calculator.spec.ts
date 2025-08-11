@@ -22,6 +22,20 @@ test.describe('Kelly Calculator Debug', () => {
   });
 
   test('debug Kelly criterion validation and calculation', async ({ page }) => {
+    // Capture API requests
+    page.on('request', request => {
+      if (request.url().includes('/api/position-sizing/calculate')) {
+        console.log('API REQUEST:', request.method(), request.url());
+        console.log('REQUEST BODY:', request.postData());
+      }
+    });
+    
+    page.on('response', response => {
+      if (response.url().includes('/api/position-sizing/calculate')) {
+        console.log('API RESPONSE:', response.status(), response.statusText());
+        response.text().then(body => console.log('RESPONSE BODY:', body));
+      }
+    });
     // Navigate to Trade Ticket and open calculator
     await page.click('text=Trade Ticket');
     await page.waitForSelector('button:has-text("Calculate")', { timeout: 5000 });
