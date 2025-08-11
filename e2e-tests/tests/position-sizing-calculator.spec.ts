@@ -171,7 +171,7 @@ test.describe('Position Sizing Calculator', () => {
       await page.fill('input[placeholder="145.00"]', '48');
       
       // Wait for initial calculation
-      await page.waitForSelector('text=1000 shares');
+      await page.waitForSelector('text=1,000 shares');
       
       // Change risk percentage and verify update
       await page.fill('input[placeholder="2"]', '1'); // Change to 1%
