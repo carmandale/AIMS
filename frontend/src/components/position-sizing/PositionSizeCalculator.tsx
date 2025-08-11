@@ -177,7 +177,7 @@ export const PositionSizeCalculator: React.FC<PositionSizeCalculatorProps> = ({
     } else {
       setResult(null);
     }
-  }, [formData, calculateMutation]);
+  }, [formData]);
 
   // Reset form when modal opens/closes
   useEffect(() => {
