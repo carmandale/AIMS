@@ -133,7 +133,7 @@ test.describe('Position Sizing Calculator', () => {
       
       // Verify calculated results
       await expect(page.locator('text=1,000 shares')).toBeVisible();
-      await expect(page.locator('text=$2,000')).toBeVisible(); // Risk amount
+      await expect(page.locator('.text-red-600:has-text("$2,000")')).toBeVisible(); // Risk amount in red
       
       // Take screenshot for validation
       await page.screenshot({ path: 'test-results/fixed-risk-calculation.png' });
