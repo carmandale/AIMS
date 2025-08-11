@@ -128,7 +128,7 @@ async def calculate_position_size(
                     detail="Fixed risk method requires: risk_percentage, entry_price, stop_loss",
                 )
         elif request.method == SizingMethod.KELLY:
-            if not all([request.win_rate, request.avg_win_loss_ratio]):
+            if request.win_rate is None or request.avg_win_loss_ratio is None:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail="Kelly method requires: win_rate, avg_win_loss_ratio",
