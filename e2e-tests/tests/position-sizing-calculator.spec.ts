@@ -11,7 +11,7 @@ test.describe('Position Sizing Calculator', () => {
   
   test.beforeEach(async ({ page }) => {
     // Navigate to the application
-    await page.goto('http://localhost:3003');
+    await page.goto('http://localhost:3002');
     
     // Wait for the application to load
     await page.waitForSelector('h1', { timeout: 10000 });
