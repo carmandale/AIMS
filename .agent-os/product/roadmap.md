@@ -55,7 +55,7 @@ The following features have been implemented:
 - [x] Performance Dashboard - Returns, Sharpe ratio, volatility metrics `M` ✓ PR #62
 - [x] Drawdown Analysis - Real-time and historical drawdown tracking `S` ✓ Completed
 - [x] Monthly Reports - Automated PDF generation with performance summary `M` ✓ PR #67
-- [ ] Position Sizing Calculator - Risk-based position sizing tools `S`
+- [x] Position Sizing Calculator - Risk-based position sizing tools `S` ✓ PR #75
 
 ### Should-Have Features
 
