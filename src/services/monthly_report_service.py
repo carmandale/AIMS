@@ -16,7 +16,7 @@ from jinja2 import Template
 try:
     from weasyprint import HTML
 except (OSError, ImportError) as e:
-    logger.warning(f"WeasyPrint not available: {e}. PDF generation will be disabled.")
+    print(f"WeasyPrint not available: {e}. PDF generation will be disabled.")
     HTML = None
 
 from src.db.models import PerformanceSnapshot, Report
